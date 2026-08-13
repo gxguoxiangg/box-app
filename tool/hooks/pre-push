@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+#
+# pre-push 钩子：推送前自动执行「静态分析 + 全量测试」，
+# 任一失败即阻止推送（拒绝半成品入库），体现 CI 门槛。
+#
+# 安装方式（本地仓库）：
+#   cp tool/hooks/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push
+#
+# 临时跳过：
+#   git push --no-verify
+#
+set -u
+
+echo "==> 运行 pre-push 检查…"
+
+# 切换到仓库根目录执行（钩子在任意子目录触发都有效）。
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root" || { echo "✖ 无法进入仓库根目录"; exit 1; }
+
+# flutter 不在 PATH 时跳过检查（避免影响非 Flutter 环境）。
+if ! command -v flutter >/dev/null 2>&1; then
+  echo "⚠ flutter 不在 PATH 中，跳过检查。"
+  exit 0
+fi
+
+echo "→ flutter analyze"
+if ! flutter analyze; then
+  echo "✖ flutter analyze 存在告警/错误，请先修复。"
+  exit 1
+fi
+
+echo "→ flutter test"
+if ! flutter test; then
+  echo "✖ flutter test 存在失败用例，请先修复。"
+  exit 1
+fi
+
+echo "✔ 全部检查通过，可以推送。"
+exit 0
