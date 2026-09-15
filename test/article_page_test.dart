@@ -1,7 +1,9 @@
-/// 文章展示页组件测试。
+/// 文章内容展示页组件测试。
 ///
-/// 使用 MockClient 模拟后端接口，验证完整链路：
-/// Repository（网络请求）→ ViewModel（状态）→ ArticleListPage（卡片渲染）→ 搜索过滤。
+/// 使用 MockClient 模拟知识库后端，验证：
+/// 1. 浏览模式：加载整篇文章后，以滑动卡片（PageView）展示条目；
+/// 2. 目录侧边栏：点击「目录」按钮打开，列出全部标题；
+/// 3. 搜索模式：输入关键词触发服务端搜索，结果以列表展示。
 library;
 
 import 'dart:convert';
@@ -15,36 +17,73 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
-/// 构造模拟文章数据的 JSON 响应。
-http.Response _articleJson(int id, String title) {
+/// 构造 JSON 响应。
+http.Response jsonResponse(Map<String, dynamic> body) {
   return http.Response(
-    jsonEncode(<String, dynamic>{
-      'success': true,
-      'data': <String, dynamic>{
-        'id': id,
-        'title': title,
-        'level': 2,
-        'content': '### Description\n测试正文内容 $id\n### Solutions\n- 方案一',
-      },
-    }),
+    jsonEncode(body),
     200,
     headers: <String, String>{'content-type': 'application/json'},
   );
 }
 
+/// 模拟文章 1（含 2 个条目）。
+Map<String, dynamic> articleJson() {
+  return <String, dynamic>{
+    'id': 1,
+    'title': '桌面问题',
+    'updated_at': '2026-08-21T04:13:27.519640Z',
+    'items': <Map<String, dynamic>>[
+      <String, dynamic>{
+        'id': 1,
+        'article_id': 1,
+        'position': 0,
+        'question': 'Q - Excel 文档全屏显示',
+        'description': '如何对 xlsx 全屏？',
+        'causes': null,
+        'solutions': '- WPS：有全屏选项',
+        'review': null,
+        'keywords': '- WPS',
+      },
+      <String, dynamic>{
+        'id': 2,
+        'article_id': 1,
+        'position': 1,
+        'question': 'Q - Windows 打印问题',
+        'description': '打印队列卡住',
+        'causes': '驱动问题',
+        'solutions': '```powershell\ncmd\n```',
+        'review': '参考链接',
+        'keywords': null,
+      },
+    ],
+  };
+}
+
 void main() {
-  /// 构造一个返回固定两篇文章的 Mock 客户端。
+  /// 构造模拟后端：文章详情 + 服务端搜索。
   ApiClient mockApiClient() {
     return ApiClient(
       client: MockClient((http.Request request) async {
         final String path = request.url.path;
-        if (path == '/api/article/1') {
-          return _articleJson(1, 'Excel 全屏显示');
+        if (path == '/api/v1/articles/1') {
+          return jsonResponse(articleJson());
         }
-        if (path == '/api/article/2') {
-          return _articleJson(2, 'Word 打印问题');
+        if (path == '/api/v1/items' && request.url.queryParameters['q'] != null) {
+          return jsonResponse(<String, dynamic>{
+            'total': 1,
+            'items': <Map<String, dynamic>>[
+              <String, dynamic>{
+                'id': 2,
+                'article_id': 1,
+                'position': 1,
+                'question': 'Q - Windows 打印问题',
+                'has_images': false,
+                'has_code': true,
+              },
+            ],
+          });
         }
-        return http.Response('{"success": false}', 404);
+        return http.Response('{}', 404);
       }),
     );
   }
@@ -54,70 +93,47 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          // 用 MockClient 替换真实网络。
           apiClientProvider.overrideWithValue(mockApiClient()),
         ],
         child: const MaterialApp(home: ArticleListPage()),
       ),
     );
-    // 等待异步加载完成（AsyncNotifier.build → Repository → Mock 响应）。
     await tester.pumpAndSettle();
   }
 
-  testWidgets('文章页应加载并展示文章卡片', (WidgetTester tester) async {
+  testWidgets('浏览模式应加载文章并以滑动卡片展示条目', (WidgetTester tester) async {
     await pumpArticlePage(tester);
 
-    // 第一张卡片（文章 1）可见。
-    expect(find.text('Excel 全屏显示'), findsOneWidget);
+    // 第一页（条目 1）标题与章节可见。
+    expect(find.text('Excel 文档全屏显示'), findsOneWidget);
+    expect(find.text('Description'), findsOneWidget);
+    expect(find.text('Solutions'), findsOneWidget);
 
-    // 卡片正文内容（Markdown 标题部分）应渲染。
-    expect(find.textContaining('测试正文内容'), findsWidgets);
-
-    // 使用 PageView 实现滑动卡片。
+    // 使用 PageView 实现左右滑动。
     expect(find.byType(PageView), findsOneWidget);
-
-    // 向左滑动到第二张卡片，验证文章 2 可见。
-    await tester.drag(find.byType(PageView), const Offset(-600, 0));
-    await tester.pumpAndSettle();
-    expect(find.text('Word 打印问题'), findsOneWidget);
   });
 
-  testWidgets('搜索框输入关键词后应按标题过滤', (WidgetTester tester) async {
+  testWidgets('点击目录按钮应打开侧边栏并列出全部标题', (WidgetTester tester) async {
     await pumpArticlePage(tester);
 
-    // 输入关键词「word」，应只显示 id=2 的文章。
-    await tester.enterText(find.byType(TextField), 'word');
+    await tester.tap(find.byIcon(Icons.toc_rounded));
     await tester.pumpAndSettle();
 
-    expect(find.text('Word 打印问题'), findsOneWidget);
-    expect(find.text('Excel 全屏显示'), findsNothing);
-
-    // 清空关键词，恢复全部。
-    await tester.enterText(find.byType(TextField), '');
-    await tester.pumpAndSettle();
-    expect(find.text('Excel 全屏显示'), findsOneWidget);
+    // 侧边栏标题与全部条目标题可见。
+    expect(find.text('目录'), findsOneWidget);
+    expect(find.text('Excel 文档全屏显示'), findsWidgets);
+    expect(find.text('Windows 打印问题'), findsWidgets);
   });
 
-  testWidgets('接口异常时应展示错误提示与重试按钮', (WidgetTester tester) async {
-    // 构造始终抛异常的 Mock 客户端。
-    final ApiClient failingClient = ApiClient(
-      client: MockClient((http.Request request) async {
-        throw http.ClientException('connection refused');
-      }),
-    );
+  testWidgets('输入关键词应触发服务端搜索并展示结果', (WidgetTester tester) async {
+    await pumpArticlePage(tester);
 
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          apiClientProvider.overrideWithValue(failingClient),
-        ],
-        child: const MaterialApp(home: ArticleListPage()),
-      ),
-    );
+    await tester.enterText(find.byType(TextField), 'Windows');
+    // 等待防抖计时器触发（300ms），再等请求完成。
+    await tester.pump(const Duration(milliseconds: 350));
     await tester.pumpAndSettle();
 
-    // 应展示错误信息与「重试」按钮。
-    expect(find.textContaining('网络异常'), findsOneWidget);
-    expect(find.text('重试'), findsOneWidget);
+    // 搜索结果列表展示匹配条目（含「Q - 」前缀）。
+    expect(find.text('Q - Windows 打印问题'), findsOneWidget);
   });
 }

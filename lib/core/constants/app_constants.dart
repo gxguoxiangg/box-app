@@ -17,21 +17,23 @@ abstract final class AppConstants {
   static const String appVersion = '0.1.0';
 
   // ---------------------------------------------------------------------------
-  // 网络 / API
+  // 网络 / API（知识库后端）
   // ---------------------------------------------------------------------------
 
-  /// API 基础地址（不含末尾斜杠）。
+  /// 知识库后端基础地址（不含末尾斜杠）。
   ///
+  /// 对应 backend-doc.md 中的 FastAPI 服务，提供文章/条目的读取与搜索接口。
   /// 后期若切换环境（测试/生产），只需修改此处即可。
-  static const String apiBaseUrl = 'http://159.75.86.98:9001';
+  static const String kbApiBaseUrl = 'http://159.75.86.98:8000';
 
-  /// 文章接口路径模板：{id} 为文章 ID（1 ~ articleTotal）。
-  static const String articleEndpoint = '/api/article/';
+  /// 知识库 API 版本前缀。
+  static const String kbApiPrefix = '/api/v1';
 
-  /// 文章总数量（对应接口文章 ID 范围：1 ~ articleTotal）。
+  /// 默认展示的文章 ID。
   ///
-  /// 后期新增文章时，同步修改此值即可，无需改动业务代码。
-  static const int articleTotal = 10;
+  /// 当前知识库仅一篇文章（id=1，标题「桌面问题」，含 69 个条目）。
+  /// 后期若支持多篇文章，可在此改为「文章列表页 → 用户选择」的流程。
+  static const int defaultArticleId = 1;
 
   // ---------------------------------------------------------------------------
   // 请求超时（毫秒）

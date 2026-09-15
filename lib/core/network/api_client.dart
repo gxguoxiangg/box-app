@@ -29,32 +29,30 @@ class ApiException implements Exception {
       '${statusCode != null ? ' (HTTP $statusCode)' : ''}';
 }
 
-/// API 响应通用封装（对应后端返回的 `{ "success": bool, "data": ... }` 结构）。
-///
-/// 泛型 [T] 为业务数据类型；若 data 不存在可传 [Null]。
-class ApiResponse<T> {
-  /// 请求是否成功。
-  final bool success;
-
-  /// 业务数据。
-  final T? data;
-
-  const ApiResponse({required this.success, this.data});
-}
-
 /// HTTP 客户端封装类。
 class ApiClient {
   /// 可注入的 http 客户端，便于测试时替换为 Mock。
   final http.Client _client;
 
-  /// 可传入自定义 Client（例如测试用 MockClient），默认使用真实网络。
-  ApiClient({http.Client? client}) : _client = client ?? http.Client();
+  /// 服务端基础地址（默认指向知识库后端）。
+  final String baseUrl;
 
-  /// 发起 GET 请求并返回服务端 JSON 的 `data` 字段原始内容。
+  /// 可传入自定义 Client（例如测试用 MockClient）与 baseUrl。
   ///
-  /// [path] 为接口路径，如 `/api/article/1`。
-  Future<Map<String, dynamic>> getJsonData(String path) async {
-    final Uri uri = Uri.parse('${AppConstants.apiBaseUrl}$path');
+  /// 默认使用真实网络、默认后端地址。
+  ApiClient({
+    http.Client? client,
+    this.baseUrl = AppConstants.kbApiBaseUrl,
+  }) : _client = client ?? http.Client();
+
+  /// 发起 GET 请求并返回服务端响应的完整 JSON 对象（Map）。
+  ///
+  /// 知识库后端直接返回业务数据（无 `{ success, data }` 包装），
+  /// 因此这里不做 data 解包，由上层按各接口结构自行解析。
+  ///
+  /// [path] 为接口路径，如 `/api/v1/articles/1`。
+  Future<Map<String, dynamic>> getJson(String path) async {
+    final Uri uri = Uri.parse('$baseUrl$path');
     http.Response response;
     try {
       // 发送请求并等待响应，超时抛错统一处理。
@@ -72,21 +70,12 @@ class ApiClient {
       );
     }
 
-    // 解析 JSON。
-    final Map<String, dynamic> json;
+    // 解析 JSON（按 UTF-8 解码，避免中文乱码）。
     try {
-      json = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+      return jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
     } catch (_) {
       throw const ApiException('返回数据格式异常');
     }
-
-    // 业务层失败标记（success == false）。
-    if (json['success'] == false) {
-      throw const ApiException('业务处理失败');
-    }
-
-    // 取出 data 字段；若缺失则返回空 Map，由上层自行容错。
-    return (json['data'] as Map<String, dynamic>?) ?? const <String, dynamic>{};
   }
 
   /// 关闭底层 http 客户端，释放连接资源。

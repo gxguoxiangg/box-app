@@ -13,6 +13,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/about/view/about_page.dart';
 import '../../features/article/view/article_list_page.dart';
+import '../../features/article/view/item_detail_page.dart';
 import '../../features/home/data/tool_registry.dart';
 import '../../features/home/view/home_page.dart';
 import '../../features/network/view/network_page.dart';
@@ -44,6 +45,17 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.articleList,
       builder: (context, state) => const ArticleListPage(),
+    ),
+
+    // -------------------------------------------------------------------------
+    // 条目详情页（搜索结果点击进入）
+    // -------------------------------------------------------------------------
+    GoRoute(
+      path: AppRoutes.articleItemDetail,
+      builder: (context, state) {
+        final int id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+        return ItemDetailPage(itemId: id);
+      },
     ),
 
     // -------------------------------------------------------------------------

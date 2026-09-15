@@ -1,101 +1,144 @@
 /// 文章模块 ViewModel（MVVM 的 VM 层）。
 ///
 /// 职责划分：
-/// - [articleListProvider]：负责文章数据的异步加载（loading / error / data）；
-/// - [articleSearchControllerProvider]：负责搜索关键词状态；
-/// - [filteredArticleListProvider]：根据关键词对文章进行本地过滤，供 View 展示。
+/// - [articleProvider]：加载整篇文章（含全部条目），供「滑动卡片浏览」；
+/// - [articleItemProvider]：按 ID 加载单个条目详情，供搜索结果点击进入；
+/// - [articleSearchControllerProvider]：维护搜索关键词，并做防抖触发搜索；
+/// - [articleSearchResultProvider]：服务端搜索结果（摘要列表）。
 ///
 /// View 层只订阅这些 Provider，不直接调用 Repository（保证单向数据流）。
 library;
 
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/constants/app_constants.dart';
 import '../data/article_repository.dart';
 import '../models/article.dart';
 
 // ---------------------------------------------------------------------------
-// 1. 文章列表（异步加载）
+// 1. 文章详情（浏览模式）
 // ---------------------------------------------------------------------------
 
-/// 文章列表加载器（AsyncNotifier）。
+/// 文章加载器（AsyncNotifier）。
 ///
-/// state 为 `AsyncValue<List<Article>>`，自带 loading / error / data 三种状态，
-/// View 层可通过 `ref.watch(articleListProvider)` 直接感知。
-class ArticleListNotifier extends AsyncNotifier<List<Article>> {
+/// state 为 `AsyncValue<Article>`，自带 loading / error / data 三态。
+class ArticleNotifier extends AsyncNotifier<Article> {
   @override
-  Future<List<Article>> build() {
-    // 首次进入页面时自动触发加载。
-    return _fetchArticles();
-  }
+  Future<Article> build() => _fetch();
 
-  /// 调用仓库拉取文章列表。
-  Future<List<Article>> _fetchArticles() {
+  /// 调用仓库拉取默认文章。
+  Future<Article> _fetch() {
     final ArticleRepository repository = ref.read(articleRepositoryProvider);
-    return repository.fetchAllArticles();
+    return repository.fetchArticle(AppConstants.defaultArticleId);
   }
 
   /// 手动刷新（下拉刷新 / 点击重试时调用）。
-  ///
-  /// 使用 [AsyncValue.guard] 将异常包装为 error 状态，供 UI 展示。
   Future<void> refresh() async {
-    state = await AsyncValue.guard(_fetchArticles);
+    state = await AsyncValue.guard(_fetch);
   }
 }
 
-/// 文章列表 Provider。
-///
-/// Riverpod 3 中所有 Provider 默认 autoDispose：离开页面后自动释放，
-/// 再次进入时重新加载，保证数据不过期。
-final articleListProvider =
-    AsyncNotifierProvider<ArticleListNotifier, List<Article>>(
-        ArticleListNotifier.new);
+/// 文章详情 Provider。
+final articleProvider =
+    AsyncNotifierProvider<ArticleNotifier, Article>(ArticleNotifier.new);
 
 // ---------------------------------------------------------------------------
-// 2. 搜索关键词（本地过滤）
+// 2. 单个条目详情（搜索结果点击进入）
+// ---------------------------------------------------------------------------
+
+/// 按 ID 加载单个条目详情。
+///
+/// 采用 family 形式：不同 ID 各自独立加载与缓存，互不影响。
+final articleItemProvider =
+    FutureProvider.family<ArticleItem, int>((ref, int id) async {
+  final ArticleRepository repository = ref.watch(articleRepositoryProvider);
+  return repository.fetchItem(id);
+});
+
+// ---------------------------------------------------------------------------
+// 3. 服务端搜索（关键词 + 防抖 + 结果）
 // ---------------------------------------------------------------------------
 
 /// 搜索关键词控制器。
 ///
-/// 目前为本地过滤（按标题匹配）。后期若接口支持服务端搜索，
-/// 只需在此将过滤逻辑下沉到 Repository，View 无需改动。
+/// 输入时立即更新关键词（供 UI 感知「搜索中」），并在停止输入
+/// [debounceDuration] 后触发服务端搜索，避免每个字符都发请求。
 class ArticleSearchController extends Notifier<String> {
+  static const Duration debounceDuration = Duration(milliseconds: 300);
+
+  Timer? _debounce;
+
   @override
-  String build() => '';
+  String build() {
+    // 页面销毁时取消未完成的防抖计时器，避免触发已失效的请求。
+    ref.onDispose(() => _debounce?.cancel());
+    return '';
+  }
 
   /// 更新搜索关键词。
-  void setQuery(String query) => state = query;
+  void setQuery(String query) {
+    state = query;
+    _debounce?.cancel();
+
+    final String q = query.trim();
+    final ArticleSearchResultNotifier notifier =
+        ref.read(articleSearchResultProvider.notifier);
+
+    if (q.isEmpty) {
+      // 清空关键词：清空搜索结果，页面回到浏览模式。
+      notifier.clear();
+      return;
+    }
+
+    // 进入「搜索中」状态，随后防抖触发真实请求。
+    notifier.markLoading();
+    _debounce = Timer(debounceDuration, () {
+      notifier.search(q);
+    });
+  }
 }
 
 /// 搜索关键词 Provider。
 final articleSearchControllerProvider =
     NotifierProvider<ArticleSearchController, String>(ArticleSearchController.new);
 
-// ---------------------------------------------------------------------------
-// 3. 过滤后的文章列表（供 View 使用）
-// ---------------------------------------------------------------------------
+/// 服务端搜索结果加载器。
+class ArticleSearchResultNotifier
+    extends AsyncNotifier<List<ArticleItemSummary>> {
+  /// 请求序号：用于丢弃「过期响应」，避免慢请求覆盖新结果。
+  int _requestSeq = 0;
 
-/// 根据搜索关键词过滤后的文章列表。
-///
-/// - 关键词为空：返回全部文章；
-/// - 关键词非空：按标题包含匹配（可扩展为正文匹配 / 拼音匹配等）。
-final filteredArticleListProvider = Provider<List<Article>>((ref) {
-  // 数据加载中 / 失败时，以空列表兜底，避免过滤逻辑报错。
-  // 说明：Riverpod 3 中 AsyncValue 使用 `.value` 获取可空数据（valueOrNull 已移除）。
-  final List<Article> articles =
-      ref.watch(articleListProvider).value ?? const <Article>[];
-  final String query = ref.watch(articleSearchControllerProvider);
+  @override
+  Future<List<ArticleItemSummary>> build() async =>
+      const <ArticleItemSummary>[];
 
-  return filterArticles(articles, query);
-});
+  /// 清空搜索结果（关键词清空时调用）。
+  void clear() {
+    _requestSeq++;
+    state = const AsyncData(<ArticleItemSummary>[]);
+  }
 
-/// 按关键词过滤文章的纯函数。
-///
-/// 独立成纯函数（不依赖 Riverpod），便于单元测试与后期扩展
-/// （例如改为多字段匹配、服务端搜索时，只需修改此处）。
-List<Article> filterArticles(List<Article> articles, String query) {
-  final String q = query.trim();
-  if (q.isEmpty) return articles;
-  return articles
-      .where((Article a) => a.title.toLowerCase().contains(q.toLowerCase()))
-      .toList();
+  /// 标记为「搜索中」状态（防抖等待 / 请求进行时）。
+  void markLoading() {
+    state = const AsyncLoading();
+  }
+
+  /// 执行服务端搜索。
+  Future<void> search(String query) async {
+    final int seq = ++_requestSeq;
+    final AsyncValue<List<ArticleItemSummary>> next = await AsyncValue.guard(
+      () => ref.read(articleRepositoryProvider).searchItems(query),
+    );
+    // 仅当本次仍是「最新一次搜索」时才应用结果。
+    if (seq == _requestSeq) {
+      state = next;
+    }
+  }
 }
+
+/// 服务端搜索结果 Provider。
+final articleSearchResultProvider =
+    AsyncNotifierProvider<ArticleSearchResultNotifier, List<ArticleItemSummary>>(
+        ArticleSearchResultNotifier.new);

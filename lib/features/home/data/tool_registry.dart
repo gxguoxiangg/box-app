@@ -60,8 +60,14 @@ abstract final class AppRoutes {
   /// 主页（工具盒）。
   static const String home = '/';
 
-  /// 文章内容展示页。
+  /// 文章内容展示页（滑动卡片浏览）。
   static const String articleList = '/article';
+
+  /// 条目详情页（路径含动态参数 `:id`，供搜索结果点击进入）。
+  static const String articleItemDetail = '/article/item/:id';
+
+  /// 生成条目详情页路径。
+  static String articleItemDetailPath(int id) => '/article/item/$id';
 
   /// 全局设置页。
   static const String settings = '/settings';
