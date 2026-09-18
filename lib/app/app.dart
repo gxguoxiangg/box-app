@@ -10,6 +10,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/constants/app_constants.dart';
 import '../core/theme/app_theme.dart';
 import '../core/theme/theme_controller.dart';
 import 'router/app_router.dart';
@@ -27,7 +28,7 @@ class App extends ConsumerWidget {
         ref.watch(themeControllerProvider).value ?? ThemeMode.light;
 
     return MaterialApp.router(
-      title: '工具盒',
+      title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
       // 通过 themeMode 在明/暗主题间切换（由「全局设置 → 深色模式」控制）。
       theme: AppTheme.light,

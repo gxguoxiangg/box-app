@@ -11,6 +11,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/network/api_client_provider.dart';
 import '../models/article.dart';
+import '../models/keyword_collection.dart';
 
 /// 文章仓库。
 class ArticleRepository {
@@ -51,6 +52,15 @@ class ArticleRepository {
         .whereType<Map<String, dynamic>>()
         .map(ArticleItemSummary.fromJson)
         .toList();
+  }
+
+  /// 获取知识库中全部去重关键词。
+  ///
+  /// 对应 `GET /api/v1/all-keywords`，接口无需鉴权，供 Wiki 首页筛选器使用。
+  Future<KeywordCollection> fetchAllKeywords() async {
+    final Map<String, dynamic> data = await _apiClient
+        .getJson('${AppConstants.kbApiPrefix}/all-keywords');
+    return KeywordCollection.fromJson(data);
   }
 }
 

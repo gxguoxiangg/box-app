@@ -126,6 +126,21 @@ class ArticleItem {
     return question.trim().replaceFirst(prefix, '');
   }
 
+  /// 将 Markdown 关键词列表转换为卡片标签。
+  ///
+  /// 当前后端的 `keywords` 字段以 `- keyword` 多行文本返回。解析集中在
+  /// 模型层，Wiki 首页不需要了解原始 Markdown 格式。
+  List<String> get keywordList {
+    final String source = keywords ?? '';
+    return source
+        .split(RegExp(r'\r?\n'))
+        .map((String line) => line.trim())
+        .map((String line) => line.replaceFirst(RegExp(r'^[-*+]\s*'), ''))
+        .map((String line) => line.trim())
+        .where((String keyword) => keyword.isNotEmpty)
+        .toList(growable: false);
+  }
+
   // ---------------------------------------------------------------------------
   // 构造
   // ---------------------------------------------------------------------------

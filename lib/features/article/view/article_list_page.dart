@@ -1,16 +1,7 @@
-/// 文章内容展示页（滑动卡片式浏览）。
+/// Wiki 知识库首页。
 ///
-/// 页面结构：
-/// 1. 顶部栏：返回按钮 + 标题 + 「目录」按钮（打开侧边栏）；
-/// 2. 搜索框：服务端搜索（输入即查询，结果以列表展示，点击进入详情页）；
-/// 3. 主体：
-///    - 关键词为空 → 滑动卡片（PageView），一页一个条目；
-///    - 关键词非空 → 搜索结果列表；
-/// 4. 右下角：「添加」按钮（占位，功能待定）。
-///
-/// MVVM 说明：本页为纯 View，数据与状态全部来自
-/// [articleProvider] / [articleSearchControllerProvider] /
-/// [articleSearchResultProvider] 等 Provider。
+/// 页面提供搜索、关键词筛选和条目列表。点击条目后进入独立阅读页，阅读页
+/// 继续复用原有的四章 Markdown 内容展示和目录抽屉。
 library;
 
 import 'package:flutter/material.dart';
@@ -21,10 +12,10 @@ import '../../../core/network/api_client.dart';
 import '../../../shared/widgets/error_retry_view.dart';
 import '../../home/data/tool_registry.dart';
 import '../models/article.dart';
+import '../models/keyword_collection.dart';
 import '../viewmodel/article_viewmodel.dart';
-import 'widgets/article_card.dart';
 
-/// 文章内容展示页。
+/// Wiki 知识库首页。
 class ArticleListPage extends ConsumerStatefulWidget {
   const ArticleListPage({super.key});
 
@@ -33,15 +24,12 @@ class ArticleListPage extends ConsumerStatefulWidget {
 }
 
 class _ArticleListPageState extends ConsumerState<ArticleListPage> {
-  /// 用于打开 / 关闭目录侧边栏。
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  /// 滑动卡片控制器（用于目录点击跳转到指定页）。
-  final PageController _pageController = PageController();
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void dispose() {
-    _pageController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -49,80 +37,102 @@ class _ArticleListPageState extends ConsumerState<ArticleListPage> {
   Widget build(BuildContext context) {
     final String query = ref.watch(articleSearchControllerProvider);
     final bool searching = query.trim().isNotEmpty;
+    final List<ArticleItem> allItems =
+        ref.watch(articleProvider).value?.items ?? const <ArticleItem>[];
 
-    return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: const Color(0xFFF5F6FA),
-      // 「添加」按钮：占位，仅在浏览模式显示（搜索模式不适用）。
-      floatingActionButton: searching
-          ? null
-          : FloatingActionButton(
-              onPressed: _onAddPressed,
-              tooltip: '添加',
-              child: const Icon(Icons.add_rounded),
-            ),
-      // 目录侧边栏（右侧）。
-      endDrawer: _buildTocDrawer(),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            _buildHeader(context, searching),
-            _buildSearchField(context),
-            Expanded(
-              child: searching ? _buildSearchResults(query) : _buildBrowse(),
-            ),
-          ],
+    return PopScope<void>(
+      canPop: !searching,
+      onPopInvokedWithResult: (bool didPop, _) {
+        // Android 返回键在搜索状态下只退出搜索，避免直接离开 Wiki。
+        if (!didPop && searching) _clearSearch();
+      },
+      child: Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: const Color(0xFFF5F6FA),
+        endDrawer: _buildDirectoryDrawer(allItems),
+        floatingActionButton: FloatingActionButton(
+          onPressed: _onAddPressed,
+          tooltip: '添加',
+          child: const Icon(Icons.add_rounded),
+        ),
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              _buildHeader(context, searching),
+              _buildSearchField(),
+              _buildKeywordFilter(),
+              Expanded(
+                child: searching
+                    ? _buildSearchResults(query)
+                    : _buildArticleList(),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // 顶部栏
-  // ---------------------------------------------------------------------------
-
+  /// 构建 Wiki 顶部栏。
   Widget _buildHeader(BuildContext context, bool searching) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 8, 8, 0),
       child: Row(
         children: <Widget>[
           IconButton(
-            tooltip: '返回',
+            tooltip: searching ? '返回 Wiki 首页' : '返回主页',
             icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-            onPressed: () => Navigator.of(context).maybePop(),
+            onPressed: _handleBack,
           ),
           const SizedBox(width: 4),
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: const Color(0xFFE8EEFF),
+              borderRadius: BorderRadius.circular(9),
+            ),
+            child: const Icon(
+              Icons.menu_book_rounded,
+              size: 20,
+              color: Color(0xFF3B6CF6),
+            ),
+          ),
+          const SizedBox(width: 10),
           const Text(
-            '文章内容',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            'Wiki',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
           ),
           const Spacer(),
-          // 「目录」按钮：仅在浏览模式显示（搜索模式由结果列表导航）。
-          if (!searching)
-            IconButton(
-              tooltip: '目录',
-              icon: const Icon(Icons.toc_rounded, size: 24),
-              onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
-            ),
+          IconButton(
+            tooltip: '目录',
+            icon: const Icon(Icons.toc_rounded, size: 24),
+            onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
+          ),
         ],
       ),
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // 搜索框
-  // ---------------------------------------------------------------------------
-
-  Widget _buildSearchField(BuildContext context) {
+  /// Wiki 首页搜索框，搜索策略继续由 ViewModel 防抖处理。
+  Widget _buildSearchField() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
       child: TextField(
+        controller: _searchController,
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
           hintText: '搜索条目（服务端搜索）',
           hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
           prefixIcon: const Icon(Icons.search_rounded, size: 20),
+          suffixIcon: _searchController.text.isEmpty
+              ? null
+              : IconButton(
+                  tooltip: '清空搜索',
+                  icon: const Icon(Icons.clear_rounded, size: 20),
+                  onPressed: _clearSearch,
+                ),
           filled: true,
           fillColor: Colors.white,
           isDense: true,
@@ -133,25 +143,53 @@ class _ArticleListPageState extends ConsumerState<ArticleListPage> {
           ),
         ),
         onChanged: (String value) {
-          ref
-              .read(articleSearchControllerProvider.notifier)
-              .setQuery(value);
+          setState(() {});
+          ref.read(articleSearchControllerProvider.notifier).setQuery(value);
         },
       ),
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // 浏览模式（滑动卡片）
-  // ---------------------------------------------------------------------------
+  /// 横向滚动的关键词筛选器。
+  Widget _buildKeywordFilter() {
+    final AsyncValue<KeywordCollection> keywordsAsync =
+        ref.watch(articleKeywordsProvider);
+    return SizedBox(
+      height: 46,
+      child: keywordsAsync.when(
+        loading: () => const Center(
+          child: SizedBox(
+            width: 18,
+            height: 18,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+        error: (_, _) => const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text('关键词暂时不可用', style: TextStyle(color: Colors.grey)),
+          ),
+        ),
+        data: (KeywordCollection collection) => _KeywordChips(
+          keywords: collection.keywords,
+          selected: ref.watch(articleKeywordControllerProvider),
+          onSelected: (String? keyword) {
+            ref
+                .read(articleKeywordControllerProvider.notifier)
+                .select(keyword);
+          },
+        ),
+      ),
+    );
+  }
 
-  Widget _buildBrowse() {
+  /// 显示文章条目列表。
+  Widget _buildArticleList() {
     final AsyncValue<Article> articleAsync = ref.watch(articleProvider);
-
     if (articleAsync.isLoading) {
       return const Center(child: CircularProgressIndicator(strokeWidth: 2.5));
     }
-
     if (articleAsync.hasError) {
       return ErrorRetryView(
         message: articleAsync.error is ApiException
@@ -162,38 +200,43 @@ class _ArticleListPageState extends ConsumerState<ArticleListPage> {
     }
 
     final Article article = articleAsync.value!;
-    final List<ArticleItem> items = article.items;
-
-    if (items.isEmpty) {
-      return const Center(
-        child: Text('暂无条目', style: TextStyle(color: Colors.grey, fontSize: 14)),
-      );
-    }
-
-    return PageView.builder(
-      controller: _pageController,
-      itemCount: items.length,
-      itemBuilder: (BuildContext context, int index) {
-        return ArticleCard(
-          item: items[index],
-          updatedAt: article.updatedAt,
-        );
-      },
+    final List<ArticleItem> items = ref.watch(filteredArticleItemsProvider);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        _CountLabel(count: items.length),
+        if (items.isEmpty)
+          const Expanded(
+            child: Center(
+              child: Text('暂无匹配条目', style: TextStyle(color: Colors.grey)),
+            ),
+          )
+        else
+          Expanded(
+            child: ListView.separated(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 96),
+              itemCount: items.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 10),
+              itemBuilder: (BuildContext context, int index) {
+                return _ArticleListTile(
+                  item: items[index],
+                  updatedAt: article.updatedAt,
+                  onTap: () => _openReader(items[index].id),
+                );
+              },
+            ),
+          ),
+      ],
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // 搜索模式（服务端搜索结果）
-  // ---------------------------------------------------------------------------
-
+  /// 显示服务端搜索结果。
   Widget _buildSearchResults(String query) {
     final AsyncValue<List<ArticleItemSummary>> resultAsync =
         ref.watch(articleSearchResultProvider);
-
     if (resultAsync.isLoading) {
       return const Center(child: CircularProgressIndicator(strokeWidth: 2.5));
     }
-
     if (resultAsync.hasError) {
       return ErrorRetryView(
         message: resultAsync.error is ApiException
@@ -205,39 +248,54 @@ class _ArticleListPageState extends ConsumerState<ArticleListPage> {
     }
 
     final List<ArticleItemSummary> results = resultAsync.value ?? const [];
-
     if (results.isEmpty) {
       return const Center(
-        child: Text(
-          '未找到相关条目',
-          style: TextStyle(color: Colors.grey, fontSize: 14),
-        ),
+        child: Text('未找到相关条目', style: TextStyle(color: Colors.grey)),
       );
     }
 
     return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
       itemCount: results.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 8),
+      separatorBuilder: (_, _) => const SizedBox(height: 10),
       itemBuilder: (BuildContext context, int index) {
         final ArticleItemSummary summary = results[index];
         return _SearchResultTile(
           summary: summary,
-          onTap: () =>
-              context.push(AppRoutes.articleItemDetailPath(summary.id)),
+          onTap: () => _openReader(summary.id),
         );
       },
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // 目录侧边栏
-  // ---------------------------------------------------------------------------
+  /// Wiki 搜索状态下返回首页，首页状态下返回工具盒主页。
+  void _handleBack() {
+    if (ref.read(articleSearchControllerProvider).trim().isNotEmpty) {
+      _clearSearch();
+      return;
+    }
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go(AppRoutes.home);
+    }
+  }
 
-  Widget _buildTocDrawer() {
-    final List<ArticleItem> items =
-        ref.watch(articleProvider).value?.items ?? const <ArticleItem>[];
+  /// 清空输入框和搜索 Provider，使页面回到 Wiki 目录首页。
+  void _clearSearch() {
+    _searchController.clear();
+    ref.read(articleSearchControllerProvider.notifier).setQuery('');
+    setState(() {});
+  }
 
+  /// 进入从当前条目开始的阅读页。
+  void _openReader(int itemId) {
+    _clearSearch();
+    context.push(AppRoutes.articleItemDetailPath(itemId));
+  }
+
+  /// Wiki 首页目录抽屉；点击后直接进入对应条目的阅读页。
+  Widget _buildDirectoryDrawer(List<ArticleItem> items) {
     return Drawer(
       width: MediaQuery.of(context).size.width * 0.72,
       child: SafeArea(
@@ -252,7 +310,6 @@ class _ArticleListPageState extends ConsumerState<ArticleListPage> {
               ),
             ),
             const Divider(height: 1),
-            // 无限下拉：所有标题按序排列，点击跳转到对应页。
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.symmetric(vertical: 8),
@@ -273,12 +330,10 @@ class _ArticleListPageState extends ConsumerState<ArticleListPage> {
                       item.displayTitle,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 14),
                     ),
                     onTap: () {
-                      // 关闭侧边栏，再跳转到对应页。
                       Navigator.of(context).pop();
-                      _jumpToPage(index);
+                      _openReader(item.id);
                     },
                   );
                 },
@@ -290,17 +345,6 @@ class _ArticleListPageState extends ConsumerState<ArticleListPage> {
     );
   }
 
-  /// 跳转到指定下标对应的滑动卡片。
-  void _jumpToPage(int index) {
-    if (_pageController.hasClients) {
-      _pageController.jumpToPage(index);
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-  // 「添加」按钮（占位）
-  // ---------------------------------------------------------------------------
-
   void _onAddPressed() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('「添加」功能待定，敬请期待')),
@@ -308,7 +352,151 @@ class _ArticleListPageState extends ConsumerState<ArticleListPage> {
   }
 }
 
-/// 搜索结果条目（仅展示标题与代码/图片标记）。
+/// 条目数量提示。
+class _CountLabel extends StatelessWidget {
+  final int count;
+
+  const _CountLabel({required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+      child: Text(
+        '共 $count 篇',
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF4B5563),
+        ),
+      ),
+    );
+  }
+}
+
+/// 关键词 Chip 横向滚动组件。
+class _KeywordChips extends StatelessWidget {
+  final List<String> keywords;
+  final String? selected;
+  final ValueChanged<String?> onSelected;
+
+  const _KeywordChips({
+    required this.keywords,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      children: <Widget>[
+        _buildChip('全部', null),
+        for (final String keyword in keywords) _buildChip('#$keyword', keyword),
+      ],
+    );
+  }
+
+  Widget _buildChip(String label, String? value) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: ChoiceChip(
+        label: Text(label),
+        selected: selected == value,
+        onSelected: (_) => onSelected(value),
+        visualDensity: VisualDensity.compact,
+      ),
+    );
+  }
+}
+
+/// Wiki 首页条目卡片。
+class _ArticleListTile extends StatelessWidget {
+  final ArticleItem item;
+  final DateTime? updatedAt;
+  final VoidCallback onTap;
+
+  const _ArticleListTile({
+    required this.item,
+    required this.updatedAt,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.zero,
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  const Icon(Icons.description_outlined,
+                      size: 20, color: Color(0xFF3B6CF6)),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      item.displayTitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF111827),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              if (item.keywordList.isNotEmpty) ...<Widget>[
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 4,
+                  children: item.keywordList
+                      .map((String keyword) => Text(
+                            '#$keyword',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF6B7280),
+                            ),
+                          ))
+                      .toList(growable: false),
+                ),
+              ],
+              const SizedBox(height: 10),
+              Text(
+                '更新于 ${_formatDate(updatedAt)}',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF9CA3AF),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return '—';
+    return '${date.year.toString().padLeft(4, '0')}-'
+        '${date.month.toString().padLeft(2, '0')}-'
+        '${date.day.toString().padLeft(2, '0')}';
+  }
+}
+
+/// 服务端搜索结果卡片。
 class _SearchResultTile extends StatelessWidget {
   final ArticleItemSummary summary;
   final VoidCallback onTap;
@@ -317,68 +505,21 @@ class _SearchResultTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                child: Text(
-                  summary.question,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    height: 1.4,
-                    color: Color(0xFF1F2937),
-                  ),
-                ),
-              ),
-              if (summary.hasCode) ...<Widget>[
-                const SizedBox(width: 8),
-                const _TagIcon(icon: Icons.code_rounded, label: '代码'),
-              ],
-              if (summary.hasImages) ...<Widget>[
-                const SizedBox(width: 8),
-                const _TagIcon(icon: Icons.image_rounded, label: '图片'),
-              ],
-            ],
-          ),
+    return Card(
+      margin: EdgeInsets.zero,
+      elevation: 0,
+      child: ListTile(
+        leading: const Icon(Icons.description_outlined),
+        title: Text(
+          summary.question,
+          style: const TextStyle(fontWeight: FontWeight.w600),
         ),
+        trailing: const Icon(Icons.chevron_right_rounded),
+        onTap: onTap,
       ),
     );
   }
 }
 
-/// 代码 / 图片标记图标。
-class _TagIcon extends StatelessWidget {
-  final IconData icon;
-  final String label;
-
-  const _TagIcon({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF3F4F6),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Icon(icon, size: 13, color: const Color(0xFF6B7280)),
-          const SizedBox(width: 3),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280)),
-          ),
-        ],
-      ),
-    );
-  }
-}
+/// 后期扩展：可以在此页增加分页加载、搜索结果高亮和最近阅读记录；数据请求
+/// 仍通过 ArticleRepository 注入，页面无需直接处理 HTTP 响应。

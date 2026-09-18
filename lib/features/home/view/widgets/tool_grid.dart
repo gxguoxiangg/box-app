@@ -80,7 +80,7 @@ class _ToolButton extends StatelessWidget {
               child: Icon(item.icon, color: item.accentColor, size: 28),
             ),
             const SizedBox(height: 10),
-            // 功能名称
+            // 功能名称：使用加粗黑色，与分类导航栏的灰色文字形成层次。
             Text(
               item.name,
               textAlign: TextAlign.center,
@@ -88,8 +88,8 @@ class _ToolButton extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF333333),
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF111111),
               ),
             ),
           ],

@@ -69,3 +69,30 @@ class HomeViewModel extends Notifier<HomeState> {
 /// View 层通过它读写主页状态；该 Provider 在无监听者时自动释放。
 final homeViewModelProvider =
     NotifierProvider<HomeViewModel, HomeState>(HomeViewModel.new);
+
+/// 主页功能搜索控制器。
+///
+/// 搜索页只搜索已注册的功能模块名称，使用连续字符串匹配。
+/// 后期扩展：如果需要搜索描述、标签或远程工具，可以在这里替换匹配规则，
+/// 页面本身不需要感知数据来源。
+class ToolSearchController extends Notifier<String> {
+  @override
+  String build() => '';
+
+  /// 更新当前搜索文本；每次输入都会立即触发结果刷新。
+  void setQuery(String query) => state = query;
+}
+
+/// 功能搜索关键词 Provider。
+final toolSearchControllerProvider =
+    NotifierProvider<ToolSearchController, String>(ToolSearchController.new);
+
+/// 根据连续关键词筛选功能模块。
+final filteredToolSearchProvider = Provider<List<ToolItem>>((ref) {
+  final List<ToolItem> tools = ref.watch(toolRegistryProvider);
+  final String query = ref.watch(toolSearchControllerProvider).trim().toLowerCase();
+  if (query.isEmpty) return tools;
+  return tools
+      .where((ToolItem item) => item.name.toLowerCase().contains(query))
+      .toList();
+});

@@ -13,9 +13,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/about/view/about_page.dart';
 import '../../features/article/view/article_list_page.dart';
-import '../../features/article/view/item_detail_page.dart';
+import '../../features/article/view/article_reader_page.dart';
 import '../../features/home/data/tool_registry.dart';
 import '../../features/home/view/home_page.dart';
+import '../../features/home/view/search_page.dart';
 import '../../features/network/view/network_page.dart';
 import '../../features/network/view/speed_test_page.dart';
 import '../../features/settings/view/settings_page.dart';
@@ -40,6 +41,14 @@ final GoRouter appRouter = GoRouter(
     ),
 
     // -------------------------------------------------------------------------
+    // 功能搜索页
+    // -------------------------------------------------------------------------
+    GoRoute(
+      path: AppRoutes.search,
+      builder: (context, state) => const SearchPage(),
+    ),
+
+    // -------------------------------------------------------------------------
     // 文章内容展示页
     // -------------------------------------------------------------------------
     GoRoute(
@@ -48,13 +57,13 @@ final GoRouter appRouter = GoRouter(
     ),
 
     // -------------------------------------------------------------------------
-    // 条目详情页（搜索结果点击进入）
+    // Wiki 阅读页（首页条目和搜索结果统一进入）
     // -------------------------------------------------------------------------
     GoRoute(
       path: AppRoutes.articleItemDetail,
       builder: (context, state) {
         final int id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
-        return ItemDetailPage(itemId: id);
+        return ArticleReaderPage(initialItemId: id);
       },
     ),
 

@@ -49,6 +49,10 @@ abstract final class AppTheme {
           elevation: 0,
           centerTitle: false,
           backgroundColor: Colors.transparent,
+          systemOverlayStyle: SystemUiOverlayStyle(
+            statusBarColor: Color(0xFF121212),
+            statusBarIconBrightness: Brightness.light,
+          ),
         ),
       );
 }

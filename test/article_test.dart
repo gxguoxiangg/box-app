@@ -74,6 +74,13 @@ void main() {
       final ArticleItem item = ArticleItem.fromJson(<String, dynamic>{});
       expect(item.displayTitle, '');
     });
+
+    test('应将 Markdown 关键词转换为筛选标签', () {
+      final ArticleItem item = ArticleItem.fromJson(<String, dynamic>{
+        'keywords': '- 网络\n- 性能优化\n\n- 代理',
+      });
+      expect(item.keywordList, <String>['网络', '性能优化', '代理']);
+    });
   });
 
   group('Article.fromJson', () {

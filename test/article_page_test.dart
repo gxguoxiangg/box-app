@@ -1,9 +1,10 @@
-/// 文章内容展示页组件测试。
+/// Wiki 首页组件测试。
 ///
 /// 使用 MockClient 模拟知识库后端，验证：
-/// 1. 浏览模式：加载整篇文章后，以滑动卡片（PageView）展示条目；
+/// 1. Wiki 首页以目录卡片展示条目与关键词；
 /// 2. 目录侧边栏：点击「目录」按钮打开，列出全部标题；
-/// 3. 搜索模式：输入关键词触发服务端搜索，结果以列表展示。
+/// 3. 搜索模式：输入关键词触发服务端搜索，结果以列表展示；
+/// 4. 搜索状态下点击返回，只清空搜索并回到 Wiki 首页。
 library;
 
 import 'dart:convert';
@@ -68,6 +69,12 @@ void main() {
         if (path == '/api/v1/articles/1') {
           return jsonResponse(articleJson());
         }
+        if (path == '/api/v1/all-keywords') {
+          return jsonResponse(<String, dynamic>{
+            'total': 1,
+            'keywords': <String>['WPS'],
+          });
+        }
         if (path == '/api/v1/items' && request.url.queryParameters['q'] != null) {
           return jsonResponse(<String, dynamic>{
             'total': 1,
@@ -101,16 +108,15 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('浏览模式应加载文章并以滑动卡片展示条目', (WidgetTester tester) async {
+  testWidgets('Wiki 首页应展示条目列表、数量和关键词', (WidgetTester tester) async {
     await pumpArticlePage(tester);
 
-    // 第一页（条目 1）标题与章节可见。
+    // 首页显示 Wiki 标题和条目总数。
+    expect(find.text('Wiki'), findsOneWidget);
+    expect(find.text('共 2 篇'), findsOneWidget);
     expect(find.text('Excel 文档全屏显示'), findsOneWidget);
-    expect(find.text('Description'), findsOneWidget);
-    expect(find.text('Solutions'), findsOneWidget);
-
-    // 使用 PageView 实现左右滑动。
-    expect(find.byType(PageView), findsOneWidget);
+    // 筛选器和条目卡片都会展示该关键词。
+    expect(find.text('#WPS'), findsNWidgets(2));
   });
 
   testWidgets('点击目录按钮应打开侧边栏并列出全部标题', (WidgetTester tester) async {
@@ -135,5 +141,21 @@ void main() {
 
     // 搜索结果列表展示匹配条目（含「Q - 」前缀）。
     expect(find.text('Q - Windows 打印问题'), findsOneWidget);
+  });
+
+  testWidgets('搜索状态点击返回应清空搜索并留在 Wiki 首页',
+      (WidgetTester tester) async {
+    await pumpArticlePage(tester);
+
+    await tester.enterText(find.byType(TextField), 'Windows');
+    await tester.pump(const Duration(milliseconds: 350));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
+    await tester.pumpAndSettle();
+
+    expect(find.text('共 2 篇'), findsOneWidget);
+    expect(tester.widget<TextField>(find.byType(TextField)).controller?.text,
+        isEmpty);
   });
 }

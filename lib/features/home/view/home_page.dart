@@ -1,123 +1,231 @@
-/// 主页（工具盒主界面）。
+/// 工具盒主页。
 ///
-/// 布局自上而下：
-/// 1. 顶部栏：左侧菜单按钮 + 应用名 + 搜索框（搜索功能预留）；
-/// 2. 分类导航栏：对下方工具按钮进行筛选；
-/// 3. 工具按钮网格：每个按钮跳转对应功能页面。
-///
-/// 侧边栏（Drawer）包含「关于 App」「软件更新」「全局设置」入口。
-///
-/// 本页面为纯 View，不持有业务状态；状态均由
-/// [homeViewModelProvider] 统一管理（MVVM 的 View 层）。
+/// 顶部栏包含菜单、首次进入动画标题和搜索入口；下方为分类导航与功能网格。
+/// 页面只负责布局和路由，功能数据由 HomeViewModel 提供。
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../../core/constants/app_constants.dart';
 import '../../../shared/widgets/app_drawer.dart';
+import '../data/tool_registry.dart';
 import 'widgets/category_bar.dart';
 import 'widgets/tool_grid.dart';
 
 /// 主页（工具盒）。
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
-  
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      // 侧边栏：关于 App / 全局设置入口。
-      // backgroundColor: Color(0xFFF5F6FA),
-      drawer: const AppDrawer(),
-      body: SafeArea(
-        // 注意：必须用 Builder 包裹，使下方 context 成为 Scaffold 的「后代」，
-        // 否则 Scaffold.of(context) 无法向上找到祖先 Scaffold，点击菜单按钮无效果。
-        child: Builder(
-          builder: (BuildContext context) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                // -----------------------------------------------------------------
-                // 顶部栏：菜单按钮 + 应用名 + 搜索框
-                // -----------------------------------------------------------------
-                _buildTopBar(context),
-
-                // -----------------------------------------------------------------
-                // 分类导航栏：筛选工具
-                // -----------------------------------------------------------------
-                const CategoryBar(),
-
-                // -----------------------------------------------------------------
-                // 工具按钮网格
-                // -----------------------------------------------------------------
-                const Expanded(child: ToolGrid()),
-              ],
-            );
-          },
+    final ThemeData theme = Theme.of(context);
+    final Brightness brightness = theme.brightness;
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: theme.scaffoldBackgroundColor,
+        statusBarIconBrightness:
+            brightness == Brightness.dark ? Brightness.light : Brightness.dark,
+        statusBarBrightness: brightness,
+      ),
+      child: Scaffold(
+        drawer: const AppDrawer(),
+        body: SafeArea(
+          child: Builder(
+            builder: (BuildContext scaffoldContext) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  _buildTopBar(context, scaffoldContext),
+                  const CategoryBar(),
+                  const Expanded(child: ToolGrid()),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
   }
 
-  /// 构建顶部栏。
+  /// 构建主页顶部栏。
   ///
-  /// [context] 必须是 Scaffold 的后代 context（由外层 Builder 提供），
-  /// 这样才能通过 `Scaffold.of(context)` 打开抽屉。
-  Widget _buildTopBar(BuildContext context) {
+  /// [scaffoldContext] 必须来自 Scaffold 后代 Builder，供菜单按钮打开抽屉。
+  Widget _buildTopBar(BuildContext context, BuildContext scaffoldContext) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 8, 16, 8),
+      padding: const EdgeInsets.fromLTRB(4, 8, 12, 8),
       child: Row(
         children: <Widget>[
-          // 左侧菜单按钮：打开侧边栏。
           IconButton(
-            // tooltip: '打开侧边栏',
+            tooltip: '打开侧边栏',
             icon: const Icon(Icons.menu_rounded),
-            onPressed: () => Scaffold.of(context).openDrawer(),
+            onPressed: () => Scaffold.of(scaffoldContext).openDrawer(),
           ),
           const SizedBox(width: 4),
-          // 应用名称（文本展示）。
-          Text(
-            AppConstants.appName,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-            ),
+          const Expanded(child: _AnimatedHomeTitle()),
+          IconButton(
+            tooltip: '搜索功能',
+            icon: const Icon(Icons.search_rounded),
+            onPressed: () => context.push(AppRoutes.search),
           ),
-          const Spacer(),
-          // 搜索框（预留功能：后续接入全局搜索）。
-          const _SearchField(),
         ],
       ),
     );
   }
 }
 
-/// 顶部搜索框。
+/// 主页首次打开时的标题动画。
 ///
-/// 目前为占位实现，仅做展示；后期迭代时接入真实搜索逻辑
-/// （可参考 article 模块的搜索交互）。
-class _SearchField extends StatelessWidget {
-  const _SearchField();
+/// 动画严格按需求分段执行：GuoXiang 先收缩成两个平行黑点并消失，
+/// LazyBox 随后渐隐，最后显示“主页”。组件每次重新创建时都会重新播放一次。
+class _AnimatedHomeTitle extends StatefulWidget {
+  const _AnimatedHomeTitle();
+
+  @override
+  State<_AnimatedHomeTitle> createState() => _AnimatedHomeTitleState();
+}
+
+class _AnimatedHomeTitleState extends State<_AnimatedHomeTitle>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    );
+    // ..forward();
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted) {
+      _controller.forward();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final Color titleColor = Theme.of(context).colorScheme.onSurface;
     return SizedBox(
-      width: 180,
-      child: TextField(
-        textInputAction: TextInputAction.search,
-        decoration: InputDecoration(
-          hintText: '搜索',
-          hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
-          prefixIcon: const Icon(Icons.search_rounded, size: 20),
-          isDense: true,
-          filled: true,
-          fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(vertical: 8),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
-            borderSide: BorderSide.none,
-          ),
-        ),
+      height: 32,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (BuildContext context, Widget? child) {
+          final double progress = _controller.value;
+          final double guoShrinkProgress = Curves.easeInCubic.transform(
+            (progress / 0.24).clamp(0.0, 1.0),
+          );
+          final double guoDotsProgress = Curves.easeOut.transform(
+            ((progress - 0.18) / 0.18).clamp(0.0, 1.0),
+          );
+          final double lazyProgress = Curves.easeOut.transform(
+            ((progress - 0.28) / 0.40).clamp(0.0, 1.0),
+          );
+          final double homeProgress = Curves.easeOut.transform(
+            ((progress - 0.68) / 0.32).clamp(0.0, 1.0),
+          );
+          return Stack(
+            alignment: Alignment.centerLeft,
+            children: <Widget>[
+              Opacity(
+                opacity: 1 - homeProgress,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    SizedBox(
+                      width: 96,
+                      height: 32,
+                      child: Stack(
+                        alignment: Alignment.centerLeft,
+                        children: <Widget>[
+                          Transform.scale(
+                            alignment: Alignment.centerLeft,
+                            scaleX: 1 - 0.88 * guoShrinkProgress,
+                            child: Opacity(
+                              opacity: 1 - guoDotsProgress,
+                              child: Text(
+                                'GuoXiang',
+                                style: TextStyle(
+                                  color: titleColor,
+                                  fontFamily: 'sans-serif',
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.4,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Opacity(
+                            opacity: guoDotsProgress * (1 - lazyProgress),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                _BlackDot(),
+                                SizedBox(width: 4),
+                                _BlackDot(),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Opacity(
+                      opacity: 1 - lazyProgress,
+                      child: Text(
+                        ' LazyBox',
+                        style: TextStyle(
+                          color: titleColor,
+                          // fontFamily: 'serif',
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 1.1,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Opacity(
+                opacity: homeProgress,
+                child: Transform.translate(
+                  offset: Offset(-12 * (1 - homeProgress), 0),
+                  child: Text(
+                    '主页',
+                    style: TextStyle(
+                      color: titleColor,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// GuoXiang 收缩动画的两个平行黑点。
+class _BlackDot extends StatelessWidget {
+  const _BlackDot();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox(
+      width: 5,
+      height: 5,
+      child: DecoratedBox(
+        decoration: BoxDecoration(color: Colors.black, shape: BoxShape.circle),
       ),
     );
   }

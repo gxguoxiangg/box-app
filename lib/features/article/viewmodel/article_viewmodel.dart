@@ -16,6 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_constants.dart';
 import '../data/article_repository.dart';
 import '../models/article.dart';
+import '../models/keyword_collection.dart';
 
 // ---------------------------------------------------------------------------
 // 1. 文章详情（浏览模式）
@@ -43,6 +44,59 @@ class ArticleNotifier extends AsyncNotifier<Article> {
 /// 文章详情 Provider。
 final articleProvider =
     AsyncNotifierProvider<ArticleNotifier, Article>(ArticleNotifier.new);
+
+// ---------------------------------------------------------------------------
+// 2. Wiki 首页关键词筛选
+// ---------------------------------------------------------------------------
+
+/// 全部关键词加载器。
+class ArticleKeywordsNotifier extends AsyncNotifier<KeywordCollection> {
+  @override
+  Future<KeywordCollection> build() {
+    return ref.read(articleRepositoryProvider).fetchAllKeywords();
+  }
+
+  /// 重新加载关键词，供页面失败后重试。
+  Future<void> refresh() async {
+    state = await AsyncValue.guard(
+      () => ref.read(articleRepositoryProvider).fetchAllKeywords(),
+    );
+  }
+}
+
+/// Wiki 首页关键词 Provider。
+final articleKeywordsProvider =
+    AsyncNotifierProvider<ArticleKeywordsNotifier, KeywordCollection>(
+  ArticleKeywordsNotifier.new,
+);
+
+/// 当前选中的关键词；null 代表“全部”。
+class ArticleKeywordController extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  /// 选择关键词，重复点击当前关键词时回到全部。
+  void select(String? keyword) {
+    state = state == keyword ? null : keyword;
+  }
+}
+
+/// Wiki 首页当前筛选关键词 Provider。
+final articleKeywordControllerProvider =
+    NotifierProvider<ArticleKeywordController, String?>(
+  ArticleKeywordController.new,
+);
+
+/// 根据当前关键词筛选文章条目。
+final filteredArticleItemsProvider = Provider<List<ArticleItem>>((ref) {
+  final Article? article = ref.watch(articleProvider).value;
+  final String? keyword = ref.watch(articleKeywordControllerProvider);
+  final List<ArticleItem> items = article?.items ?? const <ArticleItem>[];
+  if (keyword == null || keyword.isEmpty) return items;
+  return items
+      .where((ArticleItem item) => item.keywordList.contains(keyword))
+      .toList(growable: false);
+});
 
 // ---------------------------------------------------------------------------
 // 2. 单个条目详情（搜索结果点击进入）

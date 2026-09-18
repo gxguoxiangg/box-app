@@ -88,4 +88,20 @@ void main() {
     expect(results.first.id, 2);
     expect(results.first.hasCode, true);
   });
+
+  test('fetchAllKeywords 应请求关键词接口并解析去重关键词', () async {
+    final MockClient client = MockClient((http.Request request) async {
+      expect(request.url.path, '/api/v1/all-keywords');
+      return jsonResponse(<String, dynamic>{
+        'total': 2,
+        'keywords': <String>['Excel', 'Office'],
+      });
+    });
+
+    final ArticleRepository repo = ArticleRepository(ApiClient(client: client));
+    final collection = await repo.fetchAllKeywords();
+
+    expect(collection.total, 2);
+    expect(collection.keywords, <String>['Excel', 'Office']);
+  });
 }

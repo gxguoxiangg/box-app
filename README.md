@@ -4,14 +4,14 @@
 
 ## 功能
 
-- **主页（工具盒）**：顶部栏（菜单按钮 + 应用名 + 搜索框）、分类导航栏、工具按钮网格；
+- **主页（工具盒）**：顶部栏（菜单按钮 + 应用名动画 + 搜索图标）、分类导航栏、工具按钮网格；
 - **侧边栏**：关于 App、软件更新、全局设置入口；
 - **全局设置 → 深色模式**：明亮 / 黑暗主题切换，持久化保存；
-- **文章内容展示**：通过 API 获取 JSON 文章数据，以滑动卡片（PageView）展示，支持按标题搜索过滤；
+- **Wiki 知识库**：目录首页支持条目列表、关键词筛选和服务端搜索；点击条目后进入四章内容阅读页，支持目录定位；
 - **网络信息**：当前连接状态（Wi-Fi / 移动数据 / 无连接）、设备网络详情（IP / 网关等）、
   网站连通延迟测试（每行 3 卡片）、网速测试（内嵌 test.ustc.edu.cn）。
 
-> 迭代说明见 `更新文档.md`。
+> 迭代说明见 `doc/changelog/`，本次更新见 `doc/changelog/update-Sep-16.md`。
 
 ## 技术栈
 
@@ -41,11 +41,11 @@ lib/
 │   │   ├── data/tool_registry.dart    # 工具注册表
 │   │   ├── viewmodel/            # HomeViewModel
 │   │   └── view/                 # HomePage 及子组件
-│   ├── article/                  # 文章内容展示模块
+│   ├── article/                  # Wiki 知识库模块
 │   │   ├── models/               # Article
 │   │   ├── data/                 # ArticleRepository
 │   │   ├── viewmodel/            # 加载 / 搜索 ViewModel
-│   │   └── view/                 # ArticleListPage / ArticleCard
+│   │   └── view/                 # Wiki 首页 / 阅读页 / 内容组件
 │   ├── network/                  # 网络信息模块（连接状态/详情/延迟/网速测试）
 │   ├── settings/                 # 全局设置（深色模式已实现）
 │   ├── update/                   # 软件更新（占位）
