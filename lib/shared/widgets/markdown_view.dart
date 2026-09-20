@@ -14,6 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/constants/app_constants.dart';
+
 /// Markdown 内容渲染组件。
 class MarkdownView extends StatelessWidget {
   /// 待渲染的 Markdown 文本。
@@ -24,31 +26,28 @@ class MarkdownView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 以主题为基底定制样式：统一正文排版，重点美化代码块。
+    final ColorScheme colors = Theme.of(context).colorScheme;
     final MarkdownStyleSheet styleSheet =
         MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-      p: const TextStyle(
-        fontSize: 14,
-        height: 1.6,
-        color: Color(0xFF374151),
-      ),
-      listBullet: const TextStyle(
-        fontSize: 14,
-        height: 1.6,
-        color: Color(0xFF3B6CF6),
-      ),
-      code: const TextStyle(
-        fontFamily: 'monospace',
-        fontSize: 13,
-        color: Color(0xFFD97706),
-        backgroundColor: Color(0xFFF3F4F6),
-      ),
-      codeblockDecoration: BoxDecoration(
-        color: const Color(0xFFF6F8FA),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-      ),
-      codeblockPadding: const EdgeInsets.all(12),
-    );
+          p: TextStyle(fontSize: 14, height: 1.6, color: colors.onSurface),
+          listBullet: const TextStyle(
+            fontSize: 14,
+            height: 1.6,
+            color: Color(0xFF3B6CF6),
+          ),
+          code: TextStyle(
+            fontFamily: 'monospace',
+            fontSize: 13,
+            color: colors.onSurfaceVariant,
+            backgroundColor: colors.surfaceContainerHighest,
+          ),
+          codeblockDecoration: BoxDecoration(
+            color: colors.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: colors.outlineVariant),
+          ),
+          codeblockPadding: const EdgeInsets.all(12),
+        );
 
     return MarkdownBody(
       data: markdown,
@@ -60,8 +59,13 @@ class MarkdownView extends StatelessWidget {
         }
       },
       // 限制图片宽度，避免超宽图片在卡片内横向溢出。
-      sizedImageBuilder: (config) =>
-          Image.network(config.uri.toString(), fit: BoxFit.fitWidth),
+      sizedImageBuilder: (config) {
+        final Uri uri = config.uri;
+        final String imageUrl = uri.hasScheme
+            ? uri.toString()
+            : '${AppConstants.kbApiBaseUrl}${uri.path}';
+        return Image.network(imageUrl, fit: BoxFit.fitWidth);
+      },
     );
   }
 }

@@ -14,6 +14,7 @@ dependencies:
   flutter_riverpod: ^3.4.2
   go_router: ^17.4.0
   http: ^1.6.0
+  image_picker: ^1.2.3
   network_info_plus: ^8.2.1
   shared_preferences: ^2.5.5
   url_launcher: ^6.3.2
@@ -26,3 +27,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  fonts:
+    - family: ShadowsIntoLight
+      fonts:
+        - asset: resource/font/ShadowsIntoLight-Regular.ttf
+    - family: KaushanScript
+      fonts:
+        - asset: resource/font/KaushanScript-Regular.ttf

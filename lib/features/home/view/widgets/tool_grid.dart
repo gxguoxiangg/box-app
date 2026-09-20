@@ -24,10 +24,7 @@ class ToolGrid extends ConsumerWidget {
     // 当前分类下暂无工具时，展示空态提示。
     if (tools.isEmpty) {
       return const Center(
-        child: Text(
-          '该分类下暂无功能',
-          style: TextStyle(color: Colors.grey),
-        ),
+        child: Text('该分类下暂无功能', style: TextStyle(color: Colors.grey)),
       );
     }
 
@@ -58,7 +55,7 @@ class _ToolButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surfaceContainerLow,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
@@ -86,10 +83,10 @@ class _ToolButton extends StatelessWidget {
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF111111),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ],

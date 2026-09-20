@@ -27,11 +27,7 @@ class ItemContent extends StatelessWidget {
   /// 文章级「最后更新」时间（同一篇文章的所有条目共享）。
   final DateTime? updatedAt;
 
-  const ItemContent({
-    super.key,
-    required this.item,
-    required this.updatedAt,
-  });
+  const ItemContent({super.key, required this.item, required this.updatedAt});
 
   /// 四章正文的标题（与后端字段一一对应）。
   static const List<String> _sectionTitles = <String>[
@@ -59,11 +55,11 @@ class ItemContent extends StatelessWidget {
         // ---------------------------------------------------------------------
         Text(
           item.displayTitle,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w700,
             height: 1.3,
-            color: Color(0xFF111827),
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 10),
@@ -73,21 +69,33 @@ class ItemContent extends StatelessWidget {
         // ---------------------------------------------------------------------
         Row(
           children: <Widget>[
-            const Icon(Icons.person_outline_rounded,
-                size: 15, color: Color(0xFF9CA3AF)),
+            Icon(
+              Icons.person_outline_rounded,
+              size: 15,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
             const SizedBox(width: 4),
             // 作者信息后端暂未返回，先以「待定」占位，后期接口补充后再替换。
-            const Text(
+            Text(
               '作者：待定',
-              style: TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)),
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(width: 16),
-            const Icon(Icons.schedule_rounded,
-                size: 15, color: Color(0xFF9CA3AF)),
+            Icon(
+              Icons.schedule_rounded,
+              size: 15,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
             const SizedBox(width: 4),
             Text(
               '最后更新：${_formatDate(updatedAt)}',
-              style: const TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)),
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),
@@ -142,11 +150,11 @@ class _SectionCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(16),
         boxShadow: <BoxShadow>[
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -169,16 +177,19 @@ class _SectionCard extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF1F2937),
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          const Divider(height: 1, color: Color(0xFFF0F1F3)),
+          Divider(
+            height: 1,
+            color: Theme.of(context).colorScheme.outlineVariant,
+          ),
           const SizedBox(height: 12),
           // 正文：有内容渲染 Markdown，无内容展示占位。
           if (hasContent)

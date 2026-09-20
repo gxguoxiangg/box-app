@@ -10,6 +10,7 @@
 library;
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -60,6 +61,28 @@ class ArticleKeywordsNotifier extends AsyncNotifier<KeywordCollection> {
   Future<void> refresh() async {
     state = await AsyncValue.guard(
       () => ref.read(articleRepositoryProvider).fetchAllKeywords(),
+    );
+  }
+
+  /// 随机调整关键词展示顺序，不改变后端返回的关键词集合。
+  ///
+  /// Wiki 页面每次进入都会调用此方法，因此用户不会每次都看到固定的字典序。
+  void shuffle() {
+    final KeywordCollection? collection = state.value;
+    if (collection == null || collection.keywords.length < 2) return;
+
+    final List<String> shuffled = List<String>.from(collection.keywords)
+      ..shuffle(Random());
+    final bool unchanged = List<bool>.generate(
+      shuffled.length,
+      (int index) => shuffled[index] == collection.keywords[index],
+    ).every((bool same) => same);
+    if (unchanged) {
+      // 关键词较少时随机结果可能恰好相同，旋转一次以保证进入页面后顺序变化。
+      shuffled.insert(0, shuffled.removeLast());
+    }
+    state = AsyncData(
+      KeywordCollection(total: collection.total, keywords: shuffled),
     );
   }
 }

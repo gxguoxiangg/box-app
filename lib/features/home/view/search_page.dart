@@ -21,15 +21,19 @@ class SearchPage extends ConsumerStatefulWidget {
 
 class _SearchPageState extends ConsumerState<SearchPage> {
   late final TextEditingController _controller;
+  late final ToolSearchController _searchNotifier;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
+    _searchNotifier = ref.read(toolSearchControllerProvider.notifier);
   }
 
   @override
   void dispose() {
+    // Riverpod 不允许在卸载时同步通知监听者，延至当前帧结束再清空。
+    Future<void>.microtask(() => _searchNotifier.setQuery(''));
     _controller.dispose();
     super.dispose();
   }
@@ -45,9 +49,8 @@ class _SearchPageState extends ConsumerState<SearchPage> {
         title: TextField(
           controller: _controller,
           autofocus: true,
-          onChanged: (String value) => ref
-              .read(toolSearchControllerProvider.notifier)
-              .setQuery(value),
+          onChanged: (String value) =>
+              ref.read(toolSearchControllerProvider.notifier).setQuery(value),
           decoration: InputDecoration(
             hintText: '搜索功能',
             prefixIcon: const Icon(Icons.search_rounded),
@@ -74,7 +77,10 @@ class _SearchPageState extends ConsumerState<SearchPage> {
           IconButton(
             tooltip: '返回',
             icon: const Icon(Icons.close_rounded),
-            onPressed: () => context.pop(),
+            onPressed: () {
+              _searchNotifier.setQuery('');
+              context.pop();
+            },
           ),
         ],
       ),

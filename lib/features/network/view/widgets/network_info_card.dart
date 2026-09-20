@@ -37,8 +37,7 @@ class NetworkInfoCard extends StatelessWidget {
           spacing: 10,
           runSpacing: 10,
           children: <Widget>[
-            for (final _InfoItem item in items)
-              _buildTile(context, item),
+            for (final _InfoItem item in items) _buildTile(context, item),
           ],
         ),
       ],
@@ -48,13 +47,14 @@ class NetworkInfoCard extends StatelessWidget {
   /// 单个信息瓦片（固定宽度，两列排列）。
   Widget _buildTile(BuildContext context, _InfoItem item) {
     final double width = (MediaQuery.of(context).size.width - 16 * 2 - 10) / 2;
+    final ColorScheme colors = Theme.of(context).colorScheme;
     return Container(
       width: width,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.surfaceContainerLow,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFF0F0F0)),
+        border: Border.all(color: colors.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,11 +62,11 @@ class NetworkInfoCard extends StatelessWidget {
           // 字段名
           Row(
             children: <Widget>[
-              Icon(item.icon, size: 14, color: const Color(0xFF9CA3AF)),
+              Icon(item.icon, size: 14, color: colors.onSurfaceVariant),
               const SizedBox(width: 4),
               Text(
                 item.label,
-                style: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
+                style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
               ),
             ],
           ),
@@ -76,10 +76,10 @@ class NetworkInfoCard extends StatelessWidget {
             item.value ?? '—',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF1F2937),
+              color: colors.onSurface,
             ),
           ),
         ],
@@ -90,38 +90,38 @@ class NetworkInfoCard extends StatelessWidget {
   /// 将模型转为可渲染的字段列表（集中维护展示配置）。
   List<_InfoItem> _buildItems(NetworkInfoData info) {
     return <_InfoItem>[
+      _InfoItem(icon: Icons.language_rounded, label: 'IP 地址', value: info.ipv4),
+      _InfoItem(icon: Icons.lan_rounded, label: 'IPv6', value: info.ipv6),
       _InfoItem(
-          icon: Icons.language_rounded,
-          label: 'IP 地址',
-          value: info.ipv4),
+        icon: Icons.network_check_rounded,
+        label: '子网掩码',
+        value: info.subnetMask,
+      ),
       _InfoItem(
-          icon: Icons.lan_rounded,
-          label: 'IPv6',
-          value: info.ipv6),
+        icon: Icons.alt_route_rounded,
+        label: '网关',
+        value: info.gateway,
+      ),
       _InfoItem(
-          icon: Icons.network_check_rounded,
-          label: '子网掩码',
-          value: info.subnetMask),
+        icon: Icons.wifi_rounded,
+        label: 'Wi-Fi (SSID)',
+        value: info.ssid,
+      ),
       _InfoItem(
-          icon: Icons.alt_route_rounded,
-          label: '网关',
-          value: info.gateway),
+        icon: Icons.wifi_tethering_rounded,
+        label: 'BSSID',
+        value: info.bssid,
+      ),
       _InfoItem(
-          icon: Icons.wifi_rounded,
-          label: 'Wi-Fi (SSID)',
-          value: info.ssid),
+        icon: Icons.broadcast_on_home_rounded,
+        label: '广播地址',
+        value: info.broadcast,
+      ),
       _InfoItem(
-          icon: Icons.wifi_tethering_rounded,
-          label: 'BSSID',
-          value: info.bssid),
-      _InfoItem(
-          icon: Icons.broadcast_on_home_rounded,
-          label: '广播地址',
-          value: info.broadcast),
-      _InfoItem(
-          icon: Icons.memory_rounded,
-          label: 'MAC 地址',
-          value: info.macAddress),
+        icon: Icons.memory_rounded,
+        label: 'MAC 地址',
+        value: info.macAddress,
+      ),
     ];
   }
 }
@@ -132,5 +132,9 @@ class _InfoItem {
   final String label;
   final String? value;
 
-  const _InfoItem({required this.icon, required this.label, required this.value});
+  const _InfoItem({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
 }

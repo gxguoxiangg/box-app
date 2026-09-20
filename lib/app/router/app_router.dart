@@ -13,7 +13,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/about/view/about_page.dart';
 import '../../features/article/view/article_list_page.dart';
+import '../../features/article/view/article_create_page.dart';
 import '../../features/article/view/article_reader_page.dart';
+import '../../features/auth/view/login_page.dart';
 import '../../features/home/data/tool_registry.dart';
 import '../../features/home/view/home_page.dart';
 import '../../features/home/view/search_page.dart';
@@ -46,6 +48,22 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.search,
       builder: (context, state) => const SearchPage(),
+    ),
+
+    // -------------------------------------------------------------------------
+    // Wiki 账号登录页
+    // -------------------------------------------------------------------------
+    GoRoute(
+      path: AppRoutes.login,
+      builder: (context, state) => const LoginPage(),
+    ),
+
+    // -------------------------------------------------------------------------
+    // Wiki 新增条目编辑页
+    // -------------------------------------------------------------------------
+    GoRoute(
+      path: AppRoutes.articleCreate,
+      builder: (context, state) => const ArticleCreatePage(),
     ),
 
     // -------------------------------------------------------------------------

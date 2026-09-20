@@ -10,6 +10,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/network/api_client.dart';
 import '../../../shared/widgets/error_retry_view.dart';
+import '../../auth/models/auth_session.dart';
+import '../../auth/viewmodel/auth_viewmodel.dart';
 import '../../home/data/tool_registry.dart';
 import '../models/article.dart';
 import '../viewmodel/article_viewmodel.dart';
@@ -50,7 +52,7 @@ class _ArticleReaderPageState extends ConsumerState<ArticleReaderPage> {
 
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: const Color(0xFFF5F6FA),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       endDrawer: _buildTocDrawer(items),
       floatingActionButton: FloatingActionButton(
         onPressed: _onAddPressed,
@@ -90,7 +92,7 @@ class _ArticleReaderPageState extends ConsumerState<ArticleReaderPage> {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: const Color(0xFFE8EEFF),
+              color: Theme.of(context).colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(9),
             ),
             child: const Icon(
@@ -192,7 +194,9 @@ class _ArticleReaderPageState extends ConsumerState<ArticleReaderPage> {
                   final bool selected = index == _currentIndex;
                   return ListTile(
                     selected: selected,
-                    selectedTileColor: const Color(0xFFE8EEFF),
+                    selectedTileColor: Theme.of(
+                      context,
+                    ).colorScheme.primaryContainer,
                     dense: true,
                     leading: Text(
                       (index + 1).toString().padLeft(2, '0'),
@@ -200,8 +204,8 @@ class _ArticleReaderPageState extends ConsumerState<ArticleReaderPage> {
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: selected
-                            ? const Color(0xFF3B6CF6)
-                            : const Color(0xFF9CA3AF),
+                            ? Theme.of(context).colorScheme.onPrimaryContainer
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                     title: Text(
@@ -210,8 +214,9 @@ class _ArticleReaderPageState extends ConsumerState<ArticleReaderPage> {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 14,
-                        fontWeight:
-                            selected ? FontWeight.w700 : FontWeight.w400,
+                        fontWeight: selected
+                            ? FontWeight.w700
+                            : FontWeight.w400,
                       ),
                     ),
                     onTap: () {
@@ -244,9 +249,10 @@ class _ArticleReaderPageState extends ConsumerState<ArticleReaderPage> {
   }
 
   void _onAddPressed() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('「添加」功能待定，敬请期待')),
-    );
+    final AuthSession? session = ref
+        .read(authSessionProvider.notifier)
+        .validSession;
+    context.push(session == null ? AppRoutes.login : AppRoutes.articleCreate);
   }
 }
 

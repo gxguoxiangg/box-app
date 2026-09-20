@@ -11,7 +11,7 @@ abstract final class AppConstants {
   // ---------------------------------------------------------------------------
 
   /// 应用名称（显示在顶部栏与关于页）。
-  static const String appName = 'Guoxiang LazyBox';
+  static const String appName = 'GuoXiang BusyBox';
 
   /// 应用版本号（与 pubspec.yaml 中的 version 保持一致）。
   static const String appVersion = '0.1.0';

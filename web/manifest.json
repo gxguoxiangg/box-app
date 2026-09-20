@@ -1,6 +1,6 @@
 {
-    "name": "demo1",
-    "short_name": "demo1",
+    "name": "BusyBox",
+    "short_name": "BusyBox",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

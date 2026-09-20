@@ -89,6 +89,7 @@
 | `webview_flutter`    | ^4.14.1  | 网速测试内嵌网页                                             |
 | `url_launcher`       | ^6.3.2   | Web 回退：浏览器打开 / Markdown 链接跳转                     |
 | `flutter_markdown`   | ^0.7.7+1 | Markdown 渲染（GFM：代码块/表格/图片/链接）                  |
+| `image_picker`       | ^1.2.3   | Wiki 投稿时调用系统相机并读取跨平台图片字节                 |
 
 ## UI / UX 规范
 
@@ -129,7 +130,16 @@
     `articleSearchControllerProvider`（300ms 防抖）/ `articleSearchResultProvider`（请求序号丢弃过期响应））
   → `view/article_list_page.dart`（浏览/搜索双模式）/ `item_detail_page.dart` /
     `widgets/item_content.dart`（复用）/ `widgets/article_card.dart`。
-- **搜索策略**：服务端搜索 `/items?q=`；关键词空 → 浏览模式（PageView + 目录抽屉 + FAB）；
-  关键词非空 → 搜索模式（结果列表 → 详情页，FAB 隐藏）。
+- **投稿模块分层**：`models/article_draft.dart`（草稿、图片引用、Markdown 总览）
+  → `data/article_submission_repository.dart`（图片上传、`/push/item` 投稿）
+  → `viewmodel/article_draft_viewmodel.dart`（草稿状态、上传和提交）
+  → `view/article_create_page.dart`（七步卡片编辑器）。
+- **认证模块分层**：`auth/models/auth_session.dart` → `auth/data/auth_repository.dart`
+  → `auth/viewmodel/auth_viewmodel.dart` → `auth/view/login_page.dart`；会话只保存在内存中，
+  App 侧一小时过期，收到 401 时清除。
+- **搜索策略**：服务端搜索 `/items?q=`；关键词空 → Wiki 目录列表与关键词筛选；
+  关键词非空 → 搜索结果列表，返回操作先清空搜索。
+- **写接口约定**：表单登录、JSON 投稿和 multipart 图片上传都统一封装在 `ApiClient`；
+  Repository 负责拼接业务请求，View 不直接操作 `http.Client`。
 - **测试 Mock**：网络相关一律 `apiClientProvider.overrideWithValue(MockClient(...))` 或
   `overrideWithValue(FakeXxxRepository)`，**离线可跑**。

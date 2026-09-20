@@ -10,6 +10,7 @@ import 'api_client.dart';
 
 /// 全局唯一的 ApiClient 实例。
 final apiClientProvider = Provider<ApiClient>((ref) {
-  // 简单起见直接创建；后续如需在热重载/退出时释放，可在此管理生命周期。
-  return ApiClient();
+  final ApiClient client = ApiClient();
+  ref.onDispose(client.dispose);
+  return client;
 });

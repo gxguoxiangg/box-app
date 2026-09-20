@@ -33,9 +33,12 @@ class HomeState {
   List<ToolItem> get filteredTools => selectedCategory == ToolCategory.all
       ? allTools
       : allTools.where((t) => t.category == selectedCategory).toList();
-    
+
   /// 复制并修改部分字段（用于不可变状态更新）。
-  HomeState copyWith({ToolCategory? selectedCategory, List<ToolItem>? allTools}) {
+  HomeState copyWith({
+    ToolCategory? selectedCategory,
+    List<ToolItem>? allTools,
+  }) {
     return HomeState(
       selectedCategory: selectedCategory ?? this.selectedCategory,
       allTools: allTools ?? this.allTools,
@@ -67,8 +70,9 @@ class HomeViewModel extends Notifier<HomeState> {
 /// 主页 ViewModel 的 Provider。
 ///
 /// View 层通过它读写主页状态；该 Provider 在无监听者时自动释放。
-final homeViewModelProvider =
-    NotifierProvider<HomeViewModel, HomeState>(HomeViewModel.new);
+final homeViewModelProvider = NotifierProvider<HomeViewModel, HomeState>(
+  HomeViewModel.new,
+);
 
 /// 主页功能搜索控制器。
 ///
@@ -80,7 +84,12 @@ class ToolSearchController extends Notifier<String> {
   String build() => '';
 
   /// 更新当前搜索文本；每次输入都会立即触发结果刷新。
-  void setQuery(String query) => state = query;
+  void setQuery(String query) {
+    // 页面卸载后的异步清理可能晚于 ProviderScope 销毁。
+    if (!ref.mounted) return;
+    if (state == query) return;
+    state = query;
+  }
 }
 
 /// 功能搜索关键词 Provider。
@@ -90,7 +99,10 @@ final toolSearchControllerProvider =
 /// 根据连续关键词筛选功能模块。
 final filteredToolSearchProvider = Provider<List<ToolItem>>((ref) {
   final List<ToolItem> tools = ref.watch(toolRegistryProvider);
-  final String query = ref.watch(toolSearchControllerProvider).trim().toLowerCase();
+  final String query = ref
+      .watch(toolSearchControllerProvider)
+      .trim()
+      .toLowerCase();
   if (query.isEmpty) return tools;
   return tools
       .where((ToolItem item) => item.name.toLowerCase().contains(query))

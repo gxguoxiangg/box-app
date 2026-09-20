@@ -66,10 +66,14 @@ class _CategoryChip extends StatelessWidget {
         curve: Curves.easeOut,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: isSelected ? colorScheme.primary : Colors.white,
+          color: isSelected
+              ? colorScheme.primary
+              : colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? colorScheme.primary : const Color(0xFFE5E7EB),
+            color: isSelected
+                ? colorScheme.primary
+                : colorScheme.outlineVariant,
           ),
         ),
         alignment: Alignment.center,
@@ -79,7 +83,9 @@ class _CategoryChip extends StatelessWidget {
             Icon(
               category.icon,
               size: 16,
-              color: isSelected ? Colors.white : const Color(0xFF6B7280),
+              color: isSelected
+                  ? colorScheme.onPrimary
+                  : colorScheme.onSurfaceVariant,
             ),
             const SizedBox(width: 6),
             Text(
@@ -87,7 +93,9 @@ class _CategoryChip extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: isSelected ? Colors.white : const Color(0xFF6B7280),
+                color: isSelected
+                    ? colorScheme.onPrimary
+                    : colorScheme.onSurfaceVariant,
               ),
             ),
           ],

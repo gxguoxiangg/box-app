@@ -26,11 +26,12 @@ class ItemDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<ArticleItem> itemAsync =
-        ref.watch(articleItemProvider(itemId));
+    final AsyncValue<ArticleItem> itemAsync = ref.watch(
+      articleItemProvider(itemId),
+    );
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(title: const Text('条目详情')),
       body: itemAsync.when(
         loading: () =>

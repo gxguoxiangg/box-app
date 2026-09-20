@@ -4,6 +4,8 @@
 /// 页面只负责布局和路由，功能数据由 HomeViewModel 提供。
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,8 +27,9 @@ class HomePage extends ConsumerWidget {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: theme.scaffoldBackgroundColor,
-        statusBarIconBrightness:
-            brightness == Brightness.dark ? Brightness.light : Brightness.dark,
+        statusBarIconBrightness: brightness == Brightness.dark
+            ? Brightness.light
+            : Brightness.dark,
         statusBarBrightness: brightness,
       ),
       child: Scaffold(
@@ -77,7 +80,7 @@ class HomePage extends ConsumerWidget {
 
 /// 主页首次打开时的标题动画。
 ///
-/// 动画严格按需求分段执行：GuoXiang 先收缩成两个平行黑点并消失，
+/// 动画严格按需求分段执行：GuoXiang 从四个方向收缩成居中四点并消失，
 /// LazyBox 随后渐隐，最后显示“主页”。组件每次重新创建时都会重新播放一次。
 class _AnimatedHomeTitle extends StatefulWidget {
   const _AnimatedHomeTitle();
@@ -89,6 +92,7 @@ class _AnimatedHomeTitle extends StatefulWidget {
 class _AnimatedHomeTitleState extends State<_AnimatedHomeTitle>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
+  Timer? _startTimer;
 
   @override
   void initState() {
@@ -97,16 +101,17 @@ class _AnimatedHomeTitleState extends State<_AnimatedHomeTitle>
       vsync: this,
       duration: const Duration(milliseconds: 1800),
     );
-    // ..forward();
-    Future.delayed(const Duration(seconds: 1), () {
+    // 品牌文字先停留 1 秒，再开始收缩和淡出动画。
+    _startTimer = Timer(const Duration(seconds: 1), () {
       if (mounted) {
-      _controller.forward();
+        _controller.forward();
       }
     });
   }
 
   @override
   void dispose() {
+    _startTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -144,18 +149,18 @@ class _AnimatedHomeTitleState extends State<_AnimatedHomeTitle>
                       width: 96,
                       height: 32,
                       child: Stack(
-                        alignment: Alignment.centerLeft,
+                        alignment: Alignment.center,
                         children: <Widget>[
                           Transform.scale(
-                            alignment: Alignment.centerLeft,
-                            scaleX: 1 - 0.88 * guoShrinkProgress,
+                            alignment: Alignment.center,
+                            scale: 1 - 0.88 * guoShrinkProgress,
                             child: Opacity(
                               opacity: 1 - guoDotsProgress,
                               child: Text(
                                 'GuoXiang',
                                 style: TextStyle(
                                   color: titleColor,
-                                  fontFamily: 'sans-serif',
+                                  fontFamily: 'ShadowsIntoLight',
                                   fontSize: 20,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: 0.4,
@@ -165,14 +170,7 @@ class _AnimatedHomeTitleState extends State<_AnimatedHomeTitle>
                           ),
                           Opacity(
                             opacity: guoDotsProgress * (1 - lazyProgress),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                _BlackDot(),
-                                SizedBox(width: 4),
-                                _BlackDot(),
-                              ],
-                            ),
+                            child: _ConvergingDots(progress: guoDotsProgress),
                           ),
                         ],
                       ),
@@ -183,7 +181,7 @@ class _AnimatedHomeTitleState extends State<_AnimatedHomeTitle>
                         ' LazyBox',
                         style: TextStyle(
                           color: titleColor,
-                          // fontFamily: 'serif',
+                          fontFamily: 'KaushanScript',
                           fontSize: 20,
                           fontWeight: FontWeight.w500,
                           letterSpacing: 1.1,
@@ -215,17 +213,74 @@ class _AnimatedHomeTitleState extends State<_AnimatedHomeTitle>
   }
 }
 
-/// GuoXiang 收缩动画的两个平行黑点。
+/// GuoXiang 收缩阶段的四点汇聚动画。
+///
+/// 四个点分别从上、右、下、左向中心移动，最终组成 2×2 点阵。
+class _ConvergingDots extends StatelessWidget {
+  final double progress;
+
+  const _ConvergingDots({required this.progress});
+
+  @override
+  Widget build(BuildContext context) {
+    final double eased = Curves.easeInOutCubic.transform(progress);
+    return SizedBox(
+      width: 48,
+      height: 28,
+      child: Stack(
+        alignment: Alignment.center,
+        children: <Widget>[
+          _movingDot(
+            start: const Offset(0, -12),
+            end: const Offset(-3.5, -3.5),
+            progress: eased,
+          ),
+          _movingDot(
+            start: const Offset(20, 0),
+            end: const Offset(3.5, -3.5),
+            progress: eased,
+          ),
+          _movingDot(
+            start: const Offset(0, 12),
+            end: const Offset(3.5, 3.5),
+            progress: eased,
+          ),
+          _movingDot(
+            start: const Offset(-20, 0),
+            end: const Offset(-3.5, 3.5),
+            progress: eased,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _movingDot({
+    required Offset start,
+    required Offset end,
+    required double progress,
+  }) {
+    return Transform.translate(
+      offset: Offset.lerp(start, end, progress) ?? end,
+      child: const _BlackDot(),
+    );
+  }
+}
+
+/// GuoXiang 收缩动画使用的黑点。
 class _BlackDot extends StatelessWidget {
   const _BlackDot();
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
+    return SizedBox(
       width: 5,
       height: 5,
       child: DecoratedBox(
-        decoration: BoxDecoration(color: Colors.black, shape: BoxShape.circle),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.onSurface,
+          shape: BoxShape.circle,
+        ),
       ),
     );
   }

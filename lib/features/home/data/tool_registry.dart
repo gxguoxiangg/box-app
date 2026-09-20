@@ -63,6 +63,12 @@ abstract final class AppRoutes {
   /// 全局功能搜索页。
   static const String search = '/search';
 
+  /// Wiki 账号登录页。
+  static const String login = '/login';
+
+  /// Wiki 新增条目编辑页。
+  static const String articleCreate = '/article/create';
+
   /// Wiki 知识库首页。
   static const String articleList = '/article';
 

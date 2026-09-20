@@ -25,7 +25,7 @@ $demoDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
 $projectDirectory = Split-Path -Parent $demoDirectory
 $flutterCommand = Get-Command flutter -ErrorAction SilentlyContinue
 $sourceApk = Join-Path $projectDirectory 'build\app\outputs\flutter-apk\app-release.apk'
-$outputApk = Join-Path $demoDirectory 'demo2-android-release.apk'
+$outputApk = Join-Path $demoDirectory 'demo3-android-release.apk'
 
 if ($null -eq $flutterCommand) {
     throw 'Flutter command was not found. Install Flutter SDK and add it to PATH.'

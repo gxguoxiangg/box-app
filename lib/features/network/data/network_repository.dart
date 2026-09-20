@@ -48,22 +48,28 @@ class ConnectivityNetworkRepository implements NetworkRepository {
   final Connectivity _connectivity;
   final NetworkInfo _networkInfo;
   final http.Client _http;
+  final bool _ownsHttpClient;
+
+  /// 释放本仓库创建的网络客户端。
+  void dispose() {
+    if (_ownsHttpClient) _http.close();
+  }
 
   /// 可注入依赖（测试时传入 Mock 的插件/客户端）。
   ConnectivityNetworkRepository({
     Connectivity? connectivity,
     NetworkInfo? networkInfo,
     http.Client? httpClient,
-  })  : _connectivity = connectivity ?? Connectivity(),
-        _networkInfo = networkInfo ?? NetworkInfo(),
-        _http = httpClient ?? http.Client();
+  }) : _connectivity = connectivity ?? Connectivity(),
+       _networkInfo = networkInfo ?? NetworkInfo(),
+       _http = httpClient ?? http.Client(),
+       _ownsHttpClient = httpClient == null;
 
   @override
   Future<NetworkStatus> getConnectionStatus() async {
-    final List<ConnectivityResult> results =
-        await _connectivity.checkConnectivity();
-    final ConnectionType type =
-        ConnectionType.fromConnectivityResults(results);
+    final List<ConnectivityResult> results = await _connectivity
+        .checkConnectivity();
+    final ConnectionType type = ConnectionType.fromConnectivityResults(results);
 
     // 仅 Wi-Fi 时尝试获取 SSID；非 Wi-Fi 场景无需请求。
     String? wifiName;
@@ -96,8 +102,9 @@ class ConnectivityNetworkRepository implements NetworkRepository {
   @override
   Future<List<LatencyResult>> testLatencies(List<String> hosts) async {
     // 并发测试，缩短整体等待时间。
-    final List<Future<LatencyResult>> futures =
-        hosts.map(_testLatency).toList();
+    final List<Future<LatencyResult>> futures = hosts
+        .map(_testLatency)
+        .toList();
     return Future.wait(futures);
   }
 
@@ -106,9 +113,7 @@ class ConnectivityNetworkRepository implements NetworkRepository {
     final String url = 'https://$host/';
     final Stopwatch stopwatch = Stopwatch()..start();
     try {
-      await _http
-          .get(Uri.parse(url))
-          .timeout(latencyTimeout);
+      await _http.get(Uri.parse(url)).timeout(latencyTimeout);
       stopwatch.stop();
       return LatencyResult(
         host: host,
@@ -142,5 +147,9 @@ class ConnectivityNetworkRepository implements NetworkRepository {
 /// 网络仓库 Provider（真实实现）。
 ///
 /// 测试时通过 `overrideWithValue` 替换为 Mock 实现。
-final networkRepositoryProvider =
-    Provider<NetworkRepository>((ref) => ConnectivityNetworkRepository());
+final networkRepositoryProvider = Provider<NetworkRepository>((ref) {
+  final ConnectivityNetworkRepository repository =
+      ConnectivityNetworkRepository();
+  ref.onDispose(repository.dispose);
+  return repository;
+});

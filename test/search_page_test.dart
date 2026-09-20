@@ -4,6 +4,7 @@
 library;
 
 import 'package:demo1/features/home/view/search_page.dart';
+import 'package:demo1/features/home/viewmodel/home_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -32,5 +33,42 @@ void main() {
     await tester.pump();
 
     expect(find.text('空'), findsOneWidget);
+  });
+
+  testWidgets('搜索页销毁后重新进入应显示完整列表且输入框为空', (WidgetTester tester) async {
+    final ProviderContainer container = ProviderContainer();
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: SearchPage()),
+      ),
+    );
+    await tester.enterText(find.byType(TextField), 'Wiki');
+    await tester.pump();
+    expect(container.read(toolSearchControllerProvider), 'Wiki');
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: SizedBox.shrink()),
+      ),
+    );
+    await tester.pump();
+    expect(container.read(toolSearchControllerProvider), isEmpty);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: SearchPage()),
+      ),
+    );
+    await tester.pump();
+    expect(find.byType(TextField), findsOneWidget);
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller!.text,
+      isEmpty,
+    );
+    expect(find.text('网络信息'), findsOneWidget);
   });
 }

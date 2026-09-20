@@ -32,17 +32,15 @@ class LatencyDetailPage extends StatelessWidget {
           _buildHeader(),
           const SizedBox(height: 16),
           // 信息列表
-          _buildDetailTile('目标主机', result.host),
-          _buildDetailTile('完整地址', result.url),
-          _buildDetailTile('连通状态', result.success ? '可达' : '不可达'),
+          _buildDetailTile(context, '目标主机', result.host),
+          _buildDetailTile(context, '完整地址', result.url),
+          _buildDetailTile(context, '连通状态', result.success ? '可达' : '不可达'),
           _buildDetailTile(
+            context,
             '延迟',
             result.success ? '${result.latencyMs} ms' : '—',
           ),
-          _buildDetailTile(
-            '测试时间',
-            '${result.testedAt.toLocal()}',
-          ),
+          _buildDetailTile(context, '测试时间', '${result.testedAt.toLocal()}'),
           const SizedBox(height: 24),
           // 占位提示：说明当前为简化版本
           const Text(
@@ -66,8 +64,11 @@ class LatencyDetailPage extends StatelessWidget {
       ),
       child: Row(
         children: <Widget>[
-          Icon(ok ? Icons.check_circle_rounded : Icons.error_rounded,
-              size: 40, color: color),
+          Icon(
+            ok ? Icons.check_circle_rounded : Icons.error_rounded,
+            size: 40,
+            color: color,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -85,12 +86,12 @@ class LatencyDetailPage extends StatelessWidget {
   }
 
   /// 单行「字段：值」。
-  Widget _buildDetailTile(String label, String value) {
+  Widget _buildDetailTile(BuildContext context, String label, String value) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(12)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
+        borderRadius: const BorderRadius.all(Radius.circular(12)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,16 +100,19 @@ class LatencyDetailPage extends StatelessWidget {
             width: 80,
             child: Text(
               label,
-              style: const TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)),
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF1F2937),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),

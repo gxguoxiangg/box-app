@@ -45,14 +45,14 @@ class _LatencyCard extends StatelessWidget {
   /// 按延迟/状态着色：成功偏绿，失败偏红。
   Color get _color => result.success
       ? (result.latencyMs ?? 0) < 150
-          ? const Color(0xFF00A87E)
-          : const Color(0xFFF59E0B)
+            ? const Color(0xFF00A87E)
+            : const Color(0xFFF59E0B)
       : const Color(0xFFEF4444);
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surfaceContainerLow,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         borderRadius: BorderRadius.circular(14),
@@ -66,7 +66,9 @@ class _LatencyCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFFF0F0F0)),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outlineVariant,
+            ),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -85,10 +87,10 @@ class _LatencyCard extends StatelessWidget {
                 result.host.replaceFirst('www.', ''),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF374151),
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 4),

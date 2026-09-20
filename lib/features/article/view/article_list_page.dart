@@ -11,6 +11,8 @@ import 'package:go_router/go_router.dart';
 import '../../../core/network/api_client.dart';
 import '../../../shared/widgets/error_retry_view.dart';
 import '../../home/data/tool_registry.dart';
+import '../../auth/models/auth_session.dart';
+import '../../auth/viewmodel/auth_viewmodel.dart';
 import '../models/article.dart';
 import '../models/keyword_collection.dart';
 import '../viewmodel/article_viewmodel.dart';
@@ -26,6 +28,15 @@ class ArticleListPage extends ConsumerStatefulWidget {
 class _ArticleListPageState extends ConsumerState<ArticleListPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Provider 可能已经缓存了接口结果，进入页面时仍重新打乱一次顺序。
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) ref.read(articleKeywordsProvider.notifier).shuffle();
+    });
+  }
 
   @override
   void dispose() {
@@ -48,7 +59,7 @@ class _ArticleListPageState extends ConsumerState<ArticleListPage> {
       },
       child: Scaffold(
         key: _scaffoldKey,
-        backgroundColor: const Color(0xFFF5F6FA),
+        backgroundColor: Theme.of(context).colorScheme.surface,
         endDrawer: _buildDirectoryDrawer(allItems),
         floatingActionButton: FloatingActionButton(
           onPressed: _onAddPressed,
@@ -90,7 +101,7 @@ class _ArticleListPageState extends ConsumerState<ArticleListPage> {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: const Color(0xFFE8EEFF),
+              color: Theme.of(context).colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(9),
             ),
             child: const Icon(
@@ -134,7 +145,7 @@ class _ArticleListPageState extends ConsumerState<ArticleListPage> {
                   onPressed: _clearSearch,
                 ),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: Theme.of(context).colorScheme.surfaceContainerLow,
           isDense: true,
           contentPadding: const EdgeInsets.symmetric(vertical: 10),
           border: OutlineInputBorder(
@@ -152,8 +163,18 @@ class _ArticleListPageState extends ConsumerState<ArticleListPage> {
 
   /// 横向滚动的关键词筛选器。
   Widget _buildKeywordFilter() {
-    final AsyncValue<KeywordCollection> keywordsAsync =
-        ref.watch(articleKeywordsProvider);
+    ref.listen<AsyncValue<KeywordCollection>>(articleKeywordsProvider, (
+      AsyncValue<KeywordCollection>? previous,
+      AsyncValue<KeywordCollection> next,
+    ) {
+      // 首次异步加载完成后随机一次，覆盖首帧仍处于 loading 的情况。
+      if (next.hasValue && previous?.hasValue != true) {
+        ref.read(articleKeywordsProvider.notifier).shuffle();
+      }
+    });
+    final AsyncValue<KeywordCollection> keywordsAsync = ref.watch(
+      articleKeywordsProvider,
+    );
     return SizedBox(
       height: 46,
       child: keywordsAsync.when(
@@ -175,9 +196,7 @@ class _ArticleListPageState extends ConsumerState<ArticleListPage> {
           keywords: collection.keywords,
           selected: ref.watch(articleKeywordControllerProvider),
           onSelected: (String? keyword) {
-            ref
-                .read(articleKeywordControllerProvider.notifier)
-                .select(keyword);
+            ref.read(articleKeywordControllerProvider.notifier).select(keyword);
           },
         ),
       ),
@@ -232,8 +251,9 @@ class _ArticleListPageState extends ConsumerState<ArticleListPage> {
 
   /// 显示服务端搜索结果。
   Widget _buildSearchResults(String query) {
-    final AsyncValue<List<ArticleItemSummary>> resultAsync =
-        ref.watch(articleSearchResultProvider);
+    final AsyncValue<List<ArticleItemSummary>> resultAsync = ref.watch(
+      articleSearchResultProvider,
+    );
     if (resultAsync.isLoading) {
       return const Center(child: CircularProgressIndicator(strokeWidth: 2.5));
     }
@@ -346,9 +366,10 @@ class _ArticleListPageState extends ConsumerState<ArticleListPage> {
   }
 
   void _onAddPressed() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('「添加」功能待定，敬请期待')),
-    );
+    final AuthSession? session = ref
+        .read(authSessionProvider.notifier)
+        .validSession;
+    context.push(session == null ? AppRoutes.login : AppRoutes.articleCreate);
   }
 }
 
@@ -364,10 +385,10 @@ class _CountLabel extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
       child: Text(
         '共 $count 篇',
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
-          color: Color(0xFF4B5563),
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
       ),
     );
@@ -440,18 +461,21 @@ class _ArticleListTile extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  const Icon(Icons.description_outlined,
-                      size: 20, color: Color(0xFF3B6CF6)),
+                  const Icon(
+                    Icons.description_outlined,
+                    size: 20,
+                    color: Color(0xFF3B6CF6),
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       item.displayTitle,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF111827),
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ),
@@ -463,22 +487,26 @@ class _ArticleListTile extends StatelessWidget {
                   spacing: 6,
                   runSpacing: 4,
                   children: item.keywordList
-                      .map((String keyword) => Text(
-                            '#$keyword',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF6B7280),
-                            ),
-                          ))
+                      .map(
+                        (String keyword) => Text(
+                          '#$keyword',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      )
                       .toList(growable: false),
                 ),
               ],
               const SizedBox(height: 10),
               Text(
                 '更新于 ${_formatDate(updatedAt)}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: Color(0xFF9CA3AF),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ],

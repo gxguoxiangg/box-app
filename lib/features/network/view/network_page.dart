@@ -27,11 +27,12 @@ class NetworkPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<NetworkData> asyncState =
-        ref.watch(networkViewModelProvider);
+    final AsyncValue<NetworkData> asyncState = ref.watch(
+      networkViewModelProvider,
+    );
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -45,15 +46,16 @@ class NetworkPage extends ConsumerWidget {
                 children: <Widget>[
                   IconButton(
                     tooltip: '返回',
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                        size: 20),
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      size: 20,
+                    ),
                     onPressed: () => Navigator.of(context).maybePop(),
                   ),
                   const SizedBox(width: 4),
                   const Text(
                     '网络信息',
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -62,9 +64,7 @@ class NetworkPage extends ConsumerWidget {
             // -----------------------------------------------------------------
             // 主体：按状态渲染
             // -----------------------------------------------------------------
-            Expanded(
-              child: _buildBody(context, ref, asyncState),
-            ),
+            Expanded(child: _buildBody(context, ref, asyncState)),
           ],
         ),
       ),
@@ -148,9 +148,9 @@ class NetworkPage extends ConsumerWidget {
         Expanded(
           child: FilledButton.tonalIcon(
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('功能开发中，敬请期待')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('功能开发中，敬请期待')));
             },
             icon: const Icon(Icons.more_horiz_rounded, size: 20),
             label: const Text('更多工具'),

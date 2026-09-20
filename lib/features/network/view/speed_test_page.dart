@@ -30,18 +30,18 @@ class SpeedTestPage extends StatelessWidget {
         ),
         title: const Text('网速测试'),
       ),
-      body: kIsWeb ? _buildWebFallback(context) : _buildWebView(),
+      body: kIsWeb ? _buildWebFallback(context) : _buildWebView(context),
     );
   }
 
   /// 内嵌 WebView（移动端 / 桌面端）。
-  Widget _buildWebView() {
+  Widget _buildWebView(BuildContext context) {
     // 初始化并加载测试地址。
     final WebViewController controller = WebViewController()
       // 允许执行页面内 JavaScript（部分测速脚本需要）。
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       // 背景色设为浅灰，避免加载白屏突兀。
-      ..setBackgroundColor(const Color(0xFFF5F6FA))
+      ..setBackgroundColor(Theme.of(context).colorScheme.surface)
       ..loadRequest(Uri.parse(testUrl));
 
     return WebViewWidget(controller: controller);
@@ -53,8 +53,11 @@ class SpeedTestPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          const Icon(Icons.travel_explore_rounded,
-              size: 56, color: Color(0xFF9CA3AF)),
+          const Icon(
+            Icons.travel_explore_rounded,
+            size: 56,
+            color: Color(0xFF9CA3AF),
+          ),
           const SizedBox(height: 16),
           const Text(
             '当前平台暂不支持应用内网页测试',
@@ -79,12 +82,15 @@ class SpeedTestPage extends StatelessWidget {
   /// 调用系统浏览器打开测试地址。
   Future<void> _openInBrowser(BuildContext context) async {
     final Uri uri = Uri.parse(testUrl);
-    final bool launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    final bool launched = await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
+    );
     if (!launched && context.mounted) {
       // 打开失败时的兜底提示。
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('打开浏览器失败，请手动访问测试页面')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('打开浏览器失败，请手动访问测试页面')));
     }
   }
 }
