@@ -44,7 +44,7 @@ class AboutPage extends StatelessWidget {
             const SizedBox(height: 16),
             // 应用名称
             const Text(
-              AppConstants.appName,
+              'BusyBox',
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 6),

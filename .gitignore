@@ -36,7 +36,7 @@ migrate_working_dir/
 /build/
 /coverage/
 .agents/
-demo/*apk
+/demo/*.apk
 # Symbolication related
 app.*.symbols
 

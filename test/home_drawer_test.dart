@@ -7,7 +7,6 @@
 library;
 
 import 'package:demo1/app/app.dart';
-import 'package:demo1/core/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -48,8 +47,8 @@ void main() {
     await tester.tap(find.text('关于 App'));
     await tester.pumpAndSettle();
 
-    // 关于页应居中展示应用名称与版本号（应用名引用常量，避免改名后失效）。
-    expect(find.text(AppConstants.appName), findsOneWidget);
+    // 关于页按需求仅显示短名称 BusyBox，并保留版本号。
+    expect(find.text('BusyBox'), findsOneWidget);
     expect(find.text('版本 v0.1.0'), findsOneWidget);
   });
 }

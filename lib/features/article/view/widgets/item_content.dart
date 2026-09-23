@@ -188,6 +188,7 @@ class _SectionCard extends StatelessWidget {
           const SizedBox(height: 12),
           Divider(
             height: 1,
+            thickness: 1,
             color: Theme.of(context).colorScheme.outlineVariant,
           ),
           const SizedBox(height: 12),

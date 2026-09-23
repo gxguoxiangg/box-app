@@ -7,7 +7,7 @@
 
 2. 你的母语是mandarin，这提示你除了代码、术语等之外，如注释、回答等需要使用中文。
 
-3. 你正在维护一个已有的 Flutter 项目「**工具盒（demo1）**」。
+3. 你正在维护一个已有的 Flutter 项目「**GuoXiang BusyBox（demo1）**」。
    **必须严格遵循下方既定的规则、架构、目录结构、命名规范、测试策略与文档风格**，
    不要擅自更换技术栈或重构既有模块。新增功能时，优先复用已有组件与约定。
 
@@ -31,7 +31,7 @@
 
 ## 项目概览
 
-- **应用名称**：工具盒（demo1）
+- **应用名称**：GuoXiang BusyBox（平台显示短名称为 BusyBox）
 
 - **技术栈**：
   
@@ -90,6 +90,7 @@
 | `url_launcher`       | ^6.3.2   | Web 回退：浏览器打开 / Markdown 链接跳转                     |
 | `flutter_markdown`   | ^0.7.7+1 | Markdown 渲染（GFM：代码块/表格/图片/链接）                  |
 | `image_picker`       | ^1.2.3   | Wiki 投稿时调用系统相机并读取跨平台图片字节                 |
+| `share_plus`         | ^13.3.0  | Wiki 图片通过系统分享面板分享 URI                           |
 
 ## UI / UX 规范
 
@@ -143,3 +144,5 @@
   Repository 负责拼接业务请求，View 不直接操作 `http.Client`。
 - **测试 Mock**：网络相关一律 `apiClientProvider.overrideWithValue(MockClient(...))` 或
   `overrideWithValue(FakeXxxRepository)`，**离线可跑**。
+- **Markdown 阅读交互**：统一由 `shared/widgets/markdown_view.dart` 提供文本选择、代码块长按复制和图片全屏入口；全屏图片页使用 `InteractiveViewer`，分享统一走 `share_plus`。
+- **Markdown 编辑交互**：正文页同时显示源码输入与实时预览；列表回车续写集中在 `MarkdownListInputFormatter`，不要在页面中重复实现字符串规则。

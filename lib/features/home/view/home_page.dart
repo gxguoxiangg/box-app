@@ -81,7 +81,7 @@ class HomePage extends ConsumerWidget {
 /// 主页首次打开时的标题动画。
 ///
 /// 动画严格按需求分段执行：GuoXiang 从四个方向收缩成居中四点并消失，
-/// LazyBox 随后渐隐，最后显示“主页”。组件每次重新创建时都会重新播放一次。
+/// BusyBox 随后渐隐，最后显示“主页”。组件每次重新创建时都会重新播放一次。
 class _AnimatedHomeTitle extends StatefulWidget {
   const _AnimatedHomeTitle();
 
@@ -101,8 +101,8 @@ class _AnimatedHomeTitleState extends State<_AnimatedHomeTitle>
       vsync: this,
       duration: const Duration(milliseconds: 1800),
     );
-    // 品牌文字先停留 1 秒，再开始收缩和淡出动画。
-    _startTimer = Timer(const Duration(seconds: 1), () {
+    // 品牌文字先停留 1.5 秒，再开始收缩和淡出动画。
+    _startTimer = Timer(const Duration(milliseconds: 1500), () {
       if (mounted) {
         _controller.forward();
       }
@@ -160,10 +160,13 @@ class _AnimatedHomeTitleState extends State<_AnimatedHomeTitle>
                                 'GuoXiang',
                                 style: TextStyle(
                                   color: titleColor,
-                                  fontFamily: 'ShadowsIntoLight',
+                                  // fontFamily: 'ShadowsIntoLight',
+                                  fontFamily: 'StardosStencil-Regular',
                                   fontSize: 20,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 0.4,
+                                  fontWeight: FontWeight.w600,
+                                  
+                                  // letterSpacing: 0.4,
+                                  letterSpacing: -0.4,
                                 ),
                               ),
                             ),
@@ -178,12 +181,16 @@ class _AnimatedHomeTitleState extends State<_AnimatedHomeTitle>
                     Opacity(
                       opacity: 1 - lazyProgress,
                       child: Text(
-                        ' LazyBox',
+                        ' BusyBox',
                         style: TextStyle(
                           color: titleColor,
-                          fontFamily: 'KaushanScript',
+                          // fontFamily: 'KaushanScript',
+                          // fontFamily: 'IMFellEnglishSC-Regular',
+                          // fontFamily: 'StardosStencil-Regular',
+                          // fontFamily: 'IMFellEnglishSC-Regular',
+                          fontFamily: 'StardosStencil-Regular',
                           fontSize: 20,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                           letterSpacing: 1.1,
                         ),
                       ),
@@ -215,8 +222,11 @@ class _AnimatedHomeTitleState extends State<_AnimatedHomeTitle>
 
 /// GuoXiang 收缩阶段的四点汇聚动画。
 ///
-/// 四个点分别从上、右、下、左向中心移动，最终组成 2×2 点阵。
+/// 四个点分别从上、右、下、左向中心移动，最终横向并排成一行。
 class _ConvergingDots extends StatelessWidget {
+  /// 四个圆点最终状态的中心间距；统一在此调整，便于后续继续微调。
+  static const double _dotSpacing = 14;
+
   final double progress;
 
   const _ConvergingDots({required this.progress});
@@ -232,22 +242,22 @@ class _ConvergingDots extends StatelessWidget {
         children: <Widget>[
           _movingDot(
             start: const Offset(0, -12),
-            end: const Offset(-3.5, -3.5),
+            end: const Offset(-1.5 * _dotSpacing, 0),
             progress: eased,
           ),
           _movingDot(
             start: const Offset(20, 0),
-            end: const Offset(3.5, -3.5),
+            end: const Offset(-0.5 * _dotSpacing, 0),
             progress: eased,
           ),
           _movingDot(
             start: const Offset(0, 12),
-            end: const Offset(3.5, 3.5),
+            end: const Offset(0.5 * _dotSpacing, 0),
             progress: eased,
           ),
           _movingDot(
             start: const Offset(-20, 0),
-            end: const Offset(-3.5, 3.5),
+            end: const Offset(1.5 * _dotSpacing, 0),
             progress: eased,
           ),
         ],

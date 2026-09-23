@@ -9,7 +9,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../../shared/widgets/markdown_view.dart';
 import '../../auth/models/auth_session.dart';
 import '../../auth/viewmodel/auth_viewmodel.dart';
 import '../../home/data/tool_registry.dart';
@@ -18,6 +17,7 @@ import '../models/article_submission.dart';
 import '../models/keyword_collection.dart';
 import '../viewmodel/article_draft_viewmodel.dart';
 import '../viewmodel/article_viewmodel.dart';
+import 'widgets/markdown_wysiwyg_editor.dart';
 
 /// Wiki 条目新增页面。
 class ArticleCreatePage extends ConsumerStatefulWidget {
@@ -41,27 +41,33 @@ class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
   final PageController _pageController = PageController();
   final Map<DraftSection, TextEditingController> _controllers =
       <DraftSection, TextEditingController>{};
-  final Map<DraftSection, FocusNode> _focusNodes =
-      <DraftSection, FocusNode>{};
-  final TextEditingController _overviewController = TextEditingController();
-  final FocusNode _overviewFocus = FocusNode();
+  final Map<DraftSection, FocusNode> _focusNodes = <DraftSection, FocusNode>{};
+  final Map<DraftSection, GlobalKey<MarkdownWysiwygEditorState>>
+  _wysiwygEditorKeys = <DraftSection, GlobalKey<MarkdownWysiwygEditorState>>{
+    for (final DraftSection section in DraftSection.values)
+      if (section != DraftSection.question)
+        section: GlobalKey<MarkdownWysiwygEditorState>(),
+  };
+  final GlobalKey<MarkdownWysiwygEditorState> _overviewEditorKey =
+      GlobalKey<MarkdownWysiwygEditorState>();
   int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
-    final ArticleDraft draft =
-        ref.read(articleDraftControllerProvider).draft;
+    final ArticleDraft draft = ref.read(articleDraftControllerProvider).draft;
     for (final DraftSection section in DraftSection.values) {
-      _controllers[section] =
-          TextEditingController(text: draft.textFor(section));
+      _controllers[section] = TextEditingController(
+        text: draft.textFor(section),
+      );
       final FocusNode node = FocusNode()..addListener(_refreshFocusState);
       _focusNodes[section] = node;
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final AuthSession? session =
-          ref.read(authSessionProvider.notifier).validSession;
+      final AuthSession? session = ref
+          .read(authSessionProvider.notifier)
+          .validSession;
       if (session == null) context.go(AppRoutes.login);
     });
   }
@@ -81,21 +87,21 @@ class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
         ..removeListener(_refreshFocusState)
         ..dispose();
     }
-    _overviewController.dispose();
-    _overviewFocus.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final ArticleDraftState state = ref.watch(articleDraftControllerProvider);
-    ref.listen<ArticleDraftState>(articleDraftControllerProvider,
-        (ArticleDraftState? previous, ArticleDraftState next) {
+    ref.listen<ArticleDraftState>(articleDraftControllerProvider, (
+      ArticleDraftState? previous,
+      ArticleDraftState next,
+    ) {
       if (next.errorMessage != null &&
           next.errorMessage != previous?.errorMessage) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.errorMessage!)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
       }
     });
 
@@ -130,8 +136,8 @@ class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
                     Text(
                       _stepLabels[_currentPage],
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     const Spacer(),
                     Text('${_currentPage + 1} / ${_stepLabels.length}'),
@@ -176,45 +182,23 @@ class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
             children: <Widget>[
               Text(
                 section.label,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
               ),
               const Divider(height: 24),
               Expanded(
-                child: TextField(
-                  controller: controller,
-                  focusNode: focusNode,
-                  expands: true,
-                  minLines: null,
-                  maxLines: null,
-                  textAlignVertical: TextAlignVertical.top,
-                  decoration: InputDecoration(
-                    hintText: section == DraftSection.question
-                        ? '请输入问题标题...'
-                        : '请输入 Markdown 内容...',
-                    border: const OutlineInputBorder(),
-                    alignLabelWithHint: true,
-                  ),
-                  onChanged: (String value) => ref
-                      .read(articleDraftControllerProvider.notifier)
-                      .updateText(section, value),
-                ),
-              ),
-              AnimatedSize(
-                duration: const Duration(milliseconds: 180),
-                child: focusNode.hasFocus
-                    ? Padding(
-                        padding: const EdgeInsets.only(top: 12),
-                        child: _MarkdownToolbar(
-                          isUploading: state.isUploading,
-                          cameraEnabled: section != DraftSection.question,
-                          onInsert: (String value) =>
-                              _insertText(section, value),
-                          onCamera: () => _captureImage(section),
-                        ),
+                child: section == DraftSection.question
+                    ? _buildSourceField(
+                        section: section,
+                        controller: controller,
+                        focusNode: focusNode,
                       )
-                    : const SizedBox.shrink(),
+                    : _buildMarkdownEditor(
+                        section: section,
+                        markdown: state.draft.textFor(section),
+                        state: state,
+                      ),
               ),
             ],
           ),
@@ -223,9 +207,50 @@ class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
     );
   }
 
+  Widget _buildSourceField({
+    required DraftSection section,
+    required TextEditingController controller,
+    required FocusNode focusNode,
+  }) {
+    return TextField(
+      controller: controller,
+      focusNode: focusNode,
+      expands: true,
+      minLines: null,
+      maxLines: null,
+      textAlignVertical: TextAlignVertical.top,
+      decoration: const InputDecoration(
+        hintText: '请输入问题标题...',
+        border: OutlineInputBorder(),
+        alignLabelWithHint: true,
+      ),
+      onChanged: (String value) => ref
+          .read(articleDraftControllerProvider.notifier)
+          .updateText(section, value),
+    );
+  }
+
+  Widget _buildMarkdownEditor({
+    required DraftSection section,
+    required String markdown,
+    required ArticleDraftState state,
+  }) {
+    return MarkdownWysiwygEditor(
+      key: _wysiwygEditorKeys[section],
+      inputRole: 'article-${section.name}',
+      initialMarkdown: markdown,
+      isUploading: state.isUploading,
+      onCamera: () => _captureImage(section),
+      onChanged: (String value) => ref
+          .read(articleDraftControllerProvider.notifier)
+          .updateText(section, value),
+    );
+  }
+
   Widget _buildKeywordStep(ArticleDraftState state) {
-    final AsyncValue<KeywordCollection> keywords =
-        ref.watch(articleKeywordsProvider);
+    final AsyncValue<KeywordCollection> keywords = ref.watch(
+      articleKeywordsProvider,
+    );
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
       child: Card(
@@ -236,9 +261,9 @@ class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
             children: <Widget>[
               Text(
                 '关键字（可多选）',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
               ),
               const Divider(height: 24),
               Expanded(
@@ -253,8 +278,7 @@ class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
                       label: const Text('重新加载关键字'),
                     ),
                   ),
-                  data: (KeywordCollection collection) =>
-                      SingleChildScrollView(
+                  data: (KeywordCollection collection) => SingleChildScrollView(
                     child: Wrap(
                       spacing: 8,
                       runSpacing: 8,
@@ -280,69 +304,67 @@ class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
   }
 
   Widget _buildCommitStep(ArticleDraftState state) {
-    return ListView(
+    return Padding(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-      children: <Widget>[
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Text(
-                  '文章预览',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+      child: Column(
+        children: <Widget>[
+          Expanded(
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    Text(
+                      '文章总览（可直接编辑）',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
+                    ),
+                    const Divider(height: 24),
+                    Expanded(
+                      child: MarkdownWysiwygEditor(
+                        key: _overviewEditorKey,
+                        inputRole: 'article-overview',
+                        initialMarkdown: state.draft.markdownOverview,
+                        onChanged: (String value) => ref
+                            .read(articleDraftControllerProvider.notifier)
+                            .updateOverview(value),
+                      ),
+                    ),
+                  ],
                 ),
-                const Divider(height: 24),
-                MarkdownView(markdown: state.draft.markdownOverview),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: _overviewController,
-          focusNode: _overviewFocus,
-          minLines: 10,
-          maxLines: 20,
-          decoration: const InputDecoration(
-            labelText: '编辑 Markdown 总览',
-            alignLabelWithHint: true,
-            border: OutlineInputBorder(),
-          ),
-          onChanged: (String value) => ref
-              .read(articleDraftControllerProvider.notifier)
-              .updateOverview(value),
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: state.isSubmitting ? null : _confirmDelete,
-                icon: const Icon(Icons.close_rounded),
-                label: const Text('删除草稿'),
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: FilledButton.icon(
-                onPressed: state.isSubmitting ? null : _confirmSubmit,
-                icon: state.isSubmitting
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.check_rounded),
-                label: const Text('提交'),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: state.isSubmitting ? null : _confirmDelete,
+                  icon: const Icon(Icons.close_rounded),
+                  label: const Text('删除草稿'),
+                ),
               ),
-            ),
-          ],
-        ),
-      ],
+              const SizedBox(width: 12),
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: state.isSubmitting ? null : _confirmSubmit,
+                  icon: state.isSubmitting
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.check_rounded),
+                  label: const Text('提交'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -383,20 +405,15 @@ class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
     if (index < DraftSection.values.length) {
       final DraftSection section = DraftSection.values[index];
       final TextEditingController controller = _controllers[section]!;
-      final String currentValue =
-          ref.read(articleDraftControllerProvider).draft.textFor(section);
+      final String currentValue = ref
+          .read(articleDraftControllerProvider)
+          .draft
+          .textFor(section);
       if (controller.text != currentValue) {
         controller
           ..text = currentValue
           ..selection = TextSelection.collapsed(offset: currentValue.length);
       }
-    }
-    if (index == _stepLabels.length - 1) {
-      final String markdown =
-          ref.read(articleDraftControllerProvider).draft.markdownOverview;
-      _overviewController
-        ..text = markdown
-        ..selection = TextSelection.collapsed(offset: markdown.length);
     }
   }
 
@@ -406,20 +423,6 @@ class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
       duration: const Duration(milliseconds: 260),
       curve: Curves.easeOutCubic,
     );
-  }
-
-  void _insertText(DraftSection section, String insertion) {
-    final TextEditingController controller = _controllers[section]!;
-    final TextSelection selection = controller.selection;
-    final int start = selection.isValid ? selection.start : controller.text.length;
-    final int end = selection.isValid ? selection.end : controller.text.length;
-    final String next = controller.text.replaceRange(start, end, insertion);
-    controller
-      ..text = next
-      ..selection = TextSelection.collapsed(offset: start + insertion.length);
-    ref
-        .read(articleDraftControllerProvider.notifier)
-        .updateText(section, next);
   }
 
   Future<void> _captureImage(DraftSection section) async {
@@ -438,13 +441,16 @@ class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
             section: section,
           );
       if (image != null && mounted) {
-        _insertText(section, '\n![${image.altText}](${image.url})\n');
+        _wysiwygEditorKeys[section]?.currentState?.insertImage(
+          url: image.url,
+          altText: image.altText,
+        );
       }
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('当前设备无法打开相机')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('当前设备无法打开相机')));
     }
   }
 
@@ -454,8 +460,9 @@ class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
       confirmLabel: '提交',
     );
     if (!confirmed || !mounted) return;
-    final ArticleSubmission? result =
-        await ref.read(articleDraftControllerProvider.notifier).submit();
+    final ArticleSubmission? result = await ref
+        .read(articleDraftControllerProvider.notifier)
+        .submit();
     if (!mounted) return;
     if (result == null) {
       if (ref.read(authSessionProvider) == null) context.go(AppRoutes.login);
@@ -465,9 +472,9 @@ class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
       ..invalidate(articleProvider)
       ..invalidate(articleKeywordsProvider);
     ref.read(articleDraftControllerProvider.notifier).clear();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('提交成功（条目 ${result.itemId}）')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('提交成功（条目 ${result.itemId}）')));
     context.go(AppRoutes.articleList);
   }
 
@@ -478,9 +485,9 @@ class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
     );
     if (!confirmed || !mounted) return;
     ref.read(articleDraftControllerProvider.notifier).clear();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('草稿已删除')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('草稿已删除')));
     context.go(AppRoutes.articleList);
   }
 
@@ -505,55 +512,6 @@ class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
           ),
         ) ??
         false;
-  }
-}
-
-/// 输入框聚焦时显示在键盘上方的 Markdown 快捷工具栏。
-class _MarkdownToolbar extends StatelessWidget {
-  final bool isUploading;
-  final bool cameraEnabled;
-  final ValueChanged<String> onInsert;
-  final VoidCallback onCamera;
-
-  const _MarkdownToolbar({
-    required this.isUploading,
-    required this.cameraEnabled,
-    required this.onInsert,
-    required this.onCamera,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      borderRadius: BorderRadius.circular(28),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          _button('加粗', Icons.format_bold_rounded, () => onInsert('**粗体**')),
-          _button('代码块', Icons.code_rounded,
-              () => onInsert('```\n代码\n```')),
-          _button('有序列表', Icons.format_list_numbered_rounded,
-              () => onInsert('1. ')),
-          _button('无序列表', Icons.format_list_bulleted_rounded,
-              () => onInsert('- ')),
-          _button(
-            '拍照',
-            isUploading ? Icons.hourglass_top_rounded : Icons.photo_camera_rounded,
-            cameraEnabled && !isUploading ? onCamera : null,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _button(String tooltip, IconData icon, VoidCallback? onPressed) {
-    return IconButton(
-      tooltip: tooltip,
-      onPressed: onPressed,
-      icon: Icon(icon, size: 20),
-    );
   }
 }
 

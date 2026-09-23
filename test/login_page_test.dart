@@ -11,8 +11,16 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
 void main() {
-  testWidgets('错误账号应在密码框下显示指定红色提示',
-      (WidgetTester tester) async {
+  testWidgets('忘记密码入口提示联系管理员', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const ProviderScope(child: MaterialApp(home: LoginPage())),
+    );
+    await tester.tap(find.text('忘记密码'));
+    await tester.pump();
+    expect(find.text('请联系管理员！'), findsOneWidget);
+  });
+
+  testWidgets('错误账号应在密码框下显示指定红色提示', (WidgetTester tester) async {
     final ApiClient apiClient = ApiClient(
       client: MockClient((http.Request request) async {
         return http.Response('{"detail":"Unauthorized"}', 401);
@@ -20,9 +28,7 @@ void main() {
     );
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
-          apiClientProvider.overrideWithValue(apiClient),
-        ],
+        overrides: [apiClientProvider.overrideWithValue(apiClient)],
         child: const MaterialApp(home: LoginPage()),
       ),
     );

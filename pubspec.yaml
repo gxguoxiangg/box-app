@@ -8,6 +8,7 @@ environment:
 
 dependencies:
   connectivity_plus: ^7.3.1
+  file_saver: ^0.4.0
   flutter:
     sdk: flutter
   flutter_markdown: ^0.7.7+1
@@ -16,7 +17,9 @@ dependencies:
   http: ^1.6.0
   image_picker: ^1.2.3
   network_info_plus: ^8.2.1
+  share_plus: ^13.3.0
   shared_preferences: ^2.5.5
+  super_editor: ^0.3.0-dev.52
   url_launcher: ^6.3.2
   webview_flutter: ^4.14.1
 
@@ -34,3 +37,12 @@ flutter:
     - family: KaushanScript
       fonts:
         - asset: resource/font/KaushanScript-Regular.ttf
+    - family: Rye-Regular
+      fonts:
+       - asset: resource/font/Rye-Regular.ttf
+    - family: IMFellEnglishSC-Regular
+      fonts:
+       - asset: resource/font/IMFellEnglishSC-Regular.ttf
+    - family: StardosStencil-Regular
+      fonts:
+       - asset: resource/font/StardosStencil-Regular.ttf

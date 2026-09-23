@@ -13,8 +13,51 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:super_editor/super_editor.dart';
 
 void main() {
+  testWidgets('Markdown 正文使用单一所见即所得编辑区域', (WidgetTester tester) async {
+    final ApiClient apiClient = ApiClient(
+      client: MockClient((_) async => http.Response('{"keywords":[]}', 200)),
+    );
+    final ProviderContainer container = ProviderContainer(
+      overrides: [apiClientProvider.overrideWithValue(apiClient)],
+    );
+    addTearDown(() {
+      container.dispose();
+      apiClient.dispose();
+    });
+    container
+        .read(authSessionProvider.notifier)
+        .setSession(
+          AuthSession(
+            accessToken: 'jwt-token',
+            tokenType: 'bearer',
+            expiresIn: 3600,
+            username: 'tester',
+            expiresAt: DateTime.now().add(const Duration(hours: 1)),
+          ),
+        );
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: ArticleCreatePage()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('下一张卡片'));
+    await tester.pumpAndSettle();
+    expect(find.byType(SuperEditor), findsOneWidget);
+    expect(find.text('实时预览'), findsNothing);
+    expect(find.byTooltip('加粗'), findsOneWidget);
+    expect(find.byTooltip('有序列表'), findsOneWidget);
+    expect(find.byTooltip('无序列表'), findsOneWidget);
+
+    container.read(authSessionProvider.notifier).clear();
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   testWidgets('编辑器应按七张卡片进入可编辑总览', (WidgetTester tester) async {
     final ApiClient apiClient = ApiClient(
       client: MockClient((http.Request request) async {
@@ -63,10 +106,8 @@ void main() {
     }
 
     expect(find.text('7 / 7'), findsOneWidget);
-    expect(find.text('文章预览'), findsOneWidget);
-    expect(find.text('编辑 Markdown 总览'), findsOneWidget);
-    await tester.drag(find.byType(ListView), const Offset(0, -500));
-    await tester.pumpAndSettle();
+    expect(find.text('文章总览（可直接编辑）'), findsOneWidget);
+    expect(find.byType(SuperEditor), findsOneWidget);
     expect(find.text('提交'), findsOneWidget);
     expect(find.text('删除草稿'), findsOneWidget);
     container.read(authSessionProvider.notifier).clear();
@@ -116,8 +157,6 @@ void main() {
       await tester.tap(find.byTooltip('下一张卡片'));
       await tester.pumpAndSettle();
     }
-    await tester.drag(find.byType(ListView), const Offset(0, -500));
-    await tester.pumpAndSettle();
     await tester.tap(find.text('提交'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, '提交').last);

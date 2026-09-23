@@ -1,7 +1,7 @@
 /// Wiki 登录页面。
 ///
 /// 当前页面完成用户名密码登录和临时失败锁定，登录成功后进入投稿页。
-/// 忘记密码功能按需求暂不实现。
+/// 忘记密码入口当前提示用户联系管理员。
 library;
 
 import 'package:flutter/material.dart';
@@ -65,8 +65,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   'Wiki',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -101,12 +101,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     prefixIcon: const Icon(Icons.lock_outline_rounded),
                     suffixIcon: IconButton(
                       tooltip: _obscurePassword ? '显示密码' : '隐藏密码',
-                      icon: Icon(_obscurePassword
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined),
-                      onPressed: () => setState(
-                        () => _obscurePassword = !_obscurePassword,
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
                       ),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
                     ),
                     border: const OutlineInputBorder(),
                   ),
@@ -117,17 +118,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   const SizedBox(height: 8),
                   Text(
                     authState.errorMessage ?? '',
-                    style: const TextStyle(
-                      color: Colors.red,
-                      fontSize: 13,
-                    ),
+                    style: const TextStyle(color: Colors.red, fontSize: 13),
                   ),
                 ],
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: null,
-                    child: const Text('忘记密码？（功能暂不实现）'),
+                    onPressed: _showForgotPasswordMessage,
+                    child: const Text('忘记密码'),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -162,6 +160,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     if (!mounted || session == null) return;
     ref.read(authSessionProvider.notifier).setSession(session);
     context.go(AppRoutes.articleCreate);
+  }
+
+  void _showForgotPasswordMessage() {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          content: Text('请联系管理员！'),
+          duration: Duration(seconds: 3),
+        ),
+      );
   }
 }
 
