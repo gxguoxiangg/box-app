@@ -19,6 +19,11 @@ class NetworkInfoData {
   /// Wi-Fi BSSID（路由器 MAC 地址）。
   final String? bssid;
 
+  /// 当前 Wi-Fi 接入点的 MAC，格式为 XXXX-XXXX-XXXX。
+  ///
+  /// BSSID 是路由器接入点地址，不是本机网卡 MAC；VPN 建立时仍可来自底层 Wi-Fi。
+  String? get accessPointMac => formatAccessPointMac(bssid);
+
   /// IPv4 地址。
   final String? ipv4;
 
@@ -63,4 +68,17 @@ class NetworkInfoData {
     this.channel,
     this.band,
   });
+}
+
+/// 规范化接入点 BSSID；过滤系统脱敏值和无效地址。
+String? formatAccessPointMac(String? raw) {
+  if (raw == null) return null;
+  final String hex = raw.replaceAll(RegExp(r'[:\-]'), '').toUpperCase();
+  if (!RegExp(r'^[0-9A-F]{12}$').hasMatch(hex) ||
+      hex == '020000000000' ||
+      hex == '000000000000' ||
+      hex == 'FFFFFFFFFFFF') {
+    return null;
+  }
+  return '${hex.substring(0, 4)}-${hex.substring(4, 8)}-${hex.substring(8)}';
 }

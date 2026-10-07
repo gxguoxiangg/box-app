@@ -30,8 +30,20 @@ abstract class NetworkRepository {
   Future<List<LatencyResult>> testLatencies(List<String> hosts);
 }
 
+/// 可选的连接变更通知能力；静态仓库和离线测试无需实现。
+abstract interface class NetworkConnectionEvents {
+  /// 当底层连接类型改变时发送通知。
+  Stream<void> get connectionChanges;
+}
+
 /// 基于真实插件的仓库实现。
-class ConnectivityNetworkRepository implements NetworkRepository {
+class ConnectivityNetworkRepository
+    implements NetworkRepository, NetworkConnectionEvents {
+  @override
+  Stream<void> get connectionChanges => _connectivity.onConnectivityChanged
+      .map<void>((_) {})
+      .handleError((Object _) {});
+
   /// 默认延迟测试目标（可后期扩展/远程下发）。
   static const List<String> defaultTestHosts = <String>[
     'www.baidu.com',

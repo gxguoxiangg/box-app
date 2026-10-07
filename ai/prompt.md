@@ -55,7 +55,7 @@
 1. 新建 `lib/features/<功能名>/`，按 `models / data / viewmodel / view` 分层；
 2. 在 `features/home/data/tool_registry.dart` 的 `AppRoutes` 中定义路由常量；
 3. 在 `app/router/app_router.dart` 注册对应 `GoRoute`；
-4. 在 `toolRegistryProvider` 中登记工具按钮（图标 + 名称 + 分类 + 路由）。
+4. 新主页工具登记在 `home_tool_options.dart`（可固定）和 `home_catalog.dart`（全部工具）；旧搜索页所用按钮仍登记在 `toolRegistryProvider`。
 
 ## 编码规范（与项目现状一致）
 
@@ -94,9 +94,11 @@
 
 ## UI / UX 规范
 
-- 使用 **Material 3**（`useMaterial3: true`），`ColorScheme.fromSeed` 生成配色；
+- 使用 **Material 3**；主页、侧边栏与自定义页以 `doc/ui/` 中的稿件为准，颜色通过 `BusyBoxPalette`（`core/theme/busybox_palette.dart` 的 `ThemeExtension`）读取，避免页面散落颜色常量；其余页面沿用现有 `ColorScheme`；
 - 支持**明/暗主题实时切换**，通过 `ThemeController` 持久化；
-- 间距遵循 **8pt grid**；卡片、圆角、`Card` / `Chip` / `FilledButton` 风格与既有模块一致；
+- 间距以 **8pt grid** 为基础，设计稿明确指定时采用其间距；主页与自定义页使用圆角卡片和轻阴影，卡片反馈与正文入场集中在 `shared/widgets/busybox_card.dart`，其他模块沿用既有样式；
+- 保留 GuoXiang BusyBox 标题动画；新增动效需尊重系统减少动画设置。连接柱条仅为状态装饰，不代表实时流量；网络字段保持长按复制；
+- 首页网络摘要通过仓库可选的 `NetworkConnectionEvents` 通知刷新，Riverpod 自动释放订阅，不在 View 中直接监听平台插件。循环动画的组件测试使用有限时长 `pump`，避免 `pumpAndSettle` 等待永不停止的动效；
 - 交互元素补充 `Semantics` 或 tooltip；网络类信息字段为 null 时统一显示「—」；
 - Markdown 正文行高 1.6、行内代码橙色高亮、代码块浅灰圆角卡片、图片 `fitWidth` 限制宽度。
 
@@ -119,6 +121,8 @@
 
 - **路由**：常量集中在 `AppRoutes`（`tool_registry.dart`），`GoRoute` 注册在 `app_router.dart`；
   带参路由示例：`articleItemDetailPath(id)`。
+- **主页工具**：`home_tool_options.dart` 统一列出可固定工具，`home_pinned_viewmodel.dart` 使用 Riverpod 和 `shared_preferences` 保存最多六项；六项尚未实现的工具保留在 `home_catalog.dart`。`toolRegistryProvider` 仍服务旧功能搜索页。
+- **配色模板**：`BusyBoxPalette` 作为 `ThemeExtension` 注册在 `AppTheme.light/dark`；新主页相关组件统一通过 `BusyBoxPalette.of(context)` 取色，未来设置页可选择其他模板。
 - **主题**：`ThemeController extends AsyncNotifier<ThemeMode>`，
   读取前 UI 用 `.value ?? ThemeMode.light` 兜底；写入 `shared_preferences` 的 `theme_mode` 键。
 - **网络模块分层**：`models`（`ConnectionType` / `NetworkStatus` / `NetworkInfoData` / `LatencyResult`）
@@ -145,4 +149,4 @@
 - **测试 Mock**：网络相关一律 `apiClientProvider.overrideWithValue(MockClient(...))` 或
   `overrideWithValue(FakeXxxRepository)`，**离线可跑**。
 - **Markdown 阅读交互**：统一由 `shared/widgets/markdown_view.dart` 提供文本选择、代码块长按复制和图片全屏入口；全屏图片页使用 `InteractiveViewer`，分享统一走 `share_plus`。
-- **Markdown 编辑交互**：正文页同时显示源码输入与实时预览；列表回车续写集中在 `MarkdownListInputFormatter`，不要在页面中重复实现字符串规则。
+- **Markdown 编辑交互**：正文页为单一区域所见即所得编辑器，内容在原处实时呈现；列表回车续写集中在 `MarkdownListInputFormatter`，不要在页面中重复实现字符串规则。

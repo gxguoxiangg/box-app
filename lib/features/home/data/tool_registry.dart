@@ -60,6 +60,9 @@ abstract final class AppRoutes {
   /// 主页（工具盒）。
   static const String home = '/';
 
+  /// 常用工具自定义页。
+  static const String customTools = '/custom-tools';
+
   /// 全局功能搜索页。
   static const String search = '/search';
 

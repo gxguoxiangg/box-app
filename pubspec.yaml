@@ -30,6 +30,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - resource/images/atom.png
   fonts:
     - family: ShadowsIntoLight
       fonts:

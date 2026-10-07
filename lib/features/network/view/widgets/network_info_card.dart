@@ -8,6 +8,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../models/network_info_data.dart';
 
@@ -48,41 +49,57 @@ class NetworkInfoCard extends StatelessWidget {
   Widget _buildTile(BuildContext context, _InfoItem item) {
     final double width = (MediaQuery.of(context).size.width - 16 * 2 - 10) / 2;
     final ColorScheme colors = Theme.of(context).colorScheme;
-    return Container(
-      width: width,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colors.outlineVariant),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          // 字段名
-          Row(
-            children: <Widget>[
-              Icon(item.icon, size: 14, color: colors.onSurfaceVariant),
-              const SizedBox(width: 4),
-              Text(
-                item.label,
-                style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          // 字段值
-          Text(
-            item.value ?? '—',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: colors.onSurface,
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onLongPress: item.value == null || item.value!.isEmpty
+          ? null
+          : () async {
+              await Clipboard.setData(ClipboardData(text: item.value!));
+              if (context.mounted) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('已复制${item.label}')));
+              }
+            },
+      child: Container(
+        width: width,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        decoration: BoxDecoration(
+          color: colors.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: colors.outlineVariant),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            // 字段名
+            Row(
+              children: <Widget>[
+                Icon(item.icon, size: 14, color: colors.onSurfaceVariant),
+                const SizedBox(width: 4),
+                Text(
+                  item.label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: colors.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: 6),
+            // 字段值
+            Text(
+              item.value ?? '—',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: colors.onSurface,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -109,18 +126,13 @@ class NetworkInfoCard extends StatelessWidget {
       ),
       _InfoItem(
         icon: Icons.wifi_tethering_rounded,
-        label: 'BSSID',
-        value: info.bssid,
+        label: 'Wi-Fi 接入点 MAC',
+        value: info.accessPointMac,
       ),
       _InfoItem(
         icon: Icons.broadcast_on_home_rounded,
         label: '广播地址',
         value: info.broadcast,
-      ),
-      _InfoItem(
-        icon: Icons.memory_rounded,
-        label: 'MAC 地址',
-        value: info.macAddress,
       ),
     ];
   }

@@ -1,7 +1,6 @@
 /// 工具盒主页。
 ///
-/// 顶部栏包含菜单、首次进入动画标题和搜索入口；下方为分类导航与功能网格。
-/// 页面只负责布局和路由，功能数据由 HomeViewModel 提供。
+/// 顶部保留首次进入动画，正文按 doc/ui/home_page.html 展示网络摘要与工具。
 library;
 
 import 'dart:async';
@@ -11,10 +10,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/theme/busybox_palette.dart';
 import '../../../shared/widgets/app_drawer.dart';
+import '../../../shared/widgets/busybox_card.dart';
 import '../data/tool_registry.dart';
-import 'widgets/category_bar.dart';
-import 'widgets/tool_grid.dart';
+import 'widgets/home_all_tools.dart';
+import 'widgets/home_network_panel.dart';
+import 'widgets/home_quick_tools.dart';
 
 /// 主页（工具盒）。
 class HomePage extends ConsumerWidget {
@@ -24,28 +26,61 @@ class HomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ThemeData theme = Theme.of(context);
     final Brightness brightness = theme.brightness;
+    final BusyBoxPalette palette = BusyBoxPalette.of(context);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
-        statusBarColor: theme.scaffoldBackgroundColor,
+        // 系统状态栏透明，让抽屉及其遮罩按各自覆盖区域绘制，避免整条白色覆盖层。
+        statusBarColor: Colors.transparent,
+        systemStatusBarContrastEnforced: false,
         statusBarIconBrightness: brightness == Brightness.dark
             ? Brightness.light
             : Brightness.dark,
         statusBarBrightness: brightness,
       ),
       child: Scaffold(
+        backgroundColor: palette.page,
         drawer: const AppDrawer(),
-        body: SafeArea(
-          child: Builder(
-            builder: (BuildContext scaffoldContext) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  _buildTopBar(context, scaffoldContext),
-                  const CategoryBar(),
-                  const Expanded(child: ToolGrid()),
-                ],
-              );
-            },
+        body: ColoredBox(
+          color: palette.canvas,
+          child: SafeArea(
+            child: Builder(
+              builder: (BuildContext scaffoldContext) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    _buildTopBar(context, scaffoldContext, palette),
+                    Expanded(
+                      child: ColoredBox(
+                        color: palette.page,
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 480),
+                            child: ListView(
+                              padding: const EdgeInsets.all(16),
+                              children: <Widget>[
+                                const BusyBoxEntrance(
+                                  child: HomeNetworkPanel(),
+                                ),
+                                const SizedBox(height: 16),
+                                BusyBoxEntrance(
+                                  order: 1,
+                                  child: HomeQuickTools(
+                                    onCustomize: () =>
+                                        context.push(AppRoutes.customTools),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                const HomeAllTools(),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -55,22 +90,58 @@ class HomePage extends ConsumerWidget {
   /// 构建主页顶部栏。
   ///
   /// [scaffoldContext] 必须来自 Scaffold 后代 Builder，供菜单按钮打开抽屉。
-  Widget _buildTopBar(BuildContext context, BuildContext scaffoldContext) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 8, 12, 8),
+  Widget _buildTopBar(
+    BuildContext context,
+    BuildContext scaffoldContext,
+    BusyBoxPalette palette,
+  ) {
+    return Container(
+      decoration: BoxDecoration(
+        color: palette.canvas,
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: palette.ink.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.fromLTRB(4, 4, 12, 4),
       child: Row(
         children: <Widget>[
           IconButton(
             tooltip: '打开侧边栏',
-            icon: const Icon(Icons.menu_rounded),
+            icon: const Icon(Icons.grid_view_rounded),
+            color: palette.ink,
             onPressed: () => Scaffold.of(scaffoldContext).openDrawer(),
           ),
           const SizedBox(width: 4),
-          const Expanded(child: _AnimatedHomeTitle()),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                const _AnimatedHomeTitle(),
+                Text(
+                  'BusyBox · 工具魔盒',
+                  style: TextStyle(fontSize: 11, color: palette.subtle),
+                ),
+              ],
+            ),
+          ),
           IconButton(
-            tooltip: '搜索功能',
-            icon: const Icon(Icons.search_rounded),
-            onPressed: () => context.push(AppRoutes.search),
+            tooltip: '个人中心',
+            icon: CircleAvatar(
+              radius: 16,
+              backgroundColor: palette.accent,
+              child: const Icon(
+                Icons.person_outline,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+            onPressed: () => ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('个人中心即将开放'))),
           ),
         ],
       ),
@@ -101,8 +172,8 @@ class _AnimatedHomeTitleState extends State<_AnimatedHomeTitle>
       vsync: this,
       duration: const Duration(milliseconds: 1800),
     );
-    // 品牌文字先停留 1.5 秒，再开始收缩和淡出动画。
-    _startTimer = Timer(const Duration(milliseconds: 1500), () {
+    // 品牌文字从第一帧显示；停留一秒后再开始收缩和渐隐动画。
+    _startTimer = Timer(const Duration(seconds: 1), () {
       if (mounted) {
         _controller.forward();
       }
@@ -162,9 +233,9 @@ class _AnimatedHomeTitleState extends State<_AnimatedHomeTitle>
                                   color: titleColor,
                                   // fontFamily: 'ShadowsIntoLight',
                                   fontFamily: 'StardosStencil-Regular',
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w600,
-                                  
+                                  fontSize: 19,
+                                  fontWeight: FontWeight.w300,
+
                                   // letterSpacing: 0.4,
                                   letterSpacing: -0.4,
                                 ),
@@ -189,8 +260,8 @@ class _AnimatedHomeTitleState extends State<_AnimatedHomeTitle>
                           // fontFamily: 'StardosStencil-Regular',
                           // fontFamily: 'IMFellEnglishSC-Regular',
                           fontFamily: 'StardosStencil-Regular',
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 19,
+                          fontWeight: FontWeight.w300,
                           letterSpacing: 1.1,
                         ),
                       ),
@@ -207,7 +278,7 @@ class _AnimatedHomeTitleState extends State<_AnimatedHomeTitle>
                     style: TextStyle(
                       color: titleColor,
                       fontSize: 20,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -284,8 +355,8 @@ class _BlackDot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 5,
-      height: 5,
+      width: 3.5,
+      height: 3.5,
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.onSurface,

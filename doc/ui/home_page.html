@@ -1,0 +1,453 @@
+<!DOCTYPE html><html lang="zh-CN" style=""><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"><title>BusyBox - 工具魔盒</title><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "ink": "#161616",
+          "ink-muted": "#525252",
+          "ink-subtle": "#8c8c8c",
+          "hairline": "#e0e0e0",
+          "hairline-strong": "#8d8d8d",
+          "surface-1": "#f4f4f4",
+          "surface-2": "#e0e0e0",
+          "primary": "#0f62fe",
+          "primary-hover": "#0050e6",
+          "primary-active": "#002d9c",
+          "primary-light": "#edf5ff",
+          "semantic-success": "#24a148",
+          "canvas": "#ffffff"
+        },
+        fontFamily: {
+          sans: ["IBM Plex Sans", "sans-serif"],
+          mono: ["IBM Plex Mono", "monospace"]
+        },
+        borderRadius: {
+          'panel': '20px',
+          'card': '16px',
+          'capsule': '14px',
+          'icon': '12px'
+        }
+      }
+    }
+  }
+</script><style>
+  * { box-sizing: border-box; }
+  body {
+    letter-spacing: 0.16px;
+    -webkit-tap-highlight-color: transparent;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+
+  /* Micro-interactions & Android Material Ripples */
+  .ripple-container {
+    position: relative;
+    overflow: hidden;
+  }
+  .ripple-wave {
+    position: absolute;
+    border-radius: 50%;
+    transform: scale(0);
+    animation: ripple-anim 600ms cubic-bezier(0.2, 0, 0.2, 1);
+    background-color: rgba(15, 98, 254, 0.14);
+    pointer-events: none;
+  }
+  @keyframes ripple-anim {
+    to {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
+
+  /* Card Press Scaling */
+  .pressable {
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+    will-change: transform;
+  }
+  .pressable:active {
+    transform: scale(0.975);
+  }
+
+  /* Keyframe Entrance Stagger Animations */
+  @keyframes slideUpFade {
+    0% {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-entrance {
+    opacity: 0;
+    animation: slideUpFade 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .delay-1 { animation-delay: 0.05s; }
+  .delay-2 { animation-delay: 0.12s; }
+  .delay-3 { animation-delay: 0.2s; }
+  .delay-4 { animation-delay: 0.28s; }
+  .delay-5 { animation-delay: 0.34s; }
+  .delay-6 { animation-delay: 0.40s; }
+  .delay-7 { animation-delay: 0.46s; }
+  .delay-8 { animation-delay: 0.52s; }
+  .delay-9 { animation-delay: 0.58s; }
+
+  /* Wi-Fi Pulse Wave */
+  @keyframes radarPulse {
+    0% {
+      transform: scale(0.95);
+      box-shadow: 0 0 0 0 rgba(36, 161, 72, 0.6);
+    }
+    70% {
+      transform: scale(1);
+      box-shadow: 0 0 0 7px rgba(36, 161, 72, 0);
+    }
+    100% {
+      transform: scale(0.95);
+      box-shadow: 0 0 0 0 rgba(36, 161, 72, 0);
+    }
+  }
+  .radar-indicator {
+    animation: radarPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Activity Sim Pulse */
+  @keyframes netActivityFlicker {
+    0%, 100% { opacity: 0.35; transform: scaleY(0.7); }
+    50% { opacity: 1; transform: scaleY(1); }
+  }
+  .net-bar-1 { animation: netActivityFlicker 1.4s ease-in-out infinite; }
+  .net-bar-2 { animation: netActivityFlicker 1.8s ease-in-out 0.3s infinite; }
+  .net-bar-3 { animation: netActivityFlicker 1.2s ease-in-out 0.6s infinite; }
+
+  /* Toast Animation */
+  #toast-notification {
+    transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Copyable chip hover highlight */
+  .copyable-field {
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+  }
+  .copyable-field:active {
+    background-color: #e8f0fe !important;
+    transform: scale(0.985);
+  }
+
+  /* Reduced Motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    .animate-entrance {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+</style></head><body class="bg-surface-1 font-sans text-ink min-h-screen flex flex-col justify-between selection:bg-primary-light selection:text-primary relative">
+<!-- Interactive Toast Notification -->
+<div aria-live="polite" class="fixed top-14 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex items-center space-x-2 px-3.5 py-2 bg-ink/90 text-white text-xs font-medium rounded-full shadow-lg backdrop-blur-md transition-all duration-300 opacity-0 -translate-y-3" id="toast-notification">
+<span class="material-symbols-outlined text-[16px] text-semantic-success">check_circle</span>
+<span id="toast-message" class="">IPv6 地址已复制到剪贴板</span>
+</div>
+<!-- Top Header -->
+<header class="sticky top-0 z-40 bg-canvas/95 backdrop-blur-md border-b border-hairline select-none">
+<div class="h-6 px-4 flex items-center justify-between text-xs font-mono font-medium text-ink bg-transparent tracking-wider">
+<span id="live-clock" class="">11:35</span>
+<div class="flex items-center space-x-1.5 text-ink">
+<span class="text-[11px] font-sans font-semibold">5G</span>
+<span class="material-symbols-outlined text-[15px] leading-none">wifi</span>
+<span class="material-symbols-outlined text-[15px] leading-none rotate-90">battery_full</span>
+</div>
+</div>
+<!-- App Bar -->
+<div class="h-14 px-4 flex items-center justify-between animate-entrance">
+<div class="flex items-center space-x-3">
+<button aria-label="应用菜单" class="ripple-container w-10 h-10 flex items-center justify-center text-ink hover:bg-surface-1 active:bg-surface-2 transition-colors rounded-xl pressable">
+<span class="material-symbols-outlined text-[22px]">grid_view</span>
+</button>
+<div class="flex flex-col">
+<h1 class="text-base font-semibold leading-tight text-ink tracking-tight">主页</h1>
+<span class="text-xs text-ink-subtle tracking-normal">BusyBox · 工具魔盒</span>
+</div>
+</div>
+<div class="flex items-center space-x-1">
+<button aria-label="个人中心" class="ripple-container w-10 h-10 flex items-center justify-center text-ink-muted hover:bg-surface-1 active:bg-surface-2 transition-colors rounded-full pressable">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white shadow-sm transition-transform active:scale-95">
+<span class="material-symbols-outlined text-[18px]">person</span>
+</div>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Body -->
+<main class="flex-1 w-full max-w-md mx-auto p-4 space-y-5">
+<!-- 1. Device Status & Network Info Floating Card (Border Radius 20px) -->
+<section class="bg-canvas border border-hairline p-4 space-y-3.5 rounded-[20px] shadow-sm animate-entrance delay-1 pressable hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between pb-2 border-b border-hairline/80">
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-primary text-[20px]">lan</span>
+<h2 class="text-xs font-semibold uppercase tracking-wider text-ink">当前网络信息</h2>
+<!-- Live Mini Traffic Simulator Indicator -->
+<div class="flex items-end space-x-0.5 h-3 ml-1" title="实时链路活动">
+<span class="w-0.5 h-2 bg-primary rounded-full net-bar-1 origin-bottom"></span>
+<span class="w-0.5 h-3 bg-primary rounded-full net-bar-2 origin-bottom"></span>
+<span class="w-0.5 h-1.5 bg-primary rounded-full net-bar-3 origin-bottom"></span>
+</div>
+</div>
+<div class="inline-flex items-center space-x-1.5 px-2.5 py-1 bg-surface-1 border border-hairline text-[11px] font-medium text-ink rounded-full select-none">
+<span class="w-1.5 h-1.5 rounded-full bg-semantic-success radar-indicator"></span>
+<span class="">已连接 Wi-Fi</span>
+</div>
+</div>
+<div class="space-y-2.5 text-xs">
+<!-- Row 1: IPv4 & Subnet Mask -->
+<div class="grid grid-cols-2 gap-2.5 pt-0.5">
+<div class="copyable-field p-2.5 bg-surface-1 border border-hairline rounded-[14px] transition-all hover:border-hairline-strong active:border-primary group/item" data-copy="192.168.1.138" data-label="IPv4 地址" title="点击复制 IPv4">
+<div class="flex items-center justify-between mb-0.5">
+<span class="block text-[11px] text-ink-subtle font-mono uppercase">IPv4 地址</span>
+<span class="material-symbols-outlined text-[13px] text-ink-subtle opacity-0 group-hover/item:opacity-100 transition-opacity">content_copy</span>
+</div>
+<span class="font-mono text-xs font-medium text-ink tracking-tight select-all">192.168.1.138</span>
+</div>
+<div class="copyable-field p-2.5 bg-surface-1 border border-hairline rounded-[14px] transition-all hover:border-hairline-strong active:border-primary group/item" data-copy="255.255.255.0" data-label="子网掩码" title="点击复制 子网掩码">
+<div class="flex items-center justify-between mb-0.5">
+<span class="block text-[11px] text-ink-subtle font-mono uppercase">子网掩码</span>
+<span class="material-symbols-outlined text-[13px] text-ink-subtle opacity-0 group-hover/item:opacity-100 transition-opacity">content_copy</span>
+</div>
+<span class="font-mono text-xs font-medium text-ink tracking-tight select-all">255.255.255.0</span>
+</div>
+</div>
+<!-- Row 2: IPv6 -->
+<div class="copyable-field p-2.5 bg-surface-1 border border-hairline rounded-[14px] transition-all hover:border-hairline-strong active:border-primary group/item" data-copy="240e:390:852:1::a7b" data-label="IPv6 地址" title="点击复制 IPv6">
+<div class="flex items-center justify-between">
+<span class="text-[11px] text-ink-subtle font-mono uppercase">IPv6 地址</span>
+<span class="material-symbols-outlined text-[14px] text-ink-subtle group-hover/item:text-primary transition-colors">public</span>
+</div>
+<span class="block font-mono text-xs font-medium text-ink mt-0.5 truncate select-all">240e:390:852:1::a7b</span>
+</div>
+<!-- Row 3: Gateway -->
+<div class="copyable-field p-2.5 bg-surface-1 border border-hairline rounded-[14px] transition-all hover:border-hairline-strong active:border-primary group/item" data-copy="192.168.1.1" data-label="默认网关" title="点击复制 默认网关">
+<div class="flex items-center justify-between">
+<span class="text-[11px] text-ink-subtle font-mono uppercase">默认网关</span>
+<span class="material-symbols-outlined text-[14px] text-ink-subtle group-hover/item:text-primary transition-colors">dns</span>
+</div>
+<span class="block font-mono text-xs font-medium text-ink mt-0.5 select-all">192.168.1.1</span>
+</div>
+<!-- Row 4: MAC Address -->
+<div class="copyable-field p-2.5 bg-surface-1 border border-hairline rounded-[14px] transition-all hover:border-hairline-strong active:border-primary group/item" data-copy="6A:8F:21:4C:E3:90" data-label="MAC 地址" title="点击复制 MAC 地址">
+<div class="flex items-center justify-between">
+<span class="text-[11px] text-ink-subtle font-mono uppercase">MAC 地址</span>
+<span class="material-symbols-outlined text-[14px] text-ink-subtle group-hover/item:text-primary transition-colors">fingerprint</span>
+</div>
+<span class="block font-mono text-xs font-medium text-ink mt-0.5 tracking-wider select-all">6A:8F:21:4C:E3:90</span>
+</div>
+</div>
+</section>
+<!-- 2. Pinned / Frequent Quick Access (常用速启) -->
+<section class="space-y-2.5 animate-entrance delay-2">
+<div class="flex items-center justify-between px-1">
+<h2 class="text-xs font-semibold uppercase tracking-wider text-ink">常用工具</h2>
+<button class="ripple-container inline-flex items-center px-3 py-1 bg-canvas border border-hairline rounded-full text-xs text-primary font-medium hover:border-primary hover:bg-primary-light active:bg-surface-2 transition-all space-x-1 shadow-sm pressable group" id="customize-btn">
+<span class="">自定义</span>
+<span class="material-symbols-outlined text-[14px] transition-transform duration-300 group-hover:rotate-45">tune</span>
+</button>
+</div>
+<div class="grid grid-cols-3 gap-2.5">
+<!-- Quick Tile 1: Wiki -->
+<button class="ripple-container pressable h-24 flex flex-col items-center justify-center p-2.5 bg-canvas border border-hairline rounded-[20px] hover:border-hairline-strong hover:bg-surface-1 hover:shadow-sm active:bg-surface-2 transition-all text-center group shadow-sm">
+<div class="w-9 h-9 rounded-[14px] bg-surface-1 group-hover:bg-primary-light flex items-center justify-center text-ink group-hover:text-primary transition-colors mb-1.5 group-hover:scale-105 transform duration-200"><span class="material-symbols-outlined text-[20px] text-primary">menu_book</span></div>
+<span class="text-xs font-medium text-ink">Wiki</span>
+<span class="text-[10px] text-ink-subtle">开发文档</span>
+</button>
+<!-- Quick Tile 2: 测网速 -->
+<button class="ripple-container pressable h-24 flex flex-col items-center justify-center p-2.5 bg-canvas border border-hairline rounded-[20px] hover:border-hairline-strong hover:bg-surface-1 hover:shadow-sm active:bg-surface-2 transition-all text-center group shadow-sm">
+<div class="w-9 h-9 rounded-[14px] bg-surface-1 group-hover:bg-primary-light flex items-center justify-center text-ink group-hover:text-primary transition-colors mb-1.5 group-hover:scale-105 transform duration-200"><span class="material-symbols-outlined text-[20px] text-primary">speed</span></div>
+<span class="text-xs font-medium text-ink">测网速</span>
+<span class="text-[10px] text-ink-subtle">实时速率</span>
+</button>
+<!-- Quick Tile 3: 神机 -->
+<button class="ripple-container pressable h-24 flex flex-col items-center justify-center p-2.5 bg-canvas border border-hairline rounded-[20px] hover:border-hairline-strong hover:bg-surface-1 hover:shadow-sm active:bg-surface-2 transition-all text-center group shadow-sm">
+<div class="w-9 h-9 rounded-[14px] bg-surface-1 group-hover:bg-primary-light flex items-center justify-center text-ink group-hover:text-primary transition-colors mb-1.5 group-hover:scale-105 transform duration-200"><svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24"><ellipse cx="10" cy="5" rx="7" ry="3"></ellipse><path d="M3 5v8c0 1.66 3.13 3 7 3 .68 0 1.34-.04 1.95-.13"></path><path d="M3 9c0 1.66 3.13 3 7 3 .55 0 1.09-.03 1.6-.08"></path><circle cx="17" cy="17" r="3.5"></circle><line x1="19.5" x2="22.5" y1="19.5" y2="22.5"></line></svg></div>
+<span class="text-xs font-medium text-ink">神机</span>
+<span class="text-[10px] text-ink-subtle">智能搜索</span>
+</button>
+</div>
+</section>
+<!-- 3. All Tools Modular Floating Card Deck (全部工具) -->
+<section class="space-y-2.5 pt-1 pb-4">
+<div class="flex items-center justify-between px-1">
+<h2 class="text-xs font-semibold uppercase tracking-wider text-ink">全部工具</h2>
+<span class="text-xs font-mono text-ink-subtle select-none">共6项</span>
+</div>
+<div class="space-y-2.5">
+<!-- Item 1: 普罗米修斯 -->
+<a class="tool-item ripple-container pressable animate-entrance delay-3 min-h-[58px] flex items-center justify-between p-3.5 bg-canvas border border-hairline rounded-[16px] hover:border-hairline-strong hover:bg-surface-1 active:bg-surface-2 transition-all shadow-sm group" href="#">
+<div class="flex items-center space-x-3.5 min-w-0">
+<div class="w-10 h-10 rounded-[12px] bg-surface-1 group-hover:bg-primary-light border border-hairline flex items-center justify-center text-ink group-hover:text-primary transition-all duration-200 group-hover:scale-105 shrink-0">
+<span class="material-symbols-outlined text-[20px]">monitoring</span>
+</div>
+<div class="min-w-0">
+<div class="text-sm font-medium text-ink truncate leading-snug group-hover:text-primary transition-colors">普罗米修斯</div>
+<div class="text-xs text-ink-muted truncate font-normal">状态监控 / 带宽监控</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-ink-subtle group-hover:text-primary text-[18px] ml-2 shrink-0 transition-transform duration-200 group-hover:translate-x-1">chevron_right</span>
+</a>
+<!-- Item 2: 网络计算器 -->
+<a class="tool-item ripple-container pressable animate-entrance delay-4 min-h-[58px] flex items-center justify-between p-3.5 bg-canvas border border-hairline rounded-[16px] hover:border-hairline-strong hover:bg-surface-1 active:bg-surface-2 transition-all shadow-sm group" href="#">
+<div class="flex items-center space-x-3.5 min-w-0">
+<div class="w-10 h-10 rounded-[12px] bg-surface-1 group-hover:bg-primary-light border border-hairline flex items-center justify-center text-ink group-hover:text-primary transition-all duration-200 group-hover:scale-105 shrink-0">
+<span class="material-symbols-outlined text-[20px]">calculate</span>
+</div>
+<div class="min-w-0">
+<div class="text-sm font-medium text-ink truncate leading-snug group-hover:text-primary transition-colors">网络计算器</div>
+<div class="text-xs text-ink-muted truncate font-normal">子网掩码 / 带宽 / POE功耗等</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-ink-subtle group-hover:text-primary text-[18px] ml-2 shrink-0 transition-transform duration-200 group-hover:translate-x-1">chevron_right</span>
+</a>
+<!-- Item 3: Hash -->
+<a class="tool-item ripple-container pressable animate-entrance delay-5 min-h-[58px] flex items-center justify-between p-3.5 bg-canvas border border-hairline rounded-[16px] hover:border-hairline-strong hover:bg-surface-1 active:bg-surface-2 transition-all shadow-sm group" href="#">
+<div class="flex items-center space-x-3.5 min-w-0">
+<div class="w-10 h-10 rounded-[12px] bg-surface-1 group-hover:bg-primary-light border border-hairline flex items-center justify-center text-ink group-hover:text-primary transition-all duration-200 group-hover:scale-105 shrink-0">
+<span class="material-symbols-outlined text-[20px]">lock_reset</span>
+</div>
+<div class="min-w-0">
+<div class="text-sm font-medium text-ink truncate leading-snug group-hover:text-primary transition-colors">Hash</div>
+<div class="text-xs text-ink-muted truncate font-normal">MD5 / SHA256 / Base64 / URL编码</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-ink-subtle group-hover:text-primary text-[18px] ml-2 shrink-0 transition-transform duration-200 group-hover:translate-x-1">chevron_right</span>
+</a>
+<!-- Item 4: Ping -->
+<a class="tool-item ripple-container pressable animate-entrance delay-6 min-h-[58px] flex items-center justify-between p-3.5 bg-canvas border border-hairline rounded-[16px] hover:border-hairline-strong hover:bg-surface-1 active:bg-surface-2 transition-all shadow-sm group" href="#">
+<div class="flex items-center space-x-3.5 min-w-0">
+<div class="w-10 h-10 rounded-[12px] bg-surface-1 group-hover:bg-primary-light border border-hairline flex items-center justify-center text-ink group-hover:text-primary transition-all duration-200 group-hover:scale-105 shrink-0"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24"><path d="M17 10l4-4-4-4"></path><path d="M21 6H3"></path><path d="M7 14l-4 4 4 4"></path><path d="M3 18h18"></path></svg></div>
+<div class="min-w-0">
+<div class="text-sm font-medium text-ink truncate leading-snug group-hover:text-primary transition-colors">Ping</div>
+<div class="text-xs text-ink-muted truncate font-normal">Ping测试</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-ink-subtle group-hover:text-primary text-[18px] ml-2 shrink-0 transition-transform duration-200 group-hover:translate-x-1">chevron_right</span>
+</a>
+<!-- Item 5: NMAP -->
+<a class="tool-item ripple-container pressable animate-entrance delay-7 min-h-[58px] flex items-center justify-between p-3.5 bg-canvas border border-hairline rounded-[16px] hover:border-hairline-strong hover:bg-surface-1 active:bg-surface-2 transition-all shadow-sm group" href="#">
+<div class="flex items-center space-x-3.5 min-w-0">
+<div class="w-10 h-10 rounded-[12px] bg-surface-1 group-hover:bg-primary-light border border-hairline flex items-center justify-center text-ink group-hover:text-primary transition-all duration-200 group-hover:scale-105 shrink-0">
+<span class="material-symbols-outlined text-[20px]">track_changes</span>
+</div>
+<div class="min-w-0">
+<div class="text-sm font-medium text-ink truncate leading-snug group-hover:text-primary transition-colors">NMAP</div>
+<div class="text-xs text-ink-muted truncate font-normal">端口扫描</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-ink-subtle group-hover:text-primary text-[18px] ml-2 shrink-0 transition-transform duration-200 group-hover:translate-x-1">chevron_right</span>
+</a>
+<!-- Item 6: IP -->
+<a class="tool-item ripple-container pressable animate-entrance delay-8 min-h-[58px] flex items-center justify-between p-3.5 bg-canvas border border-hairline rounded-[16px] hover:border-hairline-strong hover:bg-surface-1 active:bg-surface-2 transition-all shadow-sm group" href="#">
+<div class="flex items-center space-x-3.5 min-w-0">
+<div class="w-10 h-10 rounded-[12px] bg-surface-1 group-hover:bg-primary-light border border-hairline flex items-center justify-center text-ink group-hover:text-primary transition-all duration-200 group-hover:scale-105 shrink-0"><span class="material-symbols-outlined text-[20px]">public</span></div>
+<div class="min-w-0">
+<div class="text-sm font-medium text-ink truncate leading-snug group-hover:text-primary transition-colors">IP</div>
+<div class="text-xs text-ink-muted truncate font-normal">公网IP查询</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-ink-subtle group-hover:text-primary text-[18px] ml-2 shrink-0 transition-transform duration-200 group-hover:translate-x-1">chevron_right</span>
+</a>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation / Gesture Indicator (Rounded Home Bar) -->
+<footer class="w-full bg-canvas/90 backdrop-blur-md border-t border-hairline py-3 flex justify-center items-center select-none">
+<div class="w-28 h-1 bg-ink-muted rounded-full"></div>
+</footer>
+<script>
+    // 1. Material Ripple Animation on Tap/Click
+    document.addEventListener('pointerdown', function (e) {
+      const target = e.target.closest('.ripple-container');
+      if (!target) return;
+
+      const rect = target.getBoundingClientRect();
+      const circle = document.createElement('span');
+      const diameter = Math.max(rect.width, rect.height);
+      const radius = diameter / 2;
+
+      circle.style.width = circle.style.height = `${diameter}px`;
+      circle.style.left = `${e.clientX - rect.left - radius}px`;
+      circle.style.top = `${e.clientY - rect.top - radius}px`;
+      circle.classList.add('ripple-wave');
+
+      // Remove existing ripple in the container if any
+      const existing = target.querySelector('.ripple-wave');
+      if (existing) existing.remove();
+
+      target.appendChild(circle);
+
+      setTimeout(() => {
+        circle.remove();
+      }, 600);
+    });
+
+    // 2. Interactive Toast Notification for Clipboard
+    const toast = document.getElementById('toast-notification');
+    const toastMsg = document.getElementById('toast-message');
+    let toastTimeout = null;
+
+    function showToast(text) {
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastMsg.innerText = text;
+      toast.classList.remove('opacity-0', '-translate-y-3');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', '-translate-y-3');
+      }, 2000);
+    }
+
+    // 3. Network Info Fields Copy-to-Clipboard Micro-interaction
+    const copyableFields = document.querySelectorAll('.copyable-field');
+    copyableFields.forEach(field => {
+      field.addEventListener('click', () => {
+        const val = field.getAttribute('data-copy');
+        const label = field.getAttribute('data-label') || '内容';
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(val).catch(() => {});
+        }
+        showToast(`${label}已复制到剪贴板`);
+      });
+    });
+
+    // 4. "自定义" button click feedback
+    const customizeBtn = document.getElementById('customize-btn');
+    if (customizeBtn) {
+      customizeBtn.addEventListener('click', () => {
+        showToast('自定义模式已开启');
+      });
+    }
+
+    // 5. Live Clock Update
+    function updateClock() {
+      const clockEl = document.getElementById('live-clock');
+      if (!clockEl) return;
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      clockEl.textContent = `${hours}:${minutes}`;
+    }
+    updateClock();
+    setInterval(updateClock, 30000);
+  </script>
+
+
+</body></html>

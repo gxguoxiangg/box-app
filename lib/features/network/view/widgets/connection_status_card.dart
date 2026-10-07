@@ -87,6 +87,8 @@ class ConnectionStatusCard extends StatelessWidget {
         return const Color(0xFF00A87E);
       case ConnectionType.mobile:
         return const Color(0xFF3B6CF6);
+      case ConnectionType.vpn:
+        return const Color(0xFF6750A4);
       case ConnectionType.ethernet:
         return const Color(0xFF8B5CF6);
       case ConnectionType.bluetooth:

@@ -1,117 +1,93 @@
-/// 应用侧边栏（Drawer）。
-///
-/// 内容：
-/// - 顶部：应用 Logo / 名称 / 版本信息区；
-/// - 选项列表（多个入口）：
-///   1. 关于 App —— 跳转关于页（居中展示图标、名称、版本）；
-///   2. 软件更新 —— 跳转更新页（功能待定）；
-///   3. 全局设置 —— 跳转设置页。
-///
-/// 后期如需增加更多侧边栏入口，只需在 [_menuItems] 中追加一项即可。
+/// 应用侧边栏，参照 doc/ui/sidebar_page.html 的抽屉区域。
 library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/theme/busybox_palette.dart';
 import '../../features/home/data/tool_registry.dart';
 
-/// 侧边栏组件。
+/// 主页侧边栏；设置和关于接入已有页面，统计暂时展示占位反馈。
 class AppDrawer extends StatelessWidget {
+  /// 创建抽屉。
   const AppDrawer({super.key});
-
-  /// 侧边栏菜单项配置（集中维护，便于扩展）。
-  static const List<_DrawerMenuItem> _menuItems = <_DrawerMenuItem>[
-    // 关于 App
-    _DrawerMenuItem(
-      icon: Icons.info_outline_rounded,
-      title: '关于 App',
-      route: AppRoutes.about,
-    ),
-    // 软件更新
-    _DrawerMenuItem(
-      icon: Icons.system_update_alt_rounded,
-      title: '软件更新',
-      route: AppRoutes.update,
-    ),
-    // 全局设置
-    _DrawerMenuItem(
-      icon: Icons.settings_outlined,
-      title: '全局设置',
-      route: AppRoutes.settings,
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
+    final BusyBoxPalette palette = BusyBoxPalette.of(context);
     return Drawer(
+      width: 310,
+      backgroundColor: palette.canvas,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      clipBehavior: Clip.antiAlias,
       child: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            // -------------------------------------------------------------------
-            // 顶部：应用信息展示区
-            // -------------------------------------------------------------------
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 28),
-              child: Text(
-                '更多',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700
-                ),
-              ),
-            ),
-            /*
-              Row(
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 16, 16),
+              child: Row(
                 children: <Widget>[
-                  // 应用图标
-                  CircleAvatar(
-                    radius: 24,
-                    backgroundColor: AppTheme.primaryColor,
-                    child: Icon(Icons.widgets_rounded, color: Colors.white),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.asset(
+                      'resource/images/atom.png',
+                      width: 40,
+                      height: 40,
+                      semanticLabel: 'BusyBox 标志',
+                    ),
                   ),
-                  SizedBox(width: 12),
-                  // 应用名称 + 版本号
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        AppConstants.appName,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      '更多',
+                      style: TextStyle(
+                        color: palette.ink,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w400,
                       ),
-                      SizedBox(height: 2),
-                      Text(
-                        'v${AppConstants.appVersion}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: '关闭侧边栏',
+                    icon: Icon(Icons.close, color: palette.muted),
+                    onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
               ),
-            */
-            // const Divider(),
-
-            // -------------------------------------------------------------------
-            // 中部：功能入口选项列表
-            // -------------------------------------------------------------------
+            ),
+            Divider(height: 0.5, thickness: 0.5, color: palette.border),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(vertical: 0),
+                padding: const EdgeInsets.all(12),
                 children: <Widget>[
-                  // 根据配置循环渲染菜单项。
-                  for (final _DrawerMenuItem item in _menuItems)
-                    ListTile(
-                      leading: Icon(item.icon),
-                      title: Text(item.title),
-                      trailing: const Icon(Icons.chevron_right_rounded),
-                      onTap: () => _navigate(context, item.route),
-                    ),
+                  _DrawerItem(
+                    icon: Icons.settings_outlined,
+                    title: '设置',
+                    subtitle: '通用偏好与主题',
+                    palette: palette,
+                    onTap: () => _navigate(context, AppRoutes.settings),
+                  ),
+                  _DrawerItem(
+                    icon: Icons.bar_chart_outlined,
+                    title: '统计',
+                    subtitle: '使用统计',
+                    palette: palette,
+                    onTap: () {
+                      final ScaffoldMessengerState messenger =
+                          ScaffoldMessenger.of(context);
+                      Navigator.of(context).pop();
+                      messenger.showSnackBar(
+                        const SnackBar(content: Text('统计功能待开发')),
+                      );
+                    },
+                  ),
+                  _DrawerItem(
+                    icon: Icons.info_outline,
+                    title: '关于APP',
+                    subtitle: '版本信息',
+                    palette: palette,
+                    onTap: () => _navigate(context, AppRoutes.about),
+                  ),
                 ],
               ),
             ),
@@ -121,23 +97,72 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  /// 关闭抽屉并跳转到指定路由。
   void _navigate(BuildContext context, String route) {
-    // 先关闭抽屉，再通过 go_router 跳转。
+    final GoRouter router = GoRouter.of(context);
     Navigator.of(context).pop();
-    context.push(route);
+    router.push(route);
   }
 }
 
-/// 侧边栏菜单项配置类。
-class _DrawerMenuItem {
+class _DrawerItem extends StatelessWidget {
   final IconData icon;
   final String title;
-  final String route;
+  final String subtitle;
+  final BusyBoxPalette palette;
+  final VoidCallback onTap;
 
-  const _DrawerMenuItem({
+  const _DrawerItem({
     required this.icon,
     required this.title,
-    required this.route,
+    required this.subtitle,
+    required this.palette,
+    required this.onTap,
   });
+
+  @override
+  Widget build(BuildContext context) => Material(
+    color: palette.canvas,
+    child: InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Row(
+          children: <Widget>[
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: palette.inset,
+                border: Border.all(color: palette.border),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: palette.muted, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: palette.ink,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(color: palette.muted, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, size: 18, color: palette.subtle),
+          ],
+        ),
+      ),
+    ),
+  );
 }

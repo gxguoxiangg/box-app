@@ -18,6 +18,7 @@ import '../../features/article/view/article_reader_page.dart';
 import '../../features/auth/view/login_page.dart';
 import '../../features/home/data/tool_registry.dart';
 import '../../features/home/view/home_page.dart';
+import '../../features/home/view/custom_tools_page.dart';
 import '../../features/home/view/search_page.dart';
 import '../../features/network/view/network_page.dart';
 import '../../features/network/view/speed_test_page.dart';
@@ -40,6 +41,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.home,
       builder: (context, state) => const HomePage(),
+    ),
+    GoRoute(
+      path: AppRoutes.customTools,
+      builder: (context, state) => const CustomToolsPage(),
     ),
 
     // -------------------------------------------------------------------------

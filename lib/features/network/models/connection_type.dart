@@ -15,6 +15,9 @@ enum ConnectionType {
   /// 移动数据（蜂窝网络）。
   mobile(label: '移动数据', icon: Icons.network_cell_rounded),
 
+  /// 虚拟专用网络。
+  vpn(label: 'VPN', icon: Icons.vpn_lock_rounded),
+
   /// 以太网（有线网络）。
   ethernet(label: '以太网', icon: Icons.lan_rounded),
 
@@ -45,17 +48,20 @@ enum ConnectionType {
 
   /// 将 connectivity_plus 返回的结果列表映射为唯一连接类型。
   ///
-  /// 说明：结果列表可能包含多个值（例如 `[mobile, vpn]`），
-  /// 这里按「首个非 none 的类型」优先展示；全部为 none 时视为无连接。
+  /// VPN 可以与 Wi-Fi / 移动数据同时出现，优先标识 VPN；其余结果按顺序选
+  /// 第一个已知连接类型，全部为 none 时视为无连接。
   static ConnectionType fromConnectivityResults(
     List<ConnectivityResult> results,
   ) {
+    if (results.contains(ConnectivityResult.vpn)) return ConnectionType.vpn;
     for (final ConnectivityResult result in results) {
       switch (result) {
         case ConnectivityResult.wifi:
           return ConnectionType.wifi;
         case ConnectivityResult.mobile:
           return ConnectionType.mobile;
+        case ConnectivityResult.vpn:
+          return ConnectionType.vpn;
         case ConnectivityResult.ethernet:
           return ConnectionType.ethernet;
         case ConnectivityResult.bluetooth:
@@ -64,7 +70,7 @@ enum ConnectionType {
           // 继续检查其他结果。
           continue;
         default:
-          // vpn / satellite / other 等归为「其他网络」。
+          // satellite / other 等归为「其他网络」。
           return ConnectionType.other;
       }
     }

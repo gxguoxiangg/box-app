@@ -54,41 +54,66 @@ class FakeNetworkRepository implements NetworkRepository {
 }
 
 void main() {
+  test('接入点 MAC 规范化为四位分组并过滤系统脱敏地址', () {
+    expect(formatAccessPointMac('6a:8f:21:4c:e3:90'), '6A8F-214C-E390');
+    expect(formatAccessPointMac('02:00:00:00:00:00'), isNull);
+    expect(formatAccessPointMac('invalid'), isNull);
+  });
   // -------------------------------------------------------------------------
   // 模型层单元测试
   // -------------------------------------------------------------------------
   group('ConnectionType.fromConnectivityResults', () {
     test('Wi-Fi 结果映射为 wifi', () {
       expect(
-        ConnectionType.fromConnectivityResults(<ConnectivityResult>[ConnectivityResult.wifi]),
+        ConnectionType.fromConnectivityResults(<ConnectivityResult>[
+          ConnectivityResult.wifi,
+        ]),
         ConnectionType.wifi,
       );
     });
 
     test('移动数据结果映射为 mobile', () {
       expect(
-        ConnectionType.fromConnectivityResults(<ConnectivityResult>[ConnectivityResult.mobile]),
+        ConnectionType.fromConnectivityResults(<ConnectivityResult>[
+          ConnectivityResult.mobile,
+        ]),
         ConnectionType.mobile,
+      );
+    });
+
+    test('VPN 与 Wi-Fi 同时存在时优先显示 VPN', () {
+      expect(
+        ConnectionType.fromConnectivityResults(<ConnectivityResult>[
+          ConnectivityResult.wifi,
+          ConnectivityResult.vpn,
+        ]),
+        ConnectionType.vpn,
       );
     });
 
     test('无连接（none）映射为 none', () {
       expect(
-        ConnectionType.fromConnectivityResults(<ConnectivityResult>[ConnectivityResult.none]),
+        ConnectionType.fromConnectivityResults(<ConnectivityResult>[
+          ConnectivityResult.none,
+        ]),
         ConnectionType.none,
       );
     });
 
     test('空列表映射为 none', () {
-      expect(ConnectionType.fromConnectivityResults(const <ConnectivityResult>[]),
-          ConnectionType.none);
+      expect(
+        ConnectionType.fromConnectivityResults(const <ConnectivityResult>[]),
+        ConnectionType.none,
+      );
     });
   });
 
   group('NetworkStatus.displayLabel', () {
     test('Wi-Fi 时显示名称', () {
-      const NetworkStatus status =
-          NetworkStatus(type: ConnectionType.wifi, wifiName: 'MyWiFi');
+      const NetworkStatus status = NetworkStatus(
+        type: ConnectionType.wifi,
+        wifiName: 'MyWiFi',
+      );
       expect(status.displayLabel, 'MyWiFi');
     });
 
@@ -142,8 +167,9 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    final NetworkData data =
-        await container.read(networkViewModelProvider.future);
+    final NetworkData data = await container.read(
+      networkViewModelProvider.future,
+    );
 
     expect(data.status.type, ConnectionType.wifi);
     expect(data.status.wifiName, 'HomeWiFi');
@@ -156,8 +182,7 @@ void main() {
   // -------------------------------------------------------------------------
   // View 组件测试
   // -------------------------------------------------------------------------
-  testWidgets('网络信息页渲染连接状态、设备信息、延迟网格与操作栏',
-      (WidgetTester tester) async {
+  testWidgets('网络信息页渲染连接状态、设备信息、延迟网格与操作栏', (WidgetTester tester) async {
     // 加大测试视口，确保 ListView 底部操作栏也在渲染范围内。
     tester.view.physicalSize = const Size(800, 1800);
     tester.view.devicePixelRatio = 1.0;
