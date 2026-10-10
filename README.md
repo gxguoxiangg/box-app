@@ -2,15 +2,15 @@
 
 示例图：
 
-![home_page](C:\Users\46823\Desktop\Dart\Flutter\demo1\example\home_page.jpg)
+![home_page](example\home_page.jpg)
 
 
 
-![wiki_page](C:\Users\46823\Desktop\Dart\Flutter\demo1\example\wiki_page.jpg)
+![wiki_page](example\wiki_page.jpg)
 
 
 
-![wiki_page2](C:\Users\46823\Desktop\Dart\Flutter\demo1\example\wiki_page2.jpg)
+![wiki_page2](example\wiki_page2.jpg)
 
 
 
