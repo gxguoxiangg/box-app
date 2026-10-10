@@ -2,15 +2,15 @@
 
 示例图：
 
-![home_page](example\home_page.jpg)
+![home_page](example/home_page.jpg)
 
 
 
-![wiki_page](example\wiki_page.jpg)
+![wiki_page](example/wiki_page.jpg)
 
 
 
-![wiki_page2](example\wiki_page2.jpg)
+![wiki_page2](example/wiki_page2.jpg)
 
 
 
