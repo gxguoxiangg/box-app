@@ -7,10 +7,10 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/busybox_palette.dart';
 import '../../../../shared/widgets/busybox_card.dart';
 
-import '../../data/home_catalog.dart';
-import '../../models/home_catalog_item.dart';
+import '../../data/home_tool_options.dart';
+import '../../viewmodel/home_pinned_viewmodel.dart';
 
-/// 参照设计稿显示六项工具，未配置路由时保持展示状态。
+/// 展示未固定的所有工具，未配置路由时保持展示状态。
 class HomeAllTools extends ConsumerWidget {
   /// 创建全部工具区块。
   const HomeAllTools({super.key});
@@ -18,7 +18,7 @@ class HomeAllTools extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final BusyBoxPalette palette = BusyBoxPalette.of(context);
-    final List<HomeCatalogItem> items = ref.watch(homeCatalogProvider);
+    final List<HomeToolOption> items = ref.watch(unpinnedHomeToolsProvider);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
@@ -66,7 +66,7 @@ class HomeAllTools extends ConsumerWidget {
 }
 
 class _CatalogRow extends StatelessWidget {
-  final HomeCatalogItem item;
+  final HomeToolOption item;
   final BusyBoxPalette palette;
 
   const _CatalogRow({required this.item, required this.palette});

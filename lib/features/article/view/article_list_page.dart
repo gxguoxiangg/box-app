@@ -5,6 +5,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'widgets/wiki_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -18,14 +19,24 @@ import '../models/keyword_collection.dart';
 import '../viewmodel/article_viewmodel.dart';
 
 /// Wiki 知识库首页。
-class ArticleListPage extends ConsumerStatefulWidget {
+class ArticleListPage extends StatelessWidget {
+  /// 创建 Wiki 页面并应用知识库主题。
   const ArticleListPage({super.key});
 
   @override
-  ConsumerState<ArticleListPage> createState() => _ArticleListPageState();
+  Widget build(BuildContext context) =>
+      WikiTheme(child: _ArticleListPageBody());
 }
 
-class _ArticleListPageState extends ConsumerState<ArticleListPage> {
+class _ArticleListPageBody extends ConsumerStatefulWidget {
+  const _ArticleListPageBody();
+
+  @override
+  ConsumerState<_ArticleListPageBody> createState() =>
+      _ArticleListPageBodyState();
+}
+
+class _ArticleListPageBodyState extends ConsumerState<_ArticleListPageBody> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final TextEditingController _searchController = TextEditingController();
 
@@ -67,12 +78,13 @@ class _ArticleListPageState extends ConsumerState<ArticleListPage> {
           child: const Icon(Icons.add_rounded),
         ),
         body: SafeArea(
+          top: false,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               _buildHeader(context, searching),
               _buildSearchField(),
-              _buildKeywordFilter(),
+              if (!searching) _buildKeywordFilter(),
               Expanded(
                 child: searching
                     ? _buildSearchResults(query)
@@ -87,42 +99,10 @@ class _ArticleListPageState extends ConsumerState<ArticleListPage> {
 
   /// 构建 Wiki 顶部栏。
   Widget _buildHeader(BuildContext context, bool searching) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 8, 8, 0),
-      child: Row(
-        children: <Widget>[
-          IconButton(
-            tooltip: searching ? '返回 Wiki 首页' : '返回主页',
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-            onPressed: _handleBack,
-          ),
-          const SizedBox(width: 4),
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(9),
-            ),
-            child: const Icon(
-              Icons.menu_book_rounded,
-              size: 20,
-              color: Color(0xFF3B6CF6),
-            ),
-          ),
-          const SizedBox(width: 10),
-          const Text(
-            'Wiki',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-          ),
-          const Spacer(),
-          IconButton(
-            tooltip: '目录',
-            icon: const Icon(Icons.toc_rounded, size: 24),
-            onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
-          ),
-        ],
-      ),
+    return WikiHeader(
+      onBack: _handleBack,
+      backLabel: searching ? '返回 Wiki 首页' : '返回主页',
+      onDirectory: () => _scaffoldKey.currentState?.openEndDrawer(),
     );
   }
 
@@ -134,7 +114,7 @@ class _ArticleListPageState extends ConsumerState<ArticleListPage> {
         controller: _searchController,
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
-          hintText: '搜索条目（服务端搜索）',
+          hintText: '搜索知识库文章、协议、代码...',
           hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
           prefixIcon: const Icon(Icons.search_rounded, size: 20),
           suffixIcon: _searchController.text.isEmpty
@@ -149,8 +129,10 @@ class _ArticleListPageState extends ConsumerState<ArticleListPage> {
           isDense: true,
           contentPadding: const EdgeInsets.symmetric(vertical: 10),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(24),
-            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(
+              color: Theme.of(context).colorScheme.outlineVariant,
+            ),
           ),
         ),
         onChanged: (String value) {
@@ -194,6 +176,8 @@ class _ArticleListPageState extends ConsumerState<ArticleListPage> {
         ),
         data: (KeywordCollection collection) => _KeywordChips(
           keywords: collection.keywords,
+          items:
+              ref.watch(articleProvider).value?.items ?? const <ArticleItem>[],
           selected: ref.watch(articleKeywordControllerProvider),
           onSelected: (String? keyword) {
             ref.read(articleKeywordControllerProvider.notifier).select(keyword);
@@ -340,10 +324,10 @@ class _ArticleListPageState extends ConsumerState<ArticleListPage> {
                     dense: true,
                     leading: Text(
                       (index + 1).toString().padLeft(2, '0'),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF3B6CF6),
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                     title: Text(
@@ -373,58 +357,83 @@ class _ArticleListPageState extends ConsumerState<ArticleListPage> {
   }
 }
 
-/// 条目数量提示。
+/// 条目数量提示，不使用设计稿里的示例数量。
 class _CountLabel extends StatelessWidget {
   final int count;
-
   const _CountLabel({required this.count});
-
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-      child: Text(
-        '共 $count 篇',
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+    child: Align(alignment: Alignment.centerLeft, child: WikiTag('共 $count 篇')),
+  );
 }
 
-/// 关键词 Chip 横向滚动组件。
+/// 筛选项数量来自已加载条目；搜索时不展示无效的筛选操作。
 class _KeywordChips extends StatelessWidget {
   final List<String> keywords;
+  final List<ArticleItem> items;
   final String? selected;
   final ValueChanged<String?> onSelected;
-
   const _KeywordChips({
     required this.keywords,
+    required this.items,
     required this.selected,
     required this.onSelected,
   });
 
   @override
-  Widget build(BuildContext context) {
-    return ListView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      children: <Widget>[
-        _buildChip('全部', null),
-        for (final String keyword in keywords) _buildChip('#$keyword', keyword),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => ListView(
+    scrollDirection: Axis.horizontal,
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    children: <Widget>[
+      _chip(context, '全部', null, items.length),
+      for (final keyword in keywords)
+        _chip(
+          context,
+          '#$keyword',
+          keyword,
+          items.where((item) => item.keywordList.contains(keyword)).length,
+        ),
+    ],
+  );
 
-  Widget _buildChip(String label, String? value) {
+  Widget _chip(BuildContext context, String label, String? value, int count) {
+    final colors = Theme.of(context).colorScheme;
+    final active = selected == value;
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: ChoiceChip(
-        label: Text(label),
-        selected: selected == value,
+        showCheckmark: false,
+        side: BorderSide(
+          color: active ? colors.primary : colors.outlineVariant,
+        ),
+        label: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text(
+              label,
+              style: TextStyle(
+                color: active ? colors.primary : colors.onSurface,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: active ? colors.primary : colors.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(100),
+              ),
+              child: Text(
+                '$count',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: active ? colors.onPrimary : colors.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ],
+        ),
+        selected: active,
         onSelected: (_) => onSelected(value),
         visualDensity: VisualDensity.compact,
       ),
@@ -432,122 +441,94 @@ class _KeywordChips extends StatelessWidget {
   }
 }
 
-/// Wiki 首页条目卡片。
-class _ArticleListTile extends StatelessWidget {
-  final ArticleItem item;
+/// 列表与搜索共用的卡片排版，只展示服务端提供的元信息。
+class _WikiListCard extends StatelessWidget {
+  final String title;
+  final List<String> keywords;
   final DateTime? updatedAt;
   final VoidCallback onTap;
-
-  const _ArticleListTile({
-    required this.item,
-    required this.updatedAt,
+  const _WikiListCard({
+    required this.title,
     required this.onTap,
+    this.keywords = const [],
+    this.updatedAt,
   });
-
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final date = updatedAt;
     return Card(
-      margin: EdgeInsets.zero,
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
-        borderRadius: BorderRadius.circular(14),
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  const Icon(
-                    Icons.description_outlined,
-                    size: 20,
-                    color: Color(0xFF3B6CF6),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      item.displayTitle,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                  ),
-                ],
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: colors.onSurface,
+                  height: 1.4,
+                ),
               ),
-              if (item.keywordList.isNotEmpty) ...<Widget>[
+              if (keywords.isNotEmpty || date != null) ...<Widget>[
                 const SizedBox(height: 10),
+                const Divider(),
+                const SizedBox(height: 8),
                 Wrap(
                   spacing: 6,
-                  runSpacing: 4,
-                  children: item.keywordList
-                      .map(
-                        (String keyword) => Text(
-                          '#$keyword',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurfaceVariant,
-                          ),
+                  runSpacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: <Widget>[
+                    for (final keyword in keywords) WikiTag('#$keyword'),
+                    if (date != null)
+                      Text(
+                        '更新于 ${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: colors.onSurfaceVariant,
                         ),
-                      )
-                      .toList(growable: false),
+                      ),
+                  ],
                 ),
               ],
-              const SizedBox(height: 10),
-              Text(
-                '更新于 ${_formatDate(updatedAt)}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
             ],
           ),
         ),
       ),
     );
   }
-
-  String _formatDate(DateTime? date) {
-    if (date == null) return '—';
-    return '${date.year.toString().padLeft(4, '0')}-'
-        '${date.month.toString().padLeft(2, '0')}-'
-        '${date.day.toString().padLeft(2, '0')}';
-  }
 }
 
-/// 服务端搜索结果卡片。
+class _ArticleListTile extends StatelessWidget {
+  final ArticleItem item;
+  final DateTime? updatedAt;
+  final VoidCallback onTap;
+  const _ArticleListTile({
+    required this.item,
+    required this.updatedAt,
+    required this.onTap,
+  });
+  @override
+  Widget build(BuildContext context) => _WikiListCard(
+    title: item.displayTitle,
+    keywords: item.keywordList,
+    updatedAt: updatedAt,
+    onTap: onTap,
+  );
+}
+
 class _SearchResultTile extends StatelessWidget {
   final ArticleItemSummary summary;
   final VoidCallback onTap;
-
   const _SearchResultTile({required this.summary, required this.onTap});
-
   @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.zero,
-      elevation: 0,
-      child: ListTile(
-        leading: const Icon(Icons.description_outlined),
-        title: Text(
-          summary.question,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        trailing: const Icon(Icons.chevron_right_rounded),
-        onTap: onTap,
-      ),
-    );
-  }
+  Widget build(BuildContext context) =>
+      _WikiListCard(title: summary.question, onTap: onTap);
 }
 
-/// 后期扩展：可以在此页增加分页加载、搜索结果高亮和最近阅读记录；数据请求
-/// 仍通过 ArticleRepository 注入，页面无需直接处理 HTTP 响应。
+/// 后期扩展：作者和分类必须以真实接口字段为基础，不能使用设计稿示例值。

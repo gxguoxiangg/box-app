@@ -1,207 +1,124 @@
-/// 单个条目的完整内容组件（阅读视图核心）。
-///
-/// 对应需求中的页面布局：
-/// ```
-/// 文章标题（= 条目的 question）
-/// 作者:xxx，最后更新：yyyy-MM-dd
-/// ┌ 01 Description ┐
-/// ┌ 02 Causes      ┐
-/// ┌ 03 Solutions   ┐
-/// ┌ 04 Review      ┐
-/// ```
-///
-/// 本组件为「纯展示」：接收一条 [ArticleItem] 与文章级元信息，
-/// 供「滑动卡片」与「条目详情页」复用，避免两处重复渲染逻辑。
+/// Wiki 阅读正文与投稿预览共用组件。
+/// 后期扩展：新增章节时同步后端字段；作者缺失时不填充示例人物。
 library;
 
 import 'package:flutter/material.dart';
-
 import '../../../../shared/widgets/markdown_view.dart';
 import '../../models/article.dart';
+import 'wiki_theme.dart';
 
-/// 单个条目的完整内容。
+/// 一条知识库条目的标题、真实元信息和四章内容。
 class ItemContent extends StatelessWidget {
-  /// 待展示的条目。
-  final ArticleItem item;
-
-  /// 文章级「最后更新」时间（同一篇文章的所有条目共享）。
-  final DateTime? updatedAt;
-
+  /// 创建正文。
   const ItemContent({super.key, required this.item, required this.updatedAt});
 
-  /// 四章正文的标题（与后端字段一一对应）。
-  static const List<String> _sectionTitles = <String>[
-    'Description',
-    'Causes',
-    'Solutions',
-    'Review',
-  ];
+  /// 条目内容。
+  final ArticleItem item;
+
+  /// 服务端提供的文章级更新时间，可为空。
+  final DateTime? updatedAt;
 
   @override
   Widget build(BuildContext context) {
-    // 四章正文内容（可能为空）。
-    final List<String?> sections = <String?>[
-      item.description,
-      item.causes,
-      item.solutions,
-      item.review,
+    final colors = Theme.of(context).colorScheme;
+    final date = updatedAt;
+    final sections = <(String, String, String?)>[
+      ('问题描述', 'Description', item.description),
+      ('产生原因', 'Causes', item.causes),
+      ('解决方案', 'Solutions', item.solutions),
+      ('审查复盘', 'Review', item.review),
     ];
-
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        // ---------------------------------------------------------------------
-        // 标题（条目的 question）
-        // ---------------------------------------------------------------------
         Text(
           item.displayTitle,
           style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
+            fontSize: 28,
+            fontWeight: FontWeight.w600,
             height: 1.3,
-            color: Theme.of(context).colorScheme.onSurface,
+            color: colors.onSurface,
           ),
         ),
-        const SizedBox(height: 10),
-
-        // ---------------------------------------------------------------------
-        // 元信息：作者（占位） + 最后更新
-        // ---------------------------------------------------------------------
-        Row(
-          children: <Widget>[
-            Icon(
-              Icons.person_outline_rounded,
-              size: 15,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(width: 4),
-            // 作者信息后端暂未返回，先以「待定」占位，后期接口补充后再替换。
-            Text(
-              '作者：待定',
-              style: TextStyle(
-                fontSize: 13,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Icon(
-              Icons.schedule_rounded,
-              size: 15,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(width: 4),
-            Text(
-              '最后更新：${_formatDate(updatedAt)}',
-              style: TextStyle(
-                fontSize: 13,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-
-        // ---------------------------------------------------------------------
-        // 四章正文卡片
-        // ---------------------------------------------------------------------
-        for (int i = 0; i < sections.length; i++)
-          _SectionCard(
-            number: i + 1,
-            title: _sectionTitles[i],
-            markdown: sections[i],
-          ),
-      ],
-    );
-  }
-
-  /// 将时间格式化为 `yyyy-MM-dd`；为 null 时返回占位符。
-  String _formatDate(DateTime? date) {
-    if (date == null) return '—';
-    final String y = date.year.toString().padLeft(4, '0');
-    final String m = date.month.toString().padLeft(2, '0');
-    final String d = date.day.toString().padLeft(2, '0');
-    return '$y-$m-$d';
-  }
-}
-
-/// 单个章节卡片（如「01 Description」）。
-class _SectionCard extends StatelessWidget {
-  /// 章节序号（从 1 开始）。
-  final int number;
-
-  /// 章节标题。
-  final String title;
-
-  /// 章节正文（Markdown，可能为空）。
-  final String? markdown;
-
-  const _SectionCard({
-    required this.number,
-    required this.title,
-    required this.markdown,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final bool hasContent = markdown != null && markdown!.trim().isNotEmpty;
-
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: <BoxShadow>[
-          BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+        if (date != null) ...<Widget>[
+          const SizedBox(height: 8),
+          Text(
+            '最后更新：${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}',
+            style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
           ),
         ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          // 章节标题行：序号 + 标题
-          Row(
+        if (item.keywordList.isNotEmpty) ...<Widget>[
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
             children: <Widget>[
-              Text(
-                number.toString().padLeft(2, '0'),
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF3B6CF6),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
+              for (final keyword in item.keywordList) WikiTag('#$keyword'),
             ],
           ),
-          const SizedBox(height: 12),
-          Divider(
-            height: 1,
-            thickness: 1,
-            color: Theme.of(context).colorScheme.outlineVariant,
-          ),
-          const SizedBox(height: 12),
-          // 正文：有内容渲染 Markdown，无内容展示占位。
-          if (hasContent)
-            MarkdownView(markdown: markdown!)
-          else
-            const Text(
-              '暂无内容',
-              style: TextStyle(fontSize: 13, color: Color(0xFFB0B5BD)),
-            ),
         ],
-      ),
+        const SizedBox(height: 16),
+        for (final section in sections)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Container(
+                          width: 5,
+                          height: 18,
+                          decoration: BoxDecoration(
+                            color: colors.primary,
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            section.$1,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: colors.onSurface,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          section.$2,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: colors.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    const Divider(),
+                    const SizedBox(height: 12),
+                    if (section.$3?.trim().isNotEmpty == true)
+                      MarkdownView(
+                        markdown: section.$3 ?? '',
+                        darkCodeBlocks: true,
+                      )
+                    else
+                      Text(
+                        '暂无内容',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: colors.onSurfaceVariant,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

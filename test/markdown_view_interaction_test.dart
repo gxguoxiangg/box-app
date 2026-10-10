@@ -47,6 +47,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('代码已复制'), findsOneWidget);
     expect(copiedText, 'final value = 1;');
+    expect(find.text('DART'), findsOneWidget);
+    copiedText = null;
+    await tester.tap(find.text('复制'));
+    await tester.pump();
+    expect(copiedText, 'final value = 1;');
   });
 
   testWidgets('点击 Markdown 图片进入可缩放全屏页', (WidgetTester tester) async {

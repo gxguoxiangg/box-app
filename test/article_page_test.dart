@@ -75,7 +75,8 @@ void main() {
             'keywords': <String>['WPS'],
           });
         }
-        if (path == '/api/v1/items' && request.url.queryParameters['q'] != null) {
+        if (path == '/api/v1/items' &&
+            request.url.queryParameters['q'] != null) {
           return jsonResponse(<String, dynamic>{
             'total': 1,
             'items': <Map<String, dynamic>>[
@@ -99,9 +100,7 @@ void main() {
   Future<void> pumpArticlePage(WidgetTester tester) async {
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
-          apiClientProvider.overrideWithValue(mockApiClient()),
-        ],
+        overrides: [apiClientProvider.overrideWithValue(mockApiClient())],
         child: const MaterialApp(home: ArticleListPage()),
       ),
     );
@@ -131,6 +130,17 @@ void main() {
     expect(find.text('Windows 打印问题'), findsWidgets);
   });
 
+  testWidgets('选择真实关键词筛选条目，全部可恢复列表', (tester) async {
+    await pumpArticlePage(tester);
+    await tester.tap(find.widgetWithText(ChoiceChip, '#WPS'));
+    await tester.pumpAndSettle();
+    expect(find.text('共 1 篇'), findsOneWidget);
+    expect(find.text('Windows 打印问题'), findsNothing);
+    await tester.tap(find.widgetWithText(ChoiceChip, '全部'));
+    await tester.pumpAndSettle();
+    expect(find.text('共 2 篇'), findsOneWidget);
+  });
+
   testWidgets('输入关键词应触发服务端搜索并展示结果', (WidgetTester tester) async {
     await pumpArticlePage(tester);
 
@@ -143,8 +153,7 @@ void main() {
     expect(find.text('Q - Windows 打印问题'), findsOneWidget);
   });
 
-  testWidgets('搜索状态点击返回应清空搜索并留在 Wiki 首页',
-      (WidgetTester tester) async {
+  testWidgets('搜索状态点击返回应清空搜索并留在 Wiki 首页', (WidgetTester tester) async {
     await pumpArticlePage(tester);
 
     await tester.enterText(find.byType(TextField), 'Windows');
@@ -155,7 +164,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('共 2 篇'), findsOneWidget);
-    expect(tester.widget<TextField>(find.byType(TextField)).controller?.text,
-        isEmpty);
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller?.text,
+      isEmpty,
+    );
   });
 }

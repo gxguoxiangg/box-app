@@ -17,11 +17,7 @@ class ArticleCard extends StatelessWidget {
   /// 文章级「最后更新」时间（由浏览页从整篇文章中透传）。
   final DateTime? updatedAt;
 
-  const ArticleCard({
-    super.key,
-    required this.item,
-    required this.updatedAt,
-  });
+  const ArticleCard({super.key, required this.item, required this.updatedAt});
 
   @override
   Widget build(BuildContext context) {

@@ -5,6 +5,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'widgets/wiki_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -18,17 +19,30 @@ import '../viewmodel/article_viewmodel.dart';
 import 'widgets/article_card.dart';
 
 /// Wiki 条目阅读页。
-class ArticleReaderPage extends ConsumerStatefulWidget {
+class ArticleReaderPage extends StatelessWidget {
+  /// 创建 Wiki 页面并应用知识库主题。
+  const ArticleReaderPage({super.key, required this.initialItemId});
+
+  /// 打开后定位的条目 ID。
+  final int initialItemId;
+  @override
+  Widget build(BuildContext context) =>
+      WikiTheme(child: _ArticleReaderPageBody(initialItemId: initialItemId));
+}
+
+class _ArticleReaderPageBody extends ConsumerStatefulWidget {
   /// 打开后优先定位的条目 ID。
   final int initialItemId;
 
-  const ArticleReaderPage({super.key, required this.initialItemId});
+  const _ArticleReaderPageBody({required this.initialItemId});
 
   @override
-  ConsumerState<ArticleReaderPage> createState() => _ArticleReaderPageState();
+  ConsumerState<_ArticleReaderPageBody> createState() =>
+      _ArticleReaderPageBodyState();
 }
 
-class _ArticleReaderPageState extends ConsumerState<ArticleReaderPage> {
+class _ArticleReaderPageBodyState
+    extends ConsumerState<_ArticleReaderPageBody> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final PageController _pageController = PageController();
   final ScrollController _tocScrollController = ScrollController();
@@ -60,6 +74,7 @@ class _ArticleReaderPageState extends ConsumerState<ArticleReaderPage> {
         child: const Icon(Icons.add_rounded),
       ),
       body: SafeArea(
+        top: false,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
@@ -72,51 +87,19 @@ class _ArticleReaderPageState extends ConsumerState<ArticleReaderPage> {
   }
 
   Widget _buildHeader(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 8, 8, 0),
-      child: Row(
-        children: <Widget>[
-          IconButton(
-            tooltip: '返回 Wiki 首页',
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-            onPressed: () {
-              if (context.canPop()) {
-                context.pop();
-              } else {
-                context.go(AppRoutes.articleList);
-              }
-            },
-          ),
-          const SizedBox(width: 4),
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(9),
-            ),
-            child: const Icon(
-              Icons.menu_book_rounded,
-              size: 20,
-              color: Color(0xFF3B6CF6),
-            ),
-          ),
-          const SizedBox(width: 10),
-          const Text(
-            'Wiki',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-          ),
-          const Spacer(),
-          IconButton(
-            tooltip: '目录',
-            icon: const Icon(Icons.toc_rounded, size: 24),
-            onPressed: () {
-              _scaffoldKey.currentState?.openEndDrawer();
-              _scrollDirectoryToCurrent();
-            },
-          ),
-        ],
-      ),
+    return WikiHeader(
+      backLabel: '返回 Wiki 首页',
+      onBack: () {
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go(AppRoutes.articleList);
+        }
+      },
+      onDirectory: () {
+        _scaffoldKey.currentState?.openEndDrawer();
+        _scrollDirectoryToCurrent();
+      },
     );
   }
 

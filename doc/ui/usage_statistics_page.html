@@ -1,0 +1,337 @@
+<!DOCTYPE html><html lang="zh-CN" style=""><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"><meta content="mobile_stack" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#fbf9f8;}body{overscroll-behavior:none;font-family:'IBM Plex Sans',sans-serif;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"secondary-fixed-dim":"#c8c6c5","error":"#ba1a1a","on-error":"#ffffff","on-surface-variant":"#424656","on-primary":"#ffffff","surface-2":"#e0e0e0","primary-fixed-dim":"#b4c5ff","on-tertiary-fixed-variant":"#832700","outline-variant":"#c3c6d8","semantic-success":"#24a148","primary-container":"#0f62fe","secondary":"#5f5e5e","on-primary-fixed-variant":"#003da9","surface-container-lowest":"#ffffff","on-tertiary":"#ffffff","canvas":"#ffffff","hairline-strong":"#161616","on-primary-fixed":"#00174c","surface-container-low":"#f5f3f3","on-error-container":"#93000a","secondary-container":"#e2dfde","semantic-error":"#da1e28","surface-1":"#f4f4f4","on-background":"#1b1c1c","background":"#fbf9f8","tertiary-fixed":"#ffdbd0","error-container":"#ffdad6","blue-hover":"#0050e6","outline":"#737687","surface-tint":"#0052dd","surface-container-high":"#eae8e7","surface-bright":"#fbf9f8","on-secondary-container":"#636262","ink-muted":"#525252","on-secondary-fixed-variant":"#474746","inverse-on-surface":"#f2f0f0","on-tertiary-container":"#fff1ed","on-surface":"#1b1c1c","on-secondary-fixed":"#1c1b1b","tertiary-fixed-dim":"#ffb59d","surface-container-highest":"#e4e2e2","primary":"#004ccd","inverse-surface":"#303030","secondary-fixed":"#e5e2e1","surface-container":"#efeded","blue-active":"#002d9c","hairline":"#e0e0e0","ink-subtle":"#8c8c8c","inverse-primary":"#b4c5ff","surface":"#fbf9f8","ink":"#161616","on-primary-container":"#f3f3ff","on-tertiary-fixed":"#390c00","on-secondary":"#ffffff","primary-fixed":"#dbe1ff","tertiary-container":"#c84000","semantic-warning":"#f1c21b","surface-variant":"#e4e2e2","surface-dim":"#dbd9d9","tertiary":"#9e3100"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-md":"1rem","margin":"1rem","space-sm":"0.5rem","space-lg":"1.5rem","space-xs":"0.25rem","space-xl":"2rem","gutter":"1rem"},"fontFamily":{"headline-lg":["IBM Plex Sans"],"headline-md":["IBM Plex Sans"],"display":["IBM Plex Sans"],"label-md":["IBM Plex Sans"],"body-lg":["IBM Plex Sans"],"label-sm":["IBM Plex Sans"],"headline-sm":["IBM Plex Sans"],"body-md":["IBM Plex Sans"],"body-sm":["IBM Plex Sans"],"button":["IBM Plex Sans"]},"fontSize":{"headline-lg":["28px",{"lineHeight":"36px","letterSpacing":"0px","fontWeight":"400"}],"headline-md":["22px",{"lineHeight":"28px","letterSpacing":"0px","fontWeight":"400"}],"display":["36px",{"lineHeight":"44px","letterSpacing":"-0.4px","fontWeight":"300"}],"label-md":["14px",{"lineHeight":"18px","letterSpacing":"0.16px","fontWeight":"500"}],"body-lg":["16px",{"lineHeight":"24px","letterSpacing":"0.16px","fontWeight":"400"}],"label-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.32px","fontWeight":"600"}],"headline-sm":["18px",{"lineHeight":"24px","letterSpacing":"0px","fontWeight":"600"}],"body-md":["14px",{"lineHeight":"20px","letterSpacing":"0.16px","fontWeight":"400"}],"body-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.32px","fontWeight":"400"}],"button":["14px",{"lineHeight":"18px","letterSpacing":"0.16px","fontWeight":"500"}]}}}};</script></head><body class="bg-surface text-on-surface antialiased flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-14 px-margin flex items-center justify-between"><button aria-label="返回" class="w-12 h-12 -ml-2 flex items-center justify-center text-ink hover:text-primary transition-colors" onclick="history.back()" type="button"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><h1 class="font-headline-sm text-headline-sm text-ink truncate px-space-xs flex-1 text-left">使用统计</h1><div class="flex items-center gap-space-xs -mr-2"><button aria-label="日期范围" class="w-12 h-12 flex items-center justify-center text-ink-muted hover:text-ink transition-colors" type="button"></button></div></div></header><main class="flex-1 flex flex-col relative w-full pt-14 pb-safe bg-surface"><div class="flex flex-col w-full pb-space-xl">
+<!-- Top Highlight Section -->
+<section class="px-margin pt-space-md flex flex-col gap-space-md">
+<!-- Key Metric 2-Column Grid -->
+<div class="grid grid-cols-2 gap-space-sm">
+<!-- Metric 1: Usage Duration -->
+<div class="bg-surface-container-lowest p-space-md flex flex-col justify-between shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-ink-muted">累计使用时长</span>
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+</div>
+</div>
+<div class="mt-space-md">
+<div class="flex items-baseline gap-1">
+<span class="font-headline-lg text-headline-lg text-ink font-semibold">48.5</span>
+<span class="font-label-sm text-label-sm text-ink-muted">分钟</span>
+</div>
+<div class="mt-space-xs flex items-center gap-1 text-semantic-success">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+<span class="font-label-sm text-label-sm">较上周 +12%</span>
+</div>
+</div>
+</div>
+<!-- Metric 2: Total Launches -->
+<div class="bg-surface-container-lowest p-space-md flex flex-col justify-between shadow-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-ink-muted">累计启动次数</span>
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-[18px]">rocket_launch</span>
+</div>
+</div>
+<div class="mt-space-md">
+<div class="flex items-baseline gap-1">
+<span class="font-headline-lg text-headline-lg text-ink font-semibold">342</span>
+<span class="font-label-sm text-label-sm">次</span>
+</div>
+<div class="mt-space-xs flex items-center gap-1 text-ink-subtle">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span class="font-label-sm text-label-sm">今日已启动 6 次</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Secondary Quick Stats Strip -->
+</section>
+<!-- Usage Trend Section -->
+<section class="px-margin mt-space-lg flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-ink font-semibold">使用趋势分析</h2>
+<p class="font-body-sm text-body-sm text-ink-muted">记录每日核心工具执行时长</p>
+</div>
+<!-- Time Range Pills -->
+<div class="flex items-center gap-1 bg-surface-1 p-1"><span class="tab-btn px-3 py-1 font-label-sm text-label-sm bg-primary-container text-on-primary">近7天</span></div>
+</div>
+<!-- Bar Chart Card -->
+<div class="bg-surface-container-lowest p-space-md shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between text-ink-muted font-label-sm text-label-sm">
+<span class="">统计周期：本周一至周日</span>
+<span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-primary-container"></span> 峰值：周三 (85m)</span>
+</div>
+<!-- Weekly Frequency Bar Chart -->
+<div class="h-44 w-full flex items-end justify-between gap-2 pt-space-sm">
+<!-- Mon -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group cursor-pointer" onclick="updateActiveDetail('周一', '35分钟', 'Wiki 知识库 · 22m')">
+<span class="font-label-sm text-label-sm text-ink-muted text-[11px] group-hover:text-primary transition-colors">35m</span>
+<div class="w-full max-w-[28px] bg-surface-2 group-hover:bg-primary-container/80 transition-all" style="height: 41%;"></div>
+<span class="font-label-sm text-label-sm text-ink-muted">周一</span>
+</div>
+<!-- Tue -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group cursor-pointer" onclick="updateActiveDetail('周二', '50分钟', 'Ping 测试 · 30m')">
+<span class="font-label-sm text-label-sm text-ink-muted text-[11px] group-hover:text-primary transition-colors">50m</span>
+<div class="w-full max-w-[28px] bg-surface-2 group-hover:bg-primary-container/80 transition-all" style="height: 58%;"></div>
+<span class="font-label-sm text-label-sm text-ink-muted">周二</span>
+</div>
+<!-- Wed (Peak) -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group cursor-pointer" onclick="updateActiveDetail('周三 (峰值)', '85分钟', 'Wiki + NMAP 扫描')">
+<span class="font-label-sm text-label-sm text-primary-container font-semibold text-[11px]">85m</span>
+<div class="w-full max-w-[28px] bg-primary-container transition-all" style="height: 100%;"></div>
+<span class="font-label-sm text-label-sm text-primary-container font-semibold">周三</span>
+</div>
+<!-- Thu -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group cursor-pointer" onclick="updateActiveDetail('周四', '40分钟', '网络测速 · 18m')">
+<span class="font-label-sm text-label-sm text-ink-muted text-[11px] group-hover:text-primary transition-colors">40m</span>
+<div class="w-full max-w-[28px] bg-surface-2 group-hover:bg-primary-container/80 transition-all" style="height: 47%;"></div>
+<span class="font-label-sm text-label-sm text-ink-muted">周四</span>
+</div>
+<!-- Fri -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group cursor-pointer" onclick="updateActiveDetail('周五', '65分钟', '神机搜索 · 35m')">
+<span class="font-label-sm text-label-sm text-ink-muted text-[11px] group-hover:text-primary transition-colors">65m</span>
+<div class="w-full max-w-[28px] bg-surface-2 group-hover:bg-primary-container/80 transition-all" style="height: 76%;"></div>
+<span class="font-label-sm text-label-sm text-ink-muted">周五</span>
+</div>
+<!-- Sat -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group cursor-pointer" onclick="updateActiveDetail('周六', '20分钟', '网络计算器 · 12m')">
+<span class="font-label-sm text-label-sm text-ink-muted text-[11px] group-hover:text-primary transition-colors">20m</span>
+<div class="w-full max-w-[28px] bg-surface-2 group-hover:bg-primary-container/80 transition-all" style="height: 23%;"></div>
+<span class="font-label-sm text-label-sm text-ink-muted">周六</span>
+</div>
+<!-- Sun -->
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end group cursor-pointer" onclick="updateActiveDetail('周日', '15分钟', 'Wiki 浏览 · 15m')">
+<span class="font-label-sm text-label-sm text-ink-muted text-[11px] group-hover:text-primary transition-colors">15m</span>
+<div class="w-full max-w-[28px] bg-surface-2 group-hover:bg-primary-container/80 transition-all" style="height: 18%;"></div>
+<span class="font-label-sm text-label-sm text-ink-muted">周日</span>
+</div>
+</div>
+<!-- Interactive Mini Toast -->
+<div class="bg-surface-1 p-space-sm flex items-center justify-between text-ink transition-all" id="chart-detail">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary-container text-[18px]">info</span>
+<span class="font-label-sm text-label-sm font-semibold" id="detail-day">周三 (峰值)</span>
+<span class="text-ink-subtle">·</span>
+<span class="font-body-sm text-body-sm text-ink-muted" id="detail-desc">Wiki + NMAP 扫描</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary-container font-semibold" id="detail-duration">85分钟</span>
+</div>
+</div>
+</section>
+<!-- Most Used Tools Ranking -->
+<section class="px-margin mt-space-lg flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<h2 class="font-headline-sm text-headline-sm text-ink font-semibold">常用工具使用排行</h2>
+<span class="bg-surface-1 text-ink-muted font-label-sm text-label-sm px-2 py-0.5">共6款工具</span>
+</div>
+<button class="text-primary hover:text-blue-hover font-label-sm text-label-sm flex items-center gap-0.5" onclick="toggleSortOrder()" type="button">
+<span class="material-symbols-outlined text-[16px]">swap_vert</span>
+<span class="" id="sort-label">按时长排序</span>
+</button>
+</div>
+<!-- Ranking List Container -->
+<div class="flex flex-col gap-space-xs">
+<!-- Item 1: Wiki -->
+<div class="bg-surface-container-lowest p-space-md shadow-sm flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-sm text-headline-sm font-bold text-primary-container w-4 text-center">1</span>
+<div class="w-10 h-10 bg-surface-1 flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-[22px]">menu_book</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-ink font-semibold leading-snug">Wiki 知识库</span>
+<span class="font-body-sm text-body-sm text-ink-muted">98 次调用 · 累计 1164 分钟</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-headline-sm text-headline-sm text-ink font-semibold">40%</span>
+<span class="block font-label-sm text-label-sm text-ink-subtle">占比</span>
+</div>
+</div>
+<!-- Progress Bar -->
+<div class="w-full bg-surface-1 h-1.5 mt-space-xs overflow-hidden">
+<div class="bg-primary-container h-full" style="width: 40%;"></div>
+</div>
+</div>
+<!-- Item 2: Ping -->
+<div class="bg-surface-container-lowest p-space-md shadow-sm flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-sm text-headline-sm font-bold text-ink-muted w-4 text-center">2</span>
+<div class="w-10 h-10 bg-surface-1 flex items-center justify-center text-ink">
+<span class="material-symbols-outlined text-[22px]">network_ping</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-ink font-semibold leading-snug">Ping 网络测试</span>
+<span class="font-body-sm text-body-sm text-ink-muted">86 次调用 · 累计 492 分钟</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-headline-sm text-headline-sm text-ink font-semibold">26%</span>
+<span class="block font-label-sm text-label-sm text-ink-subtle">占比</span>
+</div>
+</div>
+<div class="w-full bg-surface-1 h-1.5 mt-space-xs overflow-hidden">
+<div class="bg-primary-container h-full" style="width: 26%;"></div>
+</div>
+</div>
+<!-- Item 3: NMAP -->
+<div class="bg-surface-container-lowest p-space-md shadow-sm flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-sm text-headline-sm font-bold text-ink-muted w-4 text-center">3</span>
+<div class="w-10 h-10 bg-surface-1 flex items-center justify-center text-ink">
+<span class="material-symbols-outlined text-[22px]">radar</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-ink font-semibold leading-snug">NMAP 端口扫描</span>
+<span class="font-body-sm text-body-sm text-ink-muted">64 次调用 · 累计 690 分钟</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-headline-sm text-headline-sm text-ink font-semibold">18%</span>
+<span class="block font-label-sm text-label-sm text-ink-subtle">占比</span>
+</div>
+</div>
+<div class="w-full bg-surface-1 h-1.5 mt-space-xs overflow-hidden">
+<div class="bg-primary-container h-full" style="width: 18%;"></div>
+</div>
+</div>
+<!-- Item 4: Speedtest -->
+<div class="bg-surface-container-lowest p-space-md shadow-sm flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-sm text-headline-sm font-bold text-ink-subtle w-4 text-center">4</span>
+<div class="w-10 h-10 bg-surface-1 flex items-center justify-center text-ink">
+<span class="material-symbols-outlined text-[22px]">speed</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-ink font-semibold leading-snug">测网速</span>
+<span class="font-body-sm text-body-sm text-ink-muted">45 次调用 · 累计 246 分钟</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-headline-sm text-headline-sm text-ink font-semibold">10%</span>
+<span class="block font-label-sm text-label-sm text-ink-subtle">占比</span>
+</div>
+</div>
+<div class="w-full bg-surface-1 h-1.5 mt-space-xs overflow-hidden">
+<div class="bg-primary-container h-full" style="width: 10%;"></div>
+</div>
+</div>
+<!-- Item 5: Smart Search -->
+<div class="bg-surface-container-lowest p-space-md shadow-sm flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-sm text-headline-sm font-bold text-ink-subtle w-4 text-center">5</span>
+<div class="w-10 h-10 bg-surface-1 flex items-center justify-center text-ink">
+<span class="material-symbols-outlined text-[22px]">manage_search</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-ink font-semibold leading-snug">神机 智能搜索</span>
+<span class="font-body-sm text-body-sm text-ink-muted">32 次调用 · 累计 192 分钟</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-headline-sm text-headline-sm text-ink font-semibold">4%</span>
+<span class="block font-label-sm text-label-sm text-ink-subtle">占比</span>
+</div>
+</div>
+<div class="w-full bg-surface-1 h-1.5 mt-space-xs overflow-hidden">
+<div class="bg-primary-container h-full" style="width: 4%;"></div>
+</div>
+</div>
+<!-- Item 6: Network Calculator -->
+<div class="bg-surface-container-lowest p-space-md shadow-sm flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-sm text-headline-sm font-bold text-ink-subtle w-4 text-center">6</span>
+<div class="w-10 h-10 bg-surface-1 flex items-center justify-center text-ink">
+<span class="material-symbols-outlined text-[22px]">calculate</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-ink font-semibold leading-snug">网络计算器</span>
+<span class="font-body-sm text-body-sm text-ink-muted">17 次调用 · 累计 126 分钟</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-headline-sm text-headline-sm text-ink font-semibold">2%</span>
+<span class="block font-label-sm text-label-sm text-ink-subtle">占比</span>
+</div>
+</div>
+<div class="w-full bg-surface-1 h-1.5 mt-space-xs overflow-hidden">
+<div class="bg-primary-container h-full" style="width: 2%;"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Local Storage Privacy Card & Actions -->
+<section class="px-margin mt-space-lg flex flex-col gap-space-md">
+<div class="bg-surface-1 p-space-md flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-ink-muted text-[20px] mt-0.5">verified_user</span>
+<div class="flex flex-col gap-1">
+<span class="font-label-md text-label-md text-ink font-semibold">数据说明</span>
+<p class="font-body-sm text-body-sm text-ink-muted leading-relaxed">
+          所有工具调用频次及运行时长仅保存在本地存储空间中。不向外部云服务上传或同步任何行为遥测数据。
+        </p>
+</div>
+</div>
+<!-- Management Buttons -->
+<div class="flex items-center gap-space-sm justify-center">
+
+<button class="h-12 px-space-md bg-surface-container-lowest text-semantic-error hover:bg-error-container/20 transition-colors flex items-center justify-center gap-space-xs font-label-md text-label-md shadow-sm active:bg-error-container" onclick="handleResetStats()" type="button">
+<span class="material-symbols-outlined text-[18px]">delete_sweep</span>
+        重置统计
+      </button>
+</div>
+</section>
+</div>
+<script>
+  function updateActiveDetail(day, duration, desc) {
+    const detailDay = document.getElementById('detail-day');
+    const detailDesc = document.getElementById('detail-desc');
+    const detailDuration = document.getElementById('detail-duration');
+    if (detailDay && detailDesc && detailDuration) {
+      detailDay.textContent = day;
+      detailDuration.textContent = duration;
+      detailDesc.textContent = desc;
+    }
+  }
+
+  let isSortByDuration = true;
+  function toggleSortOrder() {
+    isSortByDuration = !isSortByDuration;
+    const sortLabel = document.getElementById('sort-label');
+    if (sortLabel) {
+      sortLabel.textContent = isSortByDuration ? '按时长排序' : '按频次排序';
+    }
+  }
+
+  // Pill switcher demo toggle
+  const tabs = document.querySelectorAll('.tab-btn');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => {
+        t.classList.remove('bg-primary-container', 'text-on-primary');
+        t.classList.add('text-ink-muted');
+      });
+      tab.classList.remove('text-ink-muted');
+      tab.classList.add('bg-primary-container', 'text-on-primary');
+    });
+  });
+
+  function handleExportReport() {
+    alert('统计数据已导出到本地文件：toolbox_stats_weekly.json');
+  }
+
+  function handleResetStats() {
+    if (confirm('确定要清除所有本地工具使用记录吗？此操作不可逆。')) {
+      alert('统计数据已重置为初始状态。');
+    }
+  }
+</script></main>
+
+
+</body></html>

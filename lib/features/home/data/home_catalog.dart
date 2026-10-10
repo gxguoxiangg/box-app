@@ -2,14 +2,8 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/home_catalog_item.dart';
-
-/// 当前六项只提供展示；后续实现功能时填入路由即可启用点击跳转。
-final homeCatalogProvider = Provider<List<HomeCatalogItem>>(
-  (ref) => homeCatalogItems,
-);
 
 /// 六项尚未接入功能页的工具。
 const List<HomeCatalogItem> homeCatalogItems = <HomeCatalogItem>[

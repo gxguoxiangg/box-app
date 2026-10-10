@@ -54,3 +54,9 @@ final homePinnedProvider =
     AsyncNotifierProvider<HomePinnedController, List<String>>(
       HomePinnedController.new,
     );
+
+/// 全部工具区仅展示未固定项，与自定义页共享完整工具目录。
+final unpinnedHomeToolsProvider = Provider<List<HomeToolOption>>((ref) {
+  final pinned = ref.watch(homePinnedProvider).value ?? defaultPinnedTools;
+  return homeToolOptions.where((item) => !pinned.contains(item.id)).toList();
+});

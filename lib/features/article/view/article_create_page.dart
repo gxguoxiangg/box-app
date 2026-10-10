@@ -5,6 +5,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'widgets/wiki_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -13,6 +14,8 @@ import '../../auth/models/auth_session.dart';
 import '../../auth/viewmodel/auth_viewmodel.dart';
 import '../../home/data/tool_registry.dart';
 import '../models/article_draft.dart';
+import '../models/article.dart';
+import 'widgets/item_content.dart';
 import '../models/article_submission.dart';
 import '../models/keyword_collection.dart';
 import '../viewmodel/article_draft_viewmodel.dart';
@@ -20,14 +23,25 @@ import '../viewmodel/article_viewmodel.dart';
 import 'widgets/markdown_wysiwyg_editor.dart';
 
 /// Wiki 条目新增页面。
-class ArticleCreatePage extends ConsumerStatefulWidget {
+class ArticleCreatePage extends StatelessWidget {
+  /// 创建 Wiki 页面并应用知识库主题。
   const ArticleCreatePage({super.key});
 
   @override
-  ConsumerState<ArticleCreatePage> createState() => _ArticleCreatePageState();
+  Widget build(BuildContext context) =>
+      WikiTheme(child: _ArticleCreatePageBody());
 }
 
-class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
+class _ArticleCreatePageBody extends ConsumerStatefulWidget {
+  const _ArticleCreatePageBody();
+
+  @override
+  ConsumerState<_ArticleCreatePageBody> createState() =>
+      _ArticleCreatePageBodyState();
+}
+
+class _ArticleCreatePageBodyState
+    extends ConsumerState<_ArticleCreatePageBody> {
   static const List<String> _stepLabels = <String>[
     '问题标题',
     '具体描述',
@@ -51,6 +65,7 @@ class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
   final GlobalKey<MarkdownWysiwygEditorState> _overviewEditorKey =
       GlobalKey<MarkdownWysiwygEditorState>();
   int _currentPage = 0;
+  bool _editingOverview = false;
 
   @override
   void initState() {
@@ -117,7 +132,13 @@ class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
             onPressed: _confirmDelete,
             icon: const Icon(Icons.close_rounded),
           ),
-          title: const Text('新增 Wiki 条目'),
+          title: const Text('新增文章'),
+          actions: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: WikiTag('卡片 ${_currentPage + 1} / 7'),
+            ),
+          ],
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(5),
             child: LinearProgressIndicator(
@@ -133,13 +154,14 @@ class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
                 child: Row(
                   children: <Widget>[
-                    Text(
-                      _stepLabels[_currentPage],
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
+                    Expanded(
+                      child: Text(
+                        '知识库条目构建器',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
-                    const Spacer(),
                     Text('${_currentPage + 1} / ${_stepLabels.length}'),
                   ],
                 ),
@@ -168,42 +190,98 @@ class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
     );
   }
 
-  Widget _buildTextStep(DraftSection section, ArticleDraftState state) {
-    final TextEditingController controller = _controllers[section]!;
-    final FocusNode focusNode = _focusNodes[section]!;
+  Widget _stepCard({
+    required int step,
+    required String title,
+    required IconData icon,
+    required Widget child,
+  }) {
+    final colors = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
       child: Card(
         clipBehavior: Clip.antiAlias,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Text(
-                section.label,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: colors.outlineVariant),
+                ),
               ),
-              const Divider(height: 24),
-              Expanded(
-                child: section == DraftSection.question
-                    ? _buildSourceField(
-                        section: section,
-                        controller: controller,
-                        focusNode: focusNode,
-                      )
-                    : _buildMarkdownEditor(
-                        section: section,
-                        markdown: state.draft.textFor(section),
-                        state: state,
+              child: Row(
+                children: <Widget>[
+                  Text(
+                    '${step.toString().padLeft(2, '0')} / 07',
+                    style: TextStyle(
+                      color: colors.primary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
                       ),
+                    ),
+                  ),
+                  Icon(icon, size: 22, color: colors.onSurfaceVariant),
+                ],
               ),
-            ],
-          ),
+            ),
+            Expanded(
+              child: Padding(padding: const EdgeInsets.all(16), child: child),
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _buildTextStep(DraftSection section, ArticleDraftState state) {
+    const icons = <IconData>[
+      Icons.subject,
+      Icons.description_outlined,
+      Icons.psychology_outlined,
+      Icons.terminal,
+      Icons.verified_user_outlined,
+    ];
+    return _stepCard(
+      step: section.index + 1,
+      title: section.label,
+      icon: icons[section.index],
+      child: section == DraftSection.question
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Text(
+                  '简要准确定义此条目的核心问题',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: _buildSourceField(
+                    section: section,
+                    controller: _controllers[section]!,
+                    focusNode: _focusNodes[section]!,
+                  ),
+                ),
+              ],
+            )
+          : _buildMarkdownEditor(
+              section: section,
+              markdown: state.draft.textFor(section),
+              state: state,
+            ),
     );
   }
 
@@ -248,106 +326,135 @@ class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
   }
 
   Widget _buildKeywordStep(ArticleDraftState state) {
-    final AsyncValue<KeywordCollection> keywords = ref.watch(
-      articleKeywordsProvider,
-    );
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Text(
-                '关键字（可多选）',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+    final keywords = ref.watch(articleKeywordsProvider);
+    void toggle(String keyword) => ref
+        .read(articleDraftControllerProvider.notifier)
+        .toggleKeyword(keyword);
+    return _stepCard(
+      step: 6,
+      title: '关键字与标签',
+      icon: Icons.sell_outlined,
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Text('已选标签 (${state.draft.keywords.length})'),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: <Widget>[
+                for (final keyword in state.draft.keywords)
+                  InputChip(
+                    label: Text('#$keyword'),
+                    onDeleted: () => toggle(keyword),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            const Text('可选标签（轻触加入）'),
+            const SizedBox(height: 10),
+            keywords.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (_, _) => TextButton.icon(
+                onPressed: () => ref.invalidate(articleKeywordsProvider),
+                icon: const Icon(Icons.refresh),
+                label: const Text('重新加载关键字'),
               ),
-              const Divider(height: 24),
-              Expanded(
-                child: keywords.when(
-                  loading: () => const Center(
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                  error: (_, _) => Center(
-                    child: FilledButton.tonalIcon(
-                      onPressed: () => ref.invalidate(articleKeywordsProvider),
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: const Text('重新加载关键字'),
-                    ),
-                  ),
-                  data: (KeywordCollection collection) => SingleChildScrollView(
-                    child: Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: <Widget>[
-                        for (final String keyword in collection.keywords)
-                          FilterChip(
-                            label: Text(keyword),
-                            selected: state.draft.keywords.contains(keyword),
-                            onSelected: (_) => ref
-                                .read(articleDraftControllerProvider.notifier)
-                                .toggleKeyword(keyword),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+              data: (KeywordCollection collection) {
+                final available = collection.keywords
+                    .where((tag) => !state.draft.keywords.contains(tag))
+                    .toList();
+                if (available.isEmpty) return const Text('暂无可选标签');
+                return Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: <Widget>[
+                    for (final keyword in available)
+                      ActionChip(
+                        label: Text('#$keyword'),
+                        avatar: const Icon(Icons.add, size: 16),
+                        onPressed: () => toggle(keyword),
+                      ),
+                  ],
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
   }
 
   Widget _buildCommitStep(ArticleDraftState state) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+    final draft = state.draft;
+    return _stepCard(
+      step: 7,
+      title: '信息总览与核对',
+      icon: Icons.fact_check_outlined,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Expanded(
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    Text(
-                      '文章总览（可直接编辑）',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const Divider(height: 24),
-                    Expanded(
-                      child: MarkdownWysiwygEditor(
-                        key: _overviewEditorKey,
-                        inputRole: 'article-overview',
-                        initialMarkdown: state.draft.markdownOverview,
-                        onChanged: (String value) => ref
-                            .read(articleDraftControllerProvider.notifier)
-                            .updateOverview(value),
-                      ),
-                    ),
-                  ],
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: <Widget>[
+              Text(_editingOverview ? '文章总览（可直接编辑）' : '文章实际渲染效果预览'),
+              TextButton.icon(
+                onPressed: () {
+                  _flushCurrentEditor();
+                  setState(() => _editingOverview = !_editingOverview);
+                },
+                icon: Icon(
+                  _editingOverview
+                      ? Icons.visibility_outlined
+                      : Icons.edit_outlined,
                 ),
+                label: Text(_editingOverview ? '预览' : '编辑总览'),
               ),
-            ),
+            ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
+          Expanded(
+            child: _editingOverview
+                ? MarkdownWysiwygEditor(
+                    key: _overviewEditorKey,
+                    inputRole: 'article-overview',
+                    initialMarkdown: draft.markdownOverview,
+                    onChanged: (value) => ref
+                        .read(articleDraftControllerProvider.notifier)
+                        .updateOverview(value),
+                  )
+                : SingleChildScrollView(
+                    child: ItemContent(
+                      item: ArticleItem(
+                        id: 0,
+                        articleId: 0,
+                        position: 0,
+                        question: draft.question,
+                        description: draft.description,
+                        causes: draft.causes,
+                        solutions: draft.solutions,
+                        review: draft.review,
+                        keywords: draft.keywords
+                            .map((tag) => '- $tag')
+                            .join('\n'),
+                      ),
+                      updatedAt: null,
+                    ),
+                  ),
+          ),
+          const SizedBox(height: 8),
           Row(
             children: <Widget>[
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: state.isSubmitting ? null : _confirmDelete,
-                  icon: const Icon(Icons.close_rounded),
+                  icon: const Icon(Icons.close),
                   label: const Text('删除草稿'),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
               Expanded(
                 child: FilledButton.icon(
                   onPressed: state.isSubmitting ? null : _confirmSubmit,
@@ -357,7 +464,7 @@ class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
                           height: 18,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Icon(Icons.check_rounded),
+                      : const Icon(Icons.cloud_upload_outlined),
                   label: const Text('提交'),
                 ),
               ),
@@ -369,37 +476,67 @@ class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
   }
 
   Widget _buildPageNavigation(ArticleDraftState state) {
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-        child: Row(
-          children: <Widget>[
-            IconButton.filledTonal(
-              tooltip: '上一张卡片',
-              onPressed: _currentPage == 0 ? null : () => _movePage(-1),
-              icon: const Icon(Icons.chevron_left_rounded),
-            ),
-            const Spacer(),
-            if (state.isUploading)
-              const Padding(
-                padding: EdgeInsets.only(right: 12),
-                child: Text('正在上传图片...'),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Tooltip(
+                message: '上一张卡片',
+                child: OutlinedButton.icon(
+                  onPressed: _currentPage == 0 ? null : () => _movePage(-1),
+                  icon: const Icon(Icons.arrow_back, size: 16),
+                  label: const Text('上一步'),
+                ),
               ),
-            IconButton.filled(
-              tooltip: '下一张卡片',
-              onPressed: _currentPage == _stepLabels.length - 1
-                  ? null
-                  : () => _movePage(1),
-              icon: const Icon(Icons.chevron_right_rounded),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Tooltip(
+                  message: '下一张卡片',
+                  child: FilledButton(
+                    onPressed: _currentPage == 6 ? null : () => _movePage(1),
+                    child: Text(
+                      _currentPage == 6
+                          ? '已到总览'
+                          : '下一步：${_stepLabels[_currentPage + 1]}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            state.isUploading ? '正在上传图片...' : '左右滑动卡片快速翻页',
+            style: TextStyle(
+              fontSize: 11,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
+  // 切换预览或离开步骤前提交最新文本，避免编辑器 120ms 防抖尚未触发。
+  void _flushCurrentEditor() {
+    final controller = ref.read(articleDraftControllerProvider.notifier);
+    if (_currentPage == 6 && _editingOverview) {
+      final value = _overviewEditorKey.currentState?.markdown;
+      if (value != null) controller.updateOverview(value);
+    } else if (_currentPage > 0 && _currentPage < DraftSection.values.length) {
+      final section = DraftSection.values[_currentPage];
+      final value = _wysiwygEditorKeys[section]?.currentState?.markdown;
+      if (value != null) controller.updateText(section, value);
+    }
+  }
+
   void _onPageChanged(int index) {
+    _flushCurrentEditor();
     FocusManager.instance.primaryFocus?.unfocus();
     setState(() => _currentPage = index);
     if (index < DraftSection.values.length) {
@@ -418,6 +555,7 @@ class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
   }
 
   void _movePage(int delta) {
+    _flushCurrentEditor();
     _pageController.animateToPage(
       _currentPage + delta,
       duration: const Duration(milliseconds: 260),
@@ -455,6 +593,7 @@ class _ArticleCreatePageState extends ConsumerState<ArticleCreatePage> {
   }
 
   Future<void> _confirmSubmit() async {
+    _flushCurrentEditor();
     final bool confirmed = await _showConfirmation(
       title: '确认提交？',
       confirmLabel: '提交',

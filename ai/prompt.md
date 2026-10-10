@@ -94,7 +94,7 @@
 
 ## UI / UX 规范
 
-- 使用 **Material 3**；主页、侧边栏与自定义页以 `doc/ui/` 中的稿件为准，颜色通过 `BusyBoxPalette`（`core/theme/busybox_palette.dart` 的 `ThemeExtension`）读取，避免页面散落颜色常量；其余页面沿用现有 `ColorScheme`；
+- 使用 **Material 3**；主页、侧边栏与自定义页以 `doc/ui/` 中的稿件为准，颜色通过 `BusyBoxPalette`（`core/theme/busybox_palette.dart` 的 `ThemeExtension`）读取；Wiki 以 `doc/ui/wiki/` 为准，通过 `WikiTheme` 复用同一色板；其余页面沿用现有 `ColorScheme`；
 - 支持**明/暗主题实时切换**，通过 `ThemeController` 持久化；
 - 间距以 **8pt grid** 为基础，设计稿明确指定时采用其间距；主页与自定义页使用圆角卡片和轻阴影，卡片反馈与正文入场集中在 `shared/widgets/busybox_card.dart`，其他模块沿用既有样式；
 - 保留 GuoXiang BusyBox 标题动画；新增动效需尊重系统减少动画设置。连接柱条仅为状态装饰，不代表实时流量；网络字段保持长按复制；
@@ -121,7 +121,7 @@
 
 - **路由**：常量集中在 `AppRoutes`（`tool_registry.dart`），`GoRoute` 注册在 `app_router.dart`；
   带参路由示例：`articleItemDetailPath(id)`。
-- **主页工具**：`home_tool_options.dart` 统一列出可固定工具，`home_pinned_viewmodel.dart` 使用 Riverpod 和 `shared_preferences` 保存最多六项；六项尚未实现的工具保留在 `home_catalog.dart`。`toolRegistryProvider` 仍服务旧功能搜索页。
+- **主页工具**：`home_tool_options.dart` 统一列出可固定工具，`home_pinned_viewmodel.dart` 使用 Riverpod 和 `shared_preferences` 保存最多六项，并以 `unpinnedHomeToolsProvider` 派生全部未固定项。`home_catalog.dart` 仅保存六项待开发工具的元数据，不作为全部工具的静态展示清单。`toolRegistryProvider` 仍服务旧功能搜索页。
 - **配色模板**：`BusyBoxPalette` 作为 `ThemeExtension` 注册在 `AppTheme.light/dark`；新主页相关组件统一通过 `BusyBoxPalette.of(context)` 取色，未来设置页可选择其他模板。
 - **主题**：`ThemeController extends AsyncNotifier<ThemeMode>`，
   读取前 UI 用 `.value ?? ThemeMode.light` 兜底；写入 `shared_preferences` 的 `theme_mode` 键。
@@ -148,5 +148,6 @@
   Repository 负责拼接业务请求，View 不直接操作 `http.Client`。
 - **测试 Mock**：网络相关一律 `apiClientProvider.overrideWithValue(MockClient(...))` 或
   `overrideWithValue(FakeXxxRepository)`，**离线可跑**。
-- **Markdown 阅读交互**：统一由 `shared/widgets/markdown_view.dart` 提供文本选择、代码块长按复制和图片全屏入口；全屏图片页使用 `InteractiveViewer`，分享统一走 `share_plus`。
+- **Markdown 阅读交互**：统一由 `shared/widgets/markdown_view.dart` 提供文本选择、代码语言标签、点击/长按复制和图片全屏入口；Wiki 正文传入 `darkCodeBlocks: true`。全屏图片页使用 `InteractiveViewer`，分享统一走 `share_plus`。
+- **Wiki 投稿总览**：默认复用 `ItemContent` 显示实际阅读效果，也可切回完整 Markdown 编辑。切换预览、翻页和提交前同步当前编辑器文本；不在 UI 中虚构作者、日期、分类或离线同步状态。草稿仍只存内存。
 - **Markdown 编辑交互**：正文页为单一区域所见即所得编辑器，内容在原处实时呈现；列表回车续写集中在 `MarkdownListInputFormatter`，不要在页面中重复实现字符串规则。

@@ -4,6 +4,8 @@ library;
 import 'package:demo1/core/theme/app_theme.dart';
 import 'package:demo1/features/article/models/article.dart';
 import 'package:demo1/features/article/view/widgets/item_content.dart';
+import 'package:demo1/features/article/view/widgets/wiki_theme.dart';
+import 'package:demo1/core/theme/busybox_palette.dart';
 import 'package:demo1/features/home/view/widgets/tool_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,13 +24,15 @@ void main() {
       review: null,
       keywords: null,
     );
-    final ColorScheme colors = AppTheme.dark.colorScheme;
+
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.dark,
-        home: const Scaffold(
-          body: SingleChildScrollView(
-            child: ItemContent(item: item, updatedAt: null),
+        home: const WikiTheme(
+          child: Scaffold(
+            body: SingleChildScrollView(
+              child: ItemContent(item: item, updatedAt: null),
+            ),
           ),
         ),
       ),
@@ -36,15 +40,14 @@ void main() {
 
     expect(
       tester.widget<Text>(find.text('深色标题')).style?.color,
-      colors.onSurface,
+      BusyBoxPalette.dark.ink,
     );
     expect(
       find.byWidgetPredicate(
         (Widget widget) =>
-            widget is Container &&
-            widget.decoration is BoxDecoration &&
-            (widget.decoration! as BoxDecoration).color ==
-                colors.surfaceContainerLow,
+            widget is Material &&
+            widget.type == MaterialType.card &&
+            widget.color == BusyBoxPalette.dark.canvas,
       ),
       findsNWidgets(4),
     );

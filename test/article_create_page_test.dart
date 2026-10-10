@@ -59,6 +59,9 @@ void main() {
   });
 
   testWidgets('编辑器应按七张卡片进入可编辑总览', (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(360, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     final ApiClient apiClient = ApiClient(
       client: MockClient((http.Request request) async {
         if (request.url.path == '/api/v1/all-keywords') {
@@ -103,9 +106,20 @@ void main() {
     for (int page = 1; page < 7; page++) {
       await tester.tap(find.byTooltip('下一张卡片'));
       await tester.pumpAndSettle();
+      if (page == 5) {
+        await tester.tap(find.text('#网络'));
+        await tester.pumpAndSettle();
+        expect(find.text('已选标签 (1)'), findsOneWidget);
+      }
+      expect(tester.takeException(), isNull);
     }
 
     expect(find.text('7 / 7'), findsOneWidget);
+    expect(find.text('文章实际渲染效果预览'), findsOneWidget);
+    expect(find.text('#网络'), findsOneWidget);
+    expect(find.byType(SuperEditor), findsNothing);
+    await tester.tap(find.text('编辑总览'));
+    await tester.pumpAndSettle();
     expect(find.text('文章总览（可直接编辑）'), findsOneWidget);
     expect(find.byType(SuperEditor), findsOneWidget);
     expect(find.text('提交'), findsOneWidget);
@@ -163,7 +177,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 250));
     expect(find.text('提交无效'), findsOneWidget);
-    expect(find.text('新增 Wiki 条目'), findsOneWidget);
+    expect(find.text('新增文章'), findsOneWidget);
 
     container.read(authSessionProvider.notifier).clear();
     await tester.pumpWidget(const SizedBox.shrink());

@@ -23,7 +23,13 @@ class MarkdownView extends StatelessWidget {
   /// 待渲染的 Markdown 文本。
   final String markdown;
 
-  const MarkdownView({super.key, required this.markdown});
+  /// 是否使用 Wiki 稿件中的深色代码卡片。
+  final bool darkCodeBlocks;
+  const MarkdownView({
+    super.key,
+    required this.markdown,
+    this.darkCodeBlocks = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -51,17 +57,21 @@ class MarkdownView extends StatelessWidget {
           codeblockPadding: const EdgeInsets.all(12),
         );
 
-    final List<({String content, bool isCode})> segments = _splitMarkdown(
-      markdown,
-    );
+    final List<({String content, bool isCode, String language})> segments =
+        _splitMarkdown(markdown);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        for (final ({String content, bool isCode}) segment in segments)
+        for (final ({String content, bool isCode, String language}) segment
+            in segments)
           if (segment.isCode)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
-              child: _CopyableCodeBlock(code: segment.content),
+              child: _CopyableCodeBlock(
+                code: segment.content,
+                language: segment.language,
+                dark: darkCodeBlocks,
+              ),
             )
           else if (segment.content.trim().isNotEmpty)
             _buildMarkdownBody(context, segment.content, styleSheet),
@@ -134,27 +144,40 @@ class MarkdownView extends StatelessWidget {
     );
   }
 
-  List<({String content, bool isCode})> _splitMarkdown(String source) {
+  List<({String content, bool isCode, String language})> _splitMarkdown(
+    String source,
+  ) {
     final RegExp fencedCode = RegExp(
-      r'```[^\r\n]*\r?\n([\s\S]*?)(?:\r?\n)?```',
+      r'```([^\r\n]*)\r?\n([\s\S]*?)(?:\r?\n)?```',
     );
-    final List<({String content, bool isCode})> segments =
-        <({String content, bool isCode})>[];
+    final List<({String content, bool isCode, String language})> segments =
+        <({String content, bool isCode, String language})>[];
     int cursor = 0;
     for (final RegExpMatch match in fencedCode.allMatches(source)) {
       if (match.start > cursor) {
         segments.add((
           content: source.substring(cursor, match.start),
           isCode: false,
+          language: '',
         ));
       }
-      segments.add((content: match.group(1) ?? '', isCode: true));
+      segments.add((
+        content: match.group(2) ?? '',
+        isCode: true,
+        language: match.group(1)?.trim() ?? '',
+      ));
       cursor = match.end;
     }
     if (cursor < source.length) {
-      segments.add((content: source.substring(cursor), isCode: false));
+      segments.add((
+        content: source.substring(cursor),
+        isCode: false,
+        language: '',
+      ));
     }
-    if (segments.isEmpty) segments.add((content: source, isCode: false));
+    if (segments.isEmpty) {
+      segments.add((content: source, isCode: false, language: ''));
+    }
     return segments;
   }
 }
@@ -163,7 +186,23 @@ class MarkdownView extends StatelessWidget {
 class _CopyableCodeBlock extends StatelessWidget {
   final String code;
 
-  const _CopyableCodeBlock({required this.code});
+  final String language;
+  final bool dark;
+  const _CopyableCodeBlock({
+    required this.code,
+    required this.language,
+    required this.dark,
+  });
+
+  Future<void> _copy(BuildContext context) async {
+    await Clipboard.setData(ClipboardData(text: code));
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(content: Text('代码已复制'), duration: Duration(seconds: 2)),
+      );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -173,44 +212,51 @@ class _CopyableCodeBlock extends StatelessWidget {
       child: GestureDetector(
         key: const ValueKey<String>('markdown-code-block'),
         behavior: HitTestBehavior.opaque,
-        onLongPress: () async {
-          await Clipboard.setData(ClipboardData(text: code));
-          if (!context.mounted) return;
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              const SnackBar(
-                content: Text('代码已复制'),
-                duration: Duration(seconds: 2),
-              ),
-            );
-        },
+        onLongPress: () => _copy(context),
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: colors.surfaceContainerLow,
+            color: dark ? const Color(0xFF161616) : colors.surfaceContainerLow,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(color: colors.outlineVariant),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  '长按复制',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: colors.onSurfaceVariant,
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Text(
+                      language.isEmpty ? 'CODE' : language.toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: dark
+                            ? const Color(0xFFC6C6C6)
+                            : colors.onSurfaceVariant,
+                      ),
+                    ),
                   ),
-                ),
+                  TextButton.icon(
+                    onPressed: () => _copy(context),
+                    icon: const Icon(Icons.content_copy, size: 14),
+                    label: const Text('复制'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: dark
+                          ? const Color(0xFFF4F4F4)
+                          : colors.primary,
+                    ),
+                  ),
+                ],
               ),
               Text(
                 code,
                 style: TextStyle(
                   fontFamily: 'monospace',
                   fontSize: 13,
-                  color: colors.onSurfaceVariant,
+                  color: dark
+                      ? const Color(0xFFF4F4F4)
+                      : colors.onSurfaceVariant,
                 ),
               ),
             ],
@@ -221,4 +267,4 @@ class _CopyableCodeBlock extends StatelessWidget {
   }
 }
 
-/// 后期扩展：可增加代码语言识别、高亮和独立复制按钮。
+/// 后期扩展：可在现有语言标签基础上增加语法高亮。
