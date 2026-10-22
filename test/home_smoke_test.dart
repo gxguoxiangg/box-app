@@ -21,6 +21,15 @@ void main() {
     expect(find.text('GuoXiang'), findsOneWidget);
     await tester.pumpAndSettle();
     expect(find.text('主页'), findsOneWidget);
+    expect(tester.widget<Text>(find.text('主页')).style?.fontSize, 18);
+    expect(
+      tester.widget<Text>(find.text('主页')).style?.fontWeight,
+      FontWeight.w700,
+    );
+    expect(
+      tester.widget<Text>(find.text('BusyBox · 工具魔盒')).style?.fontSize,
+      12,
+    );
   });
 
   testWidgets('主页应渲染网络摘要、常用工具与全部工具', (WidgetTester tester) async {
@@ -33,6 +42,15 @@ void main() {
 
     // 1. 首次进入动画结束后，顶部栏显示“主页”。
     expect(find.text('主页'), findsOneWidget);
+    expect(tester.widget<Text>(find.text('主页')).style?.fontSize, 18);
+    expect(
+      tester.widget<Text>(find.text('主页')).style?.fontWeight,
+      FontWeight.w700,
+    );
+    expect(
+      tester.widget<Text>(find.text('BusyBox · 工具魔盒')).style?.fontSize,
+      12,
+    );
 
     // 新版主页显示网络摘要及常用工具入口。
     expect(find.text('当前网络信息'), findsOneWidget);

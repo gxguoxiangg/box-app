@@ -57,6 +57,7 @@ final List<HomeToolOption> homeToolOptions = <HomeToolOption>[
     name: '神机',
     description: '智能搜索',
     icon: Icons.radar_rounded,
+    routePath: AppRoutes.iadb,
   ),
   for (final HomeCatalogItem item in homeCatalogItems)
     HomeToolOption(

@@ -37,6 +37,9 @@ migrate_working_dir/
 /coverage/
 .agents/
 /demo/*.apk
+/doc/review
+/doc/requirements/target-Oct-14.md
+
 # Symbolication related
 app.*.symbols
 

@@ -195,6 +195,52 @@ class ApiClient {
     }
   }
 
+  /// 执行独立服务的 JSON 请求，支持可选认证和 204 空响应。
+  /// 错误信息不包含请求地址、正文或令牌。
+  Future<Map<String, dynamic>> requestJson(
+    String path, {
+    String method = 'GET',
+    Map<String, String>? query,
+    Map<String, Object?>? body,
+    String? token,
+  }) async {
+    final uri = Uri.parse('$baseUrl$path').replace(queryParameters: query);
+    final request = http.Request(method, uri);
+    request.headers['accept'] = 'application/json';
+    if (token != null) request.headers['authorization'] = 'Bearer $token';
+    if (body != null) {
+      request.headers['content-type'] = 'application/json';
+      request.body = jsonEncode(body);
+    }
+    late http.Response response;
+    try {
+      response = await (() async => http.Response.fromStream(
+        await _client.send(request),
+      ))().timeout(AppConstants.requestTimeout);
+    } catch (_) {
+      throw const ApiException('连接失败，请检查网络或服务地址');
+    }
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      final message = switch (response.statusCode) {
+        401 => '登录无效或已过期，请重新登录',
+        403 => '当前账号无权访问',
+        429 => '请求过于频繁，请稍后重试',
+        400 => '查询参数不合法',
+        404 => '记录不存在',
+        _ => '服务暂时不可用，请稍后重试',
+      };
+      throw ApiException(message, statusCode: response.statusCode);
+    }
+    if (response.statusCode == 204) return <String, dynamic>{};
+    try {
+      final value = jsonDecode(utf8.decode(response.bodyBytes));
+      if (value is Map<String, dynamic>) return value;
+    } catch (_) {
+      // 非 JSON / 非对象均归一化处理。
+    }
+    throw const ApiException('返回数据格式异常');
+  }
+
   /// 关闭底层 http 客户端，释放连接资源。
   void dispose() => _client.close();
 }

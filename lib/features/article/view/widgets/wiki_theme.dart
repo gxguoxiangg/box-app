@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../../../core/theme/page_header_typography.dart';
 import '../../../../core/theme/busybox_palette.dart';
 
 /// 将知识库稿件配色应用到阅读、列表和投稿页面。
@@ -128,15 +129,13 @@ class WikiHeader extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       'Wiki',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                        color: p.ink,
-                      ),
+                      style: PageHeaderTypography.title.copyWith(color: p.ink),
                     ),
                     Text(
                       'BusyBox · 知识库',
-                      style: TextStyle(fontSize: 11, color: p.muted),
+                      style: PageHeaderTypography.subtitle.copyWith(
+                        color: p.muted,
+                      ),
                     ),
                   ],
                 ),

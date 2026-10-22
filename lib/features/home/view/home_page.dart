@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/busybox_palette.dart';
+import '../../../core/theme/page_header_typography.dart';
 import '../../../shared/widgets/app_drawer.dart';
 import '../../../shared/widgets/busybox_card.dart';
 import '../data/tool_registry.dart';
@@ -123,7 +124,9 @@ class HomePage extends ConsumerWidget {
                 const _AnimatedHomeTitle(),
                 Text(
                   'BusyBox · 工具魔盒',
-                  style: TextStyle(fontSize: 11, color: palette.subtle),
+                  style: PageHeaderTypography.subtitle.copyWith(
+                    color: palette.subtle,
+                  ),
                 ),
               ],
             ),
@@ -275,10 +278,8 @@ class _AnimatedHomeTitleState extends State<_AnimatedHomeTitle>
                   offset: Offset(-12 * (1 - homeProgress), 0),
                   child: Text(
                     '主页',
-                    style: TextStyle(
+                    style: PageHeaderTypography.title.copyWith(
                       color: titleColor,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),

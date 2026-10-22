@@ -4,8 +4,9 @@ library;
 import 'package:flutter/material.dart';
 
 import '../models/home_catalog_item.dart';
+import 'tool_registry.dart';
 
-/// 六项尚未接入功能页的工具。
+/// 六项目录工具，已实现的工具配置真实路由。
 const List<HomeCatalogItem> homeCatalogItems = <HomeCatalogItem>[
   HomeCatalogItem(
     id: 'prometheus',
@@ -15,6 +16,7 @@ const List<HomeCatalogItem> homeCatalogItems = <HomeCatalogItem>[
   ),
   HomeCatalogItem(
     id: 'network_calculator',
+    routePath: AppRoutes.networkCalculator,
     name: '网络计算器',
     description: '子网掩码 / 带宽 / POE功耗等',
     icon: Icons.calculate_outlined,

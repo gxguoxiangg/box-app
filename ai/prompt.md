@@ -121,7 +121,7 @@
 
 - **路由**：常量集中在 `AppRoutes`（`tool_registry.dart`），`GoRoute` 注册在 `app_router.dart`；
   带参路由示例：`articleItemDetailPath(id)`。
-- **主页工具**：`home_tool_options.dart` 统一列出可固定工具，`home_pinned_viewmodel.dart` 使用 Riverpod 和 `shared_preferences` 保存最多六项，并以 `unpinnedHomeToolsProvider` 派生全部未固定项。`home_catalog.dart` 仅保存六项待开发工具的元数据，不作为全部工具的静态展示清单。`toolRegistryProvider` 仍服务旧功能搜索页。
+- **主页工具**：`home_tool_options.dart` 统一列出可固定工具，`home_pinned_viewmodel.dart` 使用 Riverpod 和 `shared_preferences` 保存最多六项，并以 `unpinnedHomeToolsProvider` 派生全部未固定项。`home_catalog.dart` 保存六项目录工具的元数据（包含已接入的网络计算器），不作为全部工具的静态展示清单。`toolRegistryProvider` 仍服务旧功能搜索页。
 - **配色模板**：`BusyBoxPalette` 作为 `ThemeExtension` 注册在 `AppTheme.light/dark`；新主页相关组件统一通过 `BusyBoxPalette.of(context)` 取色，未来设置页可选择其他模板。
 - **主题**：`ThemeController extends AsyncNotifier<ThemeMode>`，
   读取前 UI 用 `.value ?? ThemeMode.light` 兜底；写入 `shared_preferences` 的 `theme_mode` 键。
@@ -151,3 +151,51 @@
 - **Markdown 阅读交互**：统一由 `shared/widgets/markdown_view.dart` 提供文本选择、代码语言标签、点击/长按复制和图片全屏入口；Wiki 正文传入 `darkCodeBlocks: true`。全屏图片页使用 `InteractiveViewer`，分享统一走 `share_plus`。
 - **Wiki 投稿总览**：默认复用 `ItemContent` 显示实际阅读效果，也可切回完整 Markdown 编辑。切换预览、翻页和提交前同步当前编辑器文本；不在 UI 中虚构作者、日期、分类或离线同步状态。草稿仍只存内存。
 - **Markdown 编辑交互**：正文页为单一区域所见即所得编辑器，内容在原处实时呈现；列表回车续写集中在 `MarkdownListInputFormatter`，不要在页面中重复实现字符串规则。
+
+## 神机模块约定（Oct-15）
+
+- 神机模块位于 `features/iadb/{models,data,viewmodel,view}`，入口 `AppRoutes.iadb`；主页复用 `smart` 工具标识，避免已有常用工具设置失效。
+- `iadbApiClientProvider` 独立于 Wiki 客户端，并在 Provider 销毁时释放 HTTP 连接。新增 JSON 请求使用 `ApiClient.requestJson`，不能改变 Wiki 原有表单认证行为。
+- 神机会话仅保存在内存，访问令牌和刷新令牌同时轮换；并发刷新共享一个 Future。退出和重新登录通过会话代数隔离旧响应。
+- 搜索使用 autoDispose Provider，关键词、加载和结果一并管理；清空、退出、销毁后忽略未完成请求。资产与命中记录是独立结果组，禁止按下标配对。
+- 详情读取搜索上下文及按 parent_id 补全的部门/位置父级；不假设单条资产接口会返回完整网卡、历史或人员信息。扩展排序/导出等功能前先确认 API 支持。
+- 测试 `test/iadb_test.dart` 使用 MockClient 和合成数据，不写入真实令牌、账号密码或资产数据。
+
+## Oct-18 展示约定
+
+- 主页、Wiki、神机顶栏文字统一复用 `core/theme/page_header_typography.dart`：主标题 18px/w700，副标题 12px/w400。各页面保留既有颜色，主页品牌入场动画使用独立样式。
+- 神机部门使用 `department_parent · department`，位置使用 `location_parent1 · location_parent2 · location`；名称组合在 IadbAsset 中处理，空层级省略，不猜测后端没有返回的名称。
+- 神机卡片左上显示 asset_type，右上显示 description，原描述区显示 vendor。createdAtLabel 格式为 YYYY-MM-DD HH:MM，保持服务端时间钟面值，不隐式转换时区。
+
+## Oct-19 神机父级数据约定修正
+
+实际搜索仅返回 department/location 和 parent_id。IadbRepository.search 使用现有单条表查询补全部门一层、位置两层父级，单次搜索内去重；不能再次假设搜索原生包含父级名称。测试必须覆盖真实 parent_id 响应，而不只测试已补全的模型。vendor 显示在标题右侧标签，空值为「—」。
+
+### Oct-19 最终字段位置
+
+以本条为准：卡片右上为 vendor，标题右侧标签为 description。department 为空但 department_parent 存在时只显示父级部门；父级与当前部门都为空时显示「—」。
+
+### Oct-20 最新约定
+
+- 卡片字段位置以本条为准：右上 description，标题右侧标签 vendor。
+- 真实密码、访问令牌、刷新令牌不得写入源码、需求/API 文档或示例；测试必须使用明确的合成数据。检查凭据时仅输出路径和行号，不输出秘密原文。
+
+## Oct-21 网络计算器约定
+
+- `features/network_calculator` 按 models/data/viewmodel/view 分层。纯本地计算，无新增依赖或网络请求。
+- `SubnetCalculator` 校验完整的四段十进制 IPv4 和 /0–/32；页面按稿件使用 /1–/32，默认 192.168.10.1/24。非法输入显示错误并清空旧结果，不静默截断到 255。
+- 使用乘除和取余计算 IPv4，避免 Web 32 位位运算的符号/移位差异。/31 按点对点两主机，/32 按单主机；两者不提供广播地址。主机数量是前缀容量，不是公网可分配性判断。
+- `subnetProvider` 自动释放；输入与结果在同一个状态更新。后续 POE/带宽独立实现，当前点击提示暂未开放。
+- 主页工具 `network_calculator` 保持原 ID，在 `home_catalog.dart` 填入真实路由；这个目录已包含已实现和待开发工具，不能再假设全部尚未实现。路由为 `AppRoutes.networkCalculator`，搜索目录也已登记。
+- 神机字段最新约定（覆盖 Oct-20）：asset_type 下方大标题直接显示 asset.vendor，不再回退到 name/description；旁边显示 model（厂商 18px、型号 16px），型号为空隐藏，窄屏允许换行；右侧标签读取 asset["权限类别"]（中文键，例如“仅绑定”），缺失显示“—”，不猜测英文别名。右上描述保留。
+
+## Oct-22 网络计算器界面约定
+
+- 最新设计参考为 `doc/ui/net-calc/subnetmaskcalculator-Oct-22.html`，来自 Stitch 项目2299265049139915786、页面b52e17b535f74d9fa3e9b51de5e4c96b。用户已确认修正原稿异常：仅保留一组网络号/广播号，保留全部真实计算结果，去掉异常空白；后续不得按原稿恢复重复结果或演示值。
+- 顶栏复用 PageHeaderTypography，副标题为“BusyBox 工具魔盒”，字体放大时顶栏增高。神机登录提示为“请使用神机账户登录”。
+- 输入区四格、CIDR胶囊和结果区使用 BusyBoxPalette；正常手机宽度网络号/广播号并排，大字体及窄屏纵向显示。结果整块可点击复制，紧凑图标不缩小触摸目标。
+- UI静态示例不作为计算数据；沿用 SubnetCalculator 的输入校验、/31和/32规则及页面退出释放状态的行为。
+
+### Oct-22 手机对齐补充约定
+
+计算器“计算结果/IPv4标准”保持弹性左右同行；主机数量和总分配空间使用共享标签行与数值行，数值按基线对齐。不得再次因固定宽度或字体倍率阈值将这两处拆成上下独立块；长文本在对应列内换行。网络号/广播号的窄屏纵向策略不受影响。

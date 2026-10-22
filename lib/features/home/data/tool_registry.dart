@@ -16,6 +16,22 @@ import '../models/tool_item.dart';
 /// 采用 Provider 而不是常量，便于后期接入远程配置 / 动态下发工具列表。
 final toolRegistryProvider = Provider<List<ToolItem>>((ref) {
   return const <ToolItem>[
+    ToolItem(
+      id: 'network_calculator',
+      name: '网络计算器',
+      icon: Icons.calculate_outlined,
+      category: ToolCategory.network,
+      routePath: AppRoutes.networkCalculator,
+      accentColor: Color(0xFF0F62FE),
+    ),
+    ToolItem(
+      id: 'iadb',
+      name: '神机',
+      icon: Icons.radar_rounded,
+      category: ToolCategory.network,
+      routePath: AppRoutes.iadb,
+      accentColor: Color(0xFF3B6CF6),
+    ),
     // -------------------------------------------------------------------------
     // 内容展示类
     // -------------------------------------------------------------------------
@@ -57,6 +73,12 @@ final toolRegistryProvider = Provider<List<ToolItem>>((ref) {
 
 /// 路由路径常量（集中管理，避免页面与路由字符串散落各处）。
 abstract final class AppRoutes {
+  /// 网络计算器。
+  static const String networkCalculator = '/network-calculator';
+
+  /// 神机资产搜索页（独立账号）。
+  static const String iadb = '/iadb';
+
   /// 主页（工具盒）。
   static const String home = '/';
 

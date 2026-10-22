@@ -12,6 +12,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/about/view/about_page.dart';
+import '../../features/network_calculator/view/network_calculator_page.dart';
+import '../../features/iadb/view/iadb_page.dart';
 import '../../features/article/view/article_list_page.dart';
 import '../../features/article/view/article_create_page.dart';
 import '../../features/article/view/article_reader_page.dart';
@@ -35,6 +37,14 @@ final appRouterProvider = Provider<GoRouter>((ref) => appRouter);
 final GoRouter appRouter = GoRouter(
   initialLocation: AppRoutes.home,
   routes: <RouteBase>[
+    GoRoute(
+      path: AppRoutes.networkCalculator,
+      builder: (context, state) => const NetworkCalculatorPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.iadb,
+      builder: (context, state) => const IadbPage(),
+    ),
     // -------------------------------------------------------------------------
     // 主页（工具盒）
     // -------------------------------------------------------------------------
