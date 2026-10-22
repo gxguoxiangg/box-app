@@ -1,7 +1,6 @@
 # BusyBox（demo1）
 
 示例图：
-
 ![home_page](example\home_page.jpg)
 
 
@@ -11,6 +10,12 @@
 
 
 ![sj_page](example\sj_page.jpg)
+=======
+
+
+
+
+![wiki_page2](example/wiki_page2.jpg)
 
 
 
