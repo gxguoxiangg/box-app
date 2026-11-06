@@ -29,6 +29,7 @@ const List<HomeCatalogItem> homeCatalogItems = <HomeCatalogItem>[
   ),
   HomeCatalogItem(
     id: 'ping',
+    routePath: AppRoutes.ping,
     name: 'Ping',
     description: 'Ping测试',
     icon: Icons.network_ping_rounded,

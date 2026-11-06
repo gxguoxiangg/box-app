@@ -12,6 +12,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/about/view/about_page.dart';
+import '../../features/ping/view/ping_page.dart';
+import '../../features/ping/models/ping_models.dart';
 import '../../features/network_calculator/view/network_calculator_page.dart';
 import '../../features/iadb/view/iadb_page.dart';
 import '../../features/article/view/article_list_page.dart';
@@ -37,6 +39,16 @@ final appRouterProvider = Provider<GoRouter>((ref) => appRouter);
 final GoRouter appRouter = GoRouter(
   initialLocation: AppRoutes.home,
   routes: <RouteBase>[
+    GoRoute(
+      path: AppRoutes.ping,
+      builder: (context, state) => const PingPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.pingResult,
+      builder: (context, state) => PingResultPage(
+        config: state.extra is PingConfig ? state.extra as PingConfig : null,
+      ),
+    ),
     GoRoute(
       path: AppRoutes.networkCalculator,
       builder: (context, state) => const NetworkCalculatorPage(),

@@ -17,6 +17,14 @@ import '../models/tool_item.dart';
 final toolRegistryProvider = Provider<List<ToolItem>>((ref) {
   return const <ToolItem>[
     ToolItem(
+      id: 'ping',
+      name: 'Ping',
+      icon: Icons.network_ping,
+      category: ToolCategory.network,
+      routePath: AppRoutes.ping,
+      accentColor: Color(0xFF0F62FE),
+    ),
+    ToolItem(
       id: 'network_calculator',
       name: '网络计算器',
       icon: Icons.calculate_outlined,
@@ -73,6 +81,12 @@ final toolRegistryProvider = Provider<List<ToolItem>>((ref) {
 
 /// 路由路径常量（集中管理，避免页面与路由字符串散落各处）。
 abstract final class AppRoutes {
+  /// Ping 参数页。
+  static const ping = '/ping';
+
+  /// Ping 实时结果页。
+  static const pingResult = '/ping/result';
+
   /// 网络计算器。
   static const String networkCalculator = '/network-calculator';
 

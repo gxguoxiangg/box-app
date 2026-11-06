@@ -1,0 +1,469 @@
+<!DOCTYPE html><html lang="en"><head></head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen"><svg class="inline-defs-container" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"></svg><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"><meta content="mobile_stack" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary-fixed-dim": "#b4c5ff", "on-secondary": "#ffffff", "blue-hover": "#0050e6", "surface-container": "#efeded", "hairline": "#e0e0e0", "outline-variant": "#c3c6d8", "surface-tint": "#0052dd", "on-primary": "#ffffff", "surface-container-low": "#f5f3f3", "tertiary-fixed-dim": "#ffb59d", "surface-bright": "#fbf9f8", "on-surface": "#1b1c1c", "blue-active": "#002d9c", "on-tertiary-fixed-variant": "#832700", "error-container": "#ffdad6", "semantic-warning": "#f1c21b", "tertiary-fixed": "#ffdbd0", "ink": "#161616", "on-primary-container": "#f3f3ff", "surface-container-high": "#eae8e7", "on-secondary-fixed-variant": "#474746", "tertiary-container": "#c84000", "surface-variant": "#e4e2e2", "surface-dim": "#dbd9d9", "primary-container": "#0f62fe", "background": "#fbf9f8", "canvas": "#ffffff", "surface-2": "#e0e0e0", "on-error": "#ffffff", "on-primary-fixed-variant": "#003da9", "surface-container-lowest": "#ffffff", "on-primary-fixed": "#00174c", "secondary-fixed": "#e5e2e1", "inverse-surface": "#303030", "on-tertiary-container": "#fff1ed", "inverse-on-surface": "#f2f0f0", "on-tertiary": "#ffffff", "on-error-container": "#93000a", "secondary-fixed-dim": "#c8c6c5", "secondary-container": "#e2dfde", "error": "#ba1a1a", "tertiary": "#9e3100", "primary": "#004ccd", "inverse-primary": "#b4c5ff", "semantic-success": "#24a148", "surface-container-highest": "#e4e2e2", "outline": "#737687", "surface-1": "#f4f4f4", "ink-subtle": "#8c8c8c", "on-secondary-container": "#636262", "semantic-error": "#da1e28", "on-background": "#1b1c1c", "on-secondary-fixed": "#1c1b1b", "primary-fixed": "#dbe1ff", "surface": "#fbf9f8", "hairline-strong": "#161616", "ink-muted": "#525252", "on-tertiary-fixed": "#390c00", "secondary": "#5f5e5e", "on-surface-variant": "#424656" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-lg": "1.5rem", "space-xs": "0.25rem", "space-xl": "2rem", "gutter": "1rem", "space-md": "1rem", "space-sm": "0.5rem", "margin": "1rem" }, fontFamily: { "headline-md": ["IBM Plex Sans"], "body-lg": ["IBM Plex Sans"], "label-sm": ["IBM Plex Sans"], "label-md": ["IBM Plex Sans"], "headline-sm": ["IBM Plex Sans"], "headline-lg": ["IBM Plex Sans"], "button": ["IBM Plex Sans"], "body-sm": ["IBM Plex Sans"], "display": ["IBM Plex Sans"], "body-md": ["IBM Plex Sans"] }, fontSize: { "headline-md": ["22px", { lineHeight: "28px", letterSpacing: "0px", fontWeight: "400" }], "body-lg": ["16px", { lineHeight: "24px", letterSpacing: "0.16px", fontWeight: "400" }], "label-sm": ["12px", { lineHeight: "16px", letterSpacing: "0.32px", fontWeight: "600" }], "label-md": ["14px", { lineHeight: "18px", letterSpacing: "0.16px", fontWeight: "500" }], "headline-sm": ["18px", { lineHeight: "24px", letterSpacing: "0px", fontWeight: "600" }], "headline-lg": ["28px", { lineHeight: "36px", letterSpacing: "0px", fontWeight: "400" }], "button": ["14px", { lineHeight: "18px", letterSpacing: "0.16px", fontWeight: "500" }], "body-sm": ["12px", { lineHeight: "16px", letterSpacing: "0.32px", fontWeight: "400" }], "display": ["36px", { lineHeight: "44px", letterSpacing: "-0.4px", fontWeight: "300" }], "body-md": ["14px", { lineHeight: "20px", letterSpacing: "0.16px", fontWeight: "400" }] } } } };</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#fbf9f8;color:#1b1c1c;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><svg class="inline-defs-container" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"></svg><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"><meta content="mobile_stack" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary-fixed-dim": "#b4c5ff", "on-secondary": "#ffffff", "blue-hover": "#0050e6", "surface-container": "#efeded", "hairline": "#e0e0e0", "outline-variant": "#c3c6d8", "surface-tint": "#0052dd", "on-primary": "#ffffff", "surface-container-low": "#f5f3f3", "tertiary-fixed-dim": "#ffb59d", "surface-bright": "#fbf9f8", "on-surface": "#1b1c1c", "blue-active": "#002d9c", "on-tertiary-fixed-variant": "#832700", "error-container": "#ffdad6", "semantic-warning": "#f1c21b", "tertiary-fixed": "#ffdbd0", "ink": "#161616", "on-primary-container": "#f3f3ff", "surface-container-high": "#eae8e7", "on-secondary-fixed-variant": "#474746", "tertiary-container": "#c84000", "surface-variant": "#e4e2e2", "surface-dim": "#dbd9d9", "primary-container": "#0f62fe", "background": "#fbf9f8", "canvas": "#ffffff", "surface-2": "#e0e0e0", "on-error": "#ffffff", "on-primary-fixed-variant": "#003da9", "surface-container-lowest": "#ffffff", "on-primary-fixed": "#00174c", "secondary-fixed": "#e5e2e1", "inverse-surface": "#303030", "on-tertiary-container": "#fff1ed", "inverse-on-surface": "#f2f0f0", "on-tertiary": "#ffffff", "on-error-container": "#93000a", "secondary-fixed-dim": "#c8c6c5", "secondary-container": "#e2dfde", "error": "#ba1a1a", "tertiary": "#9e3100", "primary": "#004ccd", "inverse-primary": "#b4c5ff", "semantic-success": "#24a148", "surface-container-highest": "#e4e2e2", "outline": "#737687", "surface-1": "#f4f4f4", "ink-subtle": "#8c8c8c", "on-secondary-container": "#636262", "semantic-error": "#da1e28", "on-background": "#1b1c1c", "on-secondary-fixed": "#1c1b1b", "primary-fixed": "#dbe1ff", "surface": "#fbf9f8", "hairline-strong": "#161616", "ink-muted": "#525252", "on-tertiary-fixed": "#390c00", "secondary": "#5f5e5e", "on-surface-variant": "#424656" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-lg": "1.5rem", "space-xs": "0.25rem", "space-xl": "2rem", "gutter": "1rem", "space-md": "1rem", "space-sm": "0.5rem", "margin": "1rem" }, fontFamily: { "headline-md": ["IBM Plex Sans"], "body-lg": ["IBM Plex Sans"], "label-sm": ["IBM Plex Sans"], "label-md": ["IBM Plex Sans"], "headline-sm": ["IBM Plex Sans"], "headline-lg": ["IBM Plex Sans"], "button": ["IBM Plex Sans"], "body-sm": ["IBM Plex Sans"], "display": ["IBM Plex Sans"], "body-md": ["IBM Plex Sans"] }, fontSize: { "headline-md": ["22px", { lineHeight: "28px", letterSpacing: "0px", fontWeight: "400" }], "body-lg": ["16px", { lineHeight: "24px", letterSpacing: "0.16px", fontWeight: "400" }], "label-sm": ["12px", { lineHeight: "16px", letterSpacing: "0.32px", fontWeight: "600" }], "label-md": ["14px", { lineHeight: "18px", letterSpacing: "0.16px", fontWeight: "500" }], "headline-sm": ["18px", { lineHeight: "24px", letterSpacing: "0px", fontWeight: "600" }], "headline-lg": ["28px", { lineHeight: "36px", letterSpacing: "0px", fontWeight: "400" }], "button": ["14px", { lineHeight: "18px", letterSpacing: "0.16px", fontWeight: "500" }], "body-sm": ["12px", { lineHeight: "16px", letterSpacing: "0.32px", fontWeight: "400" }], "display": ["36px", { lineHeight: "44px", letterSpacing: "-0.4px", fontWeight: "300" }], "body-md": ["14px", { lineHeight: "20px", letterSpacing: "0.16px", fontWeight: "400" }] } } } };</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#fbf9f8;color:#1b1c1c;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-14 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><button aria-label="Back" class="w-11 h-11 -ml-2 flex items-center justify-center text-ink hover:text-primary transition-colors" onclick="history.back()"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><div class="flex flex-col"><h1 class="font-headline-sm text-headline-sm text-ink leading-tight">Ping 测试</h1><span class="font-label-sm text-label-sm text-ink-muted -mt-0.5">BusyBox</span></div></div><div class="flex items-center gap-space-xs"><button aria-label="Module Configuration" class="w-11 h-11 flex items-center justify-center text-ink-muted hover:text-ink"></button></div></div></header><main class="flex flex-col relative w-full pt-14 pb-safe px-margin bg-surface"><div class="flex flex-col w-full pb-8 space-y-space-md">
+<!-- Target Summary Card -->
+<section class="bg-canvas shadow-sm rounded-xl p-space-md relative overflow-hidden">
+<div class="flex items-start justify-between">
+<div class="space-y-space-xs">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container text-semantic-success font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-semantic-success animate-pulse"></span>
+<span class="">测试完成 · 连通性优良</span>
+</div>
+<div class="flex items-baseline gap-space-xs pt-1">
+<h2 class="font-headline-md text-headline-md text-ink font-semibold tracking-tight">192.168.1.1</h2>
+
+</div>
+</div>
+
+</div>
+<!-- Metadata Attributes -->
+
+</section>
+<!-- 4 Core Metrics Grid -->
+<section class="grid grid-cols-2 gap-space-sm">
+<!-- Metric 1: Packet Loss -->
+<div class="bg-canvas shadow-sm rounded-xl p-space-md flex flex-col justify-between">
+<div class="flex items-center justify-between text-ink-muted">
+<span class="font-label-sm text-label-sm">丢包率 (Loss)</span>
+
+</div>
+<div class="my-2">
+<span class="font-headline-lg text-headline-lg text-semantic-success font-semibold tracking-tight">0%</span>
+</div>
+<div class="flex items-center justify-between text-ink-subtle font-body-sm text-body-sm">
+
+
+</div>
+</div>
+<!-- Metric 2: Avg Latency -->
+<div class="bg-canvas shadow-sm rounded-xl p-space-md flex flex-col justify-between">
+<div class="flex items-center justify-between text-ink-muted">
+<span class="font-label-sm text-label-sm">平均延迟 (Avg)</span>
+
+</div>
+<div class="my-2">
+<div class="flex items-baseline gap-1">
+<span class="font-headline-lg text-headline-lg font-semibold tracking-tight text-semantic-success">2.35</span>
+<span class="font-body-sm text-body-sm font-medium text-semantic-success">ms</span>
+</div>
+</div>
+<div class="flex items-center justify-between text-ink-subtle font-body-sm text-body-sm">
+
+
+</div>
+</div>
+<!-- Metric 3: Transmitted -->
+<div class="bg-canvas shadow-sm rounded-xl p-space-md flex flex-col justify-between">
+<div class="flex items-center justify-between text-ink-muted">
+<span class="font-label-sm text-label-sm">发送包数 (Tx)</span>
+
+</div>
+<div class="my-2">
+<div class="flex items-baseline gap-1">
+<span class="font-headline-lg text-headline-lg text-ink font-semibold">10</span>
+<span class="font-body-sm text-body-sm text-ink-muted">pkts</span>
+</div>
+</div>
+<div class="flex items-center justify-between text-ink-subtle font-body-sm text-body-sm">
+
+
+</div>
+</div>
+<!-- Metric 4: Received -->
+<div class="bg-canvas shadow-sm rounded-xl p-space-md flex flex-col justify-between">
+<div class="flex items-center justify-between text-ink-muted">
+<span class="font-label-sm text-label-sm">接收包数 (Rx)</span>
+
+</div>
+<div class="my-2">
+<div class="flex items-baseline gap-1">
+<span class="font-headline-lg text-headline-lg text-ink font-semibold">10</span>
+<span class="font-body-sm text-body-sm text-ink-muted">pkts</span>
+</div>
+</div>
+<div class="flex items-center justify-between text-ink-subtle font-body-sm text-body-sm">
+
+
+</div>
+</div>
+</section>
+<!-- Detailed Latency Strip -->
+<section class="bg-surface-container-low rounded-xl p-space-md grid grid-cols-3 gap-2 text-center">
+<div class="flex flex-col items-center">
+<span class="font-body-sm text-body-sm text-ink-muted">最小延迟 (Min)</span>
+<span class="font-headline-sm text-headline-sm text-ink mt-0.5">1.82 <span class="font-body-sm text-body-sm text-ink-muted">ms</span></span>
+</div>
+<div class="flex flex-col items-center">
+<span class="font-body-sm text-body-sm text-ink-muted">最大延迟 (Max)</span>
+<span class="font-headline-sm text-headline-sm text-ink mt-0.5">3.41 <span class="font-body-sm text-body-sm text-ink-muted">ms</span></span>
+</div>
+<div class="flex flex-col items-center">
+<span class="font-body-sm text-body-sm text-ink-muted">延迟抖动 (Mdev)</span>
+<span class="font-headline-sm text-headline-sm text-ink mt-0.5">0.45 <span class="font-body-sm text-body-sm text-ink-muted">ms</span></span>
+</div>
+</section>
+<!-- Ping Latency Trend / Sequence Chart Card -->
+<section class="bg-canvas shadow-sm rounded-xl p-space-md space-y-space-sm"><div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-primary-container">monitoring</span>
+<h3 class="font-label-md text-label-md text-ink">延迟趋势</h3>
+</div>
+<div class="flex items-center gap-2 font-label-sm text-label-sm text-ink-muted">
+<span class="inline-block w-2.5 h-0.5 bg-primary-container"></span>
+<span class="">平均 2.35ms</span>
+</div>
+</div>
+<div class="relative pt-4 pb-1">
+<div class="w-full relative">
+<svg class="w-full h-36 overflow-visible" viewBox="0 0 350 126" fill="none" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="pingGradient1" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0%" stop-color="#0f62fe" stop-opacity="0.35"></stop>
+<stop offset="100%" stop-color="#0f62fe" stop-opacity="0.02"></stop>
+</linearGradient>
+</defs>
+<text x="38" y="8" text-anchor="end" fill="#525252" font-size="8.5" font-family="IBM Plex Sans" font-weight="500">延时 (ms)</text>
+<text x="36" y="21" text-anchor="end" fill="#8c8c8c" font-size="8.5" font-family="IBM Plex Sans">4.0</text>
+<line x1="42" y1="18" x2="340" y2="18" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="3 3"></line>
+<text x="36" y="41" text-anchor="end" fill="#8c8c8c" font-size="8.5" font-family="IBM Plex Sans">3.0</text>
+<line x1="42" y1="38" x2="340" y2="38" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="3 3"></line>
+<text x="36" y="61" text-anchor="end" fill="#8c8c8c" font-size="8.5" font-family="IBM Plex Sans">2.0</text>
+<line x1="42" y1="58" x2="340" y2="58" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="3 3"></line>
+<text x="36" y="81" text-anchor="end" fill="#8c8c8c" font-size="8.5" font-family="IBM Plex Sans">1.0</text>
+<line x1="42" y1="78" x2="340" y2="78" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="3 3"></line>
+<text x="36" y="101" text-anchor="end" fill="#8c8c8c" font-size="8.5" font-family="IBM Plex Sans">0.0</text>
+<line x1="42" y1="98" x2="340" y2="98" stroke="#e0e0e0" stroke-width="1"></line>
+<line x1="42" y1="14" x2="42" y2="98" stroke="#e0e0e0" stroke-width="1"></line>
+<line x1="42" y1="51" x2="340" y2="51" stroke="#0f62fe" stroke-width="1.2" stroke-dasharray="4 4" stroke-opacity="0.7"></line>
+<text x="338" y="47" text-anchor="end" fill="#0f62fe" font-size="8.5" font-family="IBM Plex Sans" font-weight="600">Avg 2.35ms</text>
+<path d="M 48 55.6 C 62 59.2, 70 59.2, 80 59.2 C 90 59.2, 102 49.8, 112 49.8 C 122 49.8, 134 29.8, 144 29.8 C 154 29.8, 166 54.0, 176 54.0 C 186 54.0, 198 61.6, 208 61.6 C 218 61.6, 230 50.0, 240 50.0 C 250 50.0, 262 56.0, 272 56.0 C 282 56.0, 294 45.6, 304 45.6 C 314 45.6, 326 51.0, 336 51.0 L 336 98 L 48 98 Z" fill="url(#pingGradient1)"></path>
+<path d="M 48 55.6 C 62 59.2, 70 59.2, 80 59.2 C 90 59.2, 102 49.8, 112 49.8 C 122 49.8, 134 29.8, 144 29.8 C 154 29.8, 166 54.0, 176 54.0 C 186 54.0, 198 61.6, 208 61.6 C 218 61.6, 230 50.0, 240 50.0 C 250 50.0, 262 56.0, 272 56.0 C 282 56.0, 294 45.6, 304 45.6 C 314 45.6, 326 51.0, 336 51.0" stroke="#0f62fe" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+<circle cx="48" cy="55.6" r="3.5" fill="#ffffff" stroke="#0f62fe" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="80" cy="59.2" r="3.5" fill="#ffffff" stroke="#0f62fe" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="112" cy="49.8" r="3.5" fill="#ffffff" stroke="#0f62fe" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="144" cy="29.8" r="3.5" fill="#ffffff" stroke="#0f62fe" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="176" cy="54.0" r="3.5" fill="#ffffff" stroke="#0f62fe" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="208" cy="61.6" r="3.5" fill="#ffffff" stroke="#0f62fe" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="240" cy="50.0" r="3.5" fill="#ffffff" stroke="#0f62fe" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="272" cy="56.0" r="3.5" fill="#ffffff" stroke="#0f62fe" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="304" cy="45.6" r="3.5" fill="#ffffff" stroke="#0f62fe" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="336" cy="51.0" r="3.5" fill="#ffffff" stroke="#0f62fe" stroke-width="2" class="cursor-pointer"></circle>
+<line x1="48" y1="98" x2="48" y2="102" stroke="#c3c6d8" stroke-width="1"></line>
+<text x="48" y="112" text-anchor="middle" fill="#8c8c8c" font-size="9" font-family="IBM Plex Sans">0s</text>
+<line x1="124" y1="98" x2="124" y2="102" stroke="#c3c6d8" stroke-width="1"></line>
+<text x="124" y="112" text-anchor="middle" fill="#8c8c8c" font-size="9" font-family="IBM Plex Sans">1s</text>
+<line x1="200" y1="98" x2="200" y2="102" stroke="#c3c6d8" stroke-width="1"></line>
+<text x="200" y="112" text-anchor="middle" fill="#8c8c8c" font-size="9" font-family="IBM Plex Sans">2s</text>
+<line x1="276" y1="98" x2="276" y2="102" stroke="#c3c6d8" stroke-width="1"></line>
+<text x="276" y="112" text-anchor="middle" fill="#8c8c8c" font-size="9" font-family="IBM Plex Sans">3s</text>
+<line x1="336" y1="98" x2="336" y2="102" stroke="#c3c6d8" stroke-width="1"></line>
+<text x="336" y="112" text-anchor="middle" fill="#8c8c8c" font-size="9" font-family="IBM Plex Sans">4s</text>
+<text x="346" y="122" text-anchor="end" fill="#525252" font-size="8.5" font-family="IBM Plex Sans" font-weight="500">时间 (s)</text>
+</svg>
+</div>
+<div class="mt-2 text-center font-label-sm text-label-sm text-ink-muted h-5 transition-opacity" id="chart-tooltip">所有 10 次探测全部应答: <span class="text-primary-container font-medium">无超时丢包 (全蓝端点)</span></div>
+</div></section>
+<!-- Real-time ICMP Packet Log Terminal Card -->
+
+<!-- Sticky Bottom Operational Action Bar -->
+<!-- Target Summary Card (8.8.8.8) -->
+<section class="bg-canvas shadow-sm rounded-xl p-space-md relative overflow-hidden">
+<div class="flex items-start justify-between">
+<div class="space-y-space-xs">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-error-container text-semantic-error font-label-sm text-label-sm"><span class="w-2 h-2 rounded-full bg-semantic-error animate-pulse"></span><span class="">测试完成 · 不可达</span></div>
+<div class="flex items-baseline gap-space-xs pt-1">
+<h2 class="font-headline-md text-headline-md text-ink font-semibold tracking-tight">8.8.8.8</h2>
+
+</div>
+</div>
+</div>
+</section>
+<!-- 4 Core Metrics Grid (8.8.8.8) -->
+<section class="grid grid-cols-2 gap-space-sm"><div class="bg-canvas shadow-sm rounded-xl p-space-md flex flex-col justify-between"><div class="flex items-center justify-between text-ink-muted"><span class="font-label-sm text-label-sm">丢包率 (Loss)</span></div><div class="my-2"><span class="font-headline-lg text-headline-lg text-semantic-error font-semibold tracking-tight">100%</span></div><div class="flex items-center justify-between text-semantic-error font-body-sm text-body-sm"><span class="">全部丢包</span></div></div><div class="bg-canvas shadow-sm rounded-xl p-space-md flex flex-col justify-between"><div class="flex items-center justify-between text-ink-muted"><span class="font-label-sm text-label-sm">平均延迟 (Avg)</span></div><div class="my-2"><div class="flex items-baseline gap-1"><span class="font-headline-lg text-headline-lg text-semantic-error font-semibold tracking-tight">--</span><span class="font-body-sm text-body-sm text-ink-muted font-medium">ms</span></div></div><div class="flex items-center justify-between text-ink-subtle font-body-sm text-body-sm"><span class="">无回包数据</span></div></div><div class="bg-canvas shadow-sm rounded-xl p-space-md flex flex-col justify-between"><div class="flex items-center justify-between text-ink-muted"><span class="font-label-sm text-label-sm">发送包数 (Tx)</span></div><div class="my-2"><div class="flex items-baseline gap-1"><span class="font-headline-lg text-headline-lg text-ink font-semibold">10</span><span class="font-body-sm text-body-sm text-ink-muted">pkts</span></div></div></div><div class="bg-canvas shadow-sm rounded-xl p-space-md flex flex-col justify-between"><div class="flex items-center justify-between text-ink-muted"><span class="font-label-sm text-label-sm">接收包数 (Rx)</span></div><div class="my-2"><div class="flex items-baseline gap-1"><span class="font-headline-lg text-headline-lg text-semantic-error font-semibold">0</span><span class="font-body-sm text-body-sm text-ink-muted">pkts</span></div></div><div class="flex items-center text-semantic-error font-body-sm text-body-sm"></div></div></section>
+<!-- Detailed Latency Strip (8.8.8.8) -->
+<section class="bg-surface-container-low rounded-xl p-space-md grid grid-cols-3 gap-2 text-center"><div class="flex flex-col items-center"><span class="font-body-sm text-body-sm text-ink-muted">最小延迟 (Min)</span><span class="font-headline-sm text-headline-sm text-semantic-error mt-0.5">-- <span class="font-body-sm text-body-sm text-ink-muted">ms</span></span></div><div class="flex flex-col items-center"><span class="font-body-sm text-body-sm text-ink-muted">最大延迟 (Max)</span><span class="font-headline-sm text-headline-sm text-semantic-error mt-0.5">-- <span class="font-body-sm text-body-sm text-ink-muted">ms</span></span></div><div class="flex flex-col items-center"><span class="font-body-sm text-body-sm text-ink-muted">延迟抖动 (Mdev)</span><span class="font-headline-sm text-headline-sm text-semantic-error mt-0.5">-- <span class="font-body-sm text-body-sm text-ink-muted">ms</span></span></div></section><section class="bg-canvas shadow-sm rounded-xl p-space-md space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-semantic-error">monitoring</span>
+<h3 class="font-label-md text-label-md text-ink">延迟趋势</h3>
+</div>
+<div class="flex items-center gap-2 font-label-sm text-label-sm text-semantic-error font-medium">
+<span class="inline-block w-2.5 h-0.5 bg-semantic-error"></span>
+<span class="">全部超时 (100% 丢包)</span>
+</div>
+</div>
+<div class="relative pt-4 pb-1">
+<div class="w-full relative">
+<svg class="w-full h-36 overflow-visible" viewBox="0 0 350 126" fill="none" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="pingGradientTimeout" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0%" stop-color="#da1e28" stop-opacity="0.15"></stop>
+<stop offset="100%" stop-color="#da1e28" stop-opacity="0.02"></stop>
+</linearGradient>
+</defs>
+<text x="38" y="8" text-anchor="end" fill="#525252" font-size="8.5" font-family="IBM Plex Sans" font-weight="500">延时 (ms)</text>
+<text x="36" y="21" text-anchor="end" fill="#8c8c8c" font-size="8.5" font-family="IBM Plex Sans">4.0</text>
+<line x1="42" y1="18" x2="340" y2="18" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="3 3"></line>
+<text x="36" y="41" text-anchor="end" fill="#8c8c8c" font-size="8.5" font-family="IBM Plex Sans">3.0</text>
+<line x1="42" y1="38" x2="340" y2="38" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="3 3"></line>
+<text x="36" y="61" text-anchor="end" fill="#8c8c8c" font-size="8.5" font-family="IBM Plex Sans">2.0</text>
+<line x1="42" y1="58" x2="340" y2="58" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="3 3"></line>
+<text x="36" y="81" text-anchor="end" fill="#8c8c8c" font-size="8.5" font-family="IBM Plex Sans">1.0</text>
+<line x1="42" y1="78" x2="340" y2="78" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="3 3"></line>
+<text x="36" y="101" text-anchor="end" fill="#8c8c8c" font-size="8.5" font-family="IBM Plex Sans">0.0</text>
+<line x1="42" y1="98" x2="340" y2="98" stroke="#e0e0e0" stroke-width="1"></line>
+<line x1="42" y1="14" x2="42" y2="98" stroke="#e0e0e0" stroke-width="1"></line>
+<line x1="42" y1="98" x2="340" y2="98" stroke="#da1e28" stroke-width="1.5" stroke-dasharray="4 4" stroke-opacity="0.7"></line>
+<rect x="42" y="18" width="298" height="80" fill="url(#pingGradientTimeout)"></rect>
+<text x="191" y="58" text-anchor="middle" fill="#da1e28" font-size="11" font-family="IBM Plex Sans" font-weight="600" opacity="0.9">Request Timeout · 无回包数据</text>
+<circle cx="48" cy="98" r="4" fill="#da1e28" stroke="#ffffff" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="80" cy="98" r="4" fill="#da1e28" stroke="#ffffff" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="112" cy="98" r="4" fill="#da1e28" stroke="#ffffff" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="144" cy="98" r="4" fill="#da1e28" stroke="#ffffff" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="176" cy="98" r="4" fill="#da1e28" stroke="#ffffff" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="208" cy="98" r="4" fill="#da1e28" stroke="#ffffff" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="240" cy="98" r="4" fill="#da1e28" stroke="#ffffff" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="272" cy="98" r="4" fill="#da1e28" stroke="#ffffff" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="304" cy="98" r="4" fill="#da1e28" stroke="#ffffff" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="336" cy="98" r="4" fill="#da1e28" stroke="#ffffff" stroke-width="2" class="cursor-pointer"></circle>
+<line x1="48" y1="98" x2="48" y2="102" stroke="#c3c6d8" stroke-width="1"></line>
+<text x="48" y="112" text-anchor="middle" fill="#8c8c8c" font-size="9" font-family="IBM Plex Sans">0s</text>
+<line x1="124" y1="98" x2="124" y2="102" stroke="#c3c6d8" stroke-width="1"></line>
+<text x="124" y="112" text-anchor="middle" fill="#8c8c8c" font-size="9" font-family="IBM Plex Sans">1s</text>
+<line x1="200" y1="98" x2="200" y2="102" stroke="#c3c6d8" stroke-width="1"></line>
+<text x="200" y="112" text-anchor="middle" fill="#8c8c8c" font-size="9" font-family="IBM Plex Sans">2s</text>
+<line x1="276" y1="98" x2="276" y2="102" stroke="#c3c6d8" stroke-width="1"></line>
+<text x="276" y="112" text-anchor="middle" fill="#8c8c8c" font-size="9" font-family="IBM Plex Sans">3s</text>
+<line x1="336" y1="98" x2="336" y2="102" stroke="#c3c6d8" stroke-width="1"></line>
+<text x="336" y="112" text-anchor="middle" fill="#8c8c8c" font-size="9" font-family="IBM Plex Sans">4s</text>
+<text x="346" y="122" text-anchor="end" fill="#525252" font-size="8.5" font-family="IBM Plex Sans" font-weight="500">时间 (s)</text>
+</svg>
+</div>
+<div class="mt-2 text-center font-label-sm text-label-sm text-semantic-error h-5 transition-opacity">序列 <strong>#1 - #10</strong> 全部请求超时 (Timeout · 已标记红色断点)</div>
+</div>
+</section><!-- Target Summary Card (10.1.1.1) -->
+<section class="bg-canvas shadow-sm rounded-xl p-space-md relative overflow-hidden">
+  <div class="flex items-start justify-between">
+    <div class="space-y-space-xs">
+      <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container text-[#b28900] font-label-sm text-label-sm">
+        <span class="w-2 h-2 rounded-full bg-[#f1c21b] animate-pulse"></span>
+        <span class="">测试完成 · 偶有丢包</span>
+      </div>
+      <div class="flex items-baseline gap-space-xs pt-1">
+        <h2 class="font-headline-md text-headline-md text-ink font-semibold tracking-tight">10.1.1.1</h2>
+        <span class="font-body-sm text-body-sm text-ink-muted">内网核心汇聚</span>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- 4 Core Metrics Grid (10.1.1.1) -->
+<section class="grid grid-cols-2 gap-space-sm">
+  <!-- Metric 1: Packet Loss -->
+  <div class="bg-canvas shadow-sm rounded-xl p-space-md flex flex-col justify-between">
+    <div class="flex items-center justify-between text-ink-muted">
+      <span class="font-label-sm text-label-sm">丢包率 (Loss)</span>
+    </div>
+    <div class="my-2">
+      <span class="font-headline-lg text-headline-lg text-[#b28900] font-semibold tracking-tight">2%</span>
+    </div>
+    <div class="flex items-center justify-between text-ink-muted font-body-sm text-body-sm">
+      <span class="">50包丢1包</span>
+    </div>
+  </div>
+  <!-- Metric 2: Avg Latency -->
+  <div class="bg-canvas shadow-sm rounded-xl p-space-md flex flex-col justify-between">
+    <div class="flex items-center justify-between text-ink-muted">
+      <span class="font-label-sm text-label-sm">平均延迟 (Avg)</span>
+    </div>
+    <div class="my-2">
+      <div class="flex items-baseline gap-1">
+        <span class="font-headline-lg text-headline-lg text-primary-container font-semibold tracking-tight">15.60</span>
+        <span class="font-body-sm text-body-sm text-primary-container font-medium">ms</span>
+      </div>
+    </div>
+    <div class="flex items-center justify-between text-ink-subtle font-body-sm text-body-sm">
+      <span class="">基准平稳</span>
+    </div>
+  </div>
+  <!-- Metric 3: Transmitted -->
+  <div class="bg-canvas shadow-sm rounded-xl p-space-md flex flex-col justify-between">
+    <div class="flex items-center justify-between text-ink-muted">
+      <span class="font-label-sm text-label-sm">发送包数 (Tx)</span>
+    </div>
+    <div class="my-2">
+      <div class="flex items-baseline gap-1">
+        <span class="font-headline-lg text-headline-lg text-ink font-semibold">50</span>
+        <span class="font-body-sm text-body-sm text-ink-muted">pkts</span>
+      </div>
+    </div>
+    <div class="flex items-center justify-between text-ink-subtle font-body-sm text-body-sm"></div>
+  </div>
+  <!-- Metric 4: Received -->
+  <div class="bg-canvas shadow-sm rounded-xl p-space-md flex flex-col justify-between">
+    <div class="flex items-center justify-between text-ink-muted">
+      <span class="font-label-sm text-label-sm">接收包数 (Rx)</span>
+    </div>
+    <div class="my-2">
+      <div class="flex items-baseline gap-1">
+        <span class="font-headline-lg text-headline-lg text-ink font-semibold">49</span>
+        <span class="font-body-sm text-body-sm text-ink-muted">pkts</span>
+      </div>
+    </div>
+    
+  </div>
+</section>
+<!-- Detailed Latency Strip (10.1.1.1) -->
+<section class="bg-surface-container-low rounded-xl p-space-md grid grid-cols-3 gap-2 text-center">
+  <div class="flex flex-col items-center">
+    <span class="font-body-sm text-body-sm text-ink-muted">最小延迟 (Min)</span>
+    <span class="font-headline-sm text-headline-sm text-ink mt-0.5">12.45 <span class="font-body-sm text-body-sm text-ink-muted">ms</span></span>
+  </div>
+  <div class="flex flex-col items-center">
+    <span class="font-body-sm text-body-sm text-ink-muted">最大延迟 (Max)</span>
+    <span class="font-headline-sm text-headline-sm text-ink mt-0.5">48.20 <span class="font-body-sm text-body-sm text-ink-muted">ms</span></span>
+  </div>
+  <div class="flex flex-col items-center">
+    <span class="font-body-sm text-body-sm text-ink-muted">延迟抖动 (Mdev)</span>
+    <span class="font-headline-sm text-headline-sm text-ink mt-0.5">3.18 <span class="font-body-sm text-body-sm text-ink-muted">ms</span></span>
+  </div>
+</section><section class="bg-canvas shadow-sm rounded-xl p-space-md space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-primary-container">monitoring</span>
+<h3 class="font-label-md text-label-md text-ink">延迟趋势</h3>
+</div>
+<div class="flex items-center gap-2 font-label-sm text-label-sm text-ink-muted">
+<span class="inline-block w-2.5 h-0.5 bg-primary-container"></span>
+<span class="">平均 15.60ms</span>
+</div>
+</div>
+<div class="relative pt-4 pb-1">
+<div class="w-full relative">
+<svg class="w-full h-36 overflow-visible" viewBox="0 0 350 126" fill="none" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="pingGradient10" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0%" stop-color="#0f62fe" stop-opacity="0.35"></stop>
+<stop offset="100%" stop-color="#0f62fe" stop-opacity="0.02"></stop>
+</linearGradient>
+</defs>
+<text x="38" y="8" text-anchor="end" fill="#525252" font-size="8.5" font-family="IBM Plex Sans" font-weight="500">延时 (ms)</text>
+<text x="36" y="21" text-anchor="end" fill="#8c8c8c" font-size="8.5" font-family="IBM Plex Sans">50.0</text>
+<line x1="42" y1="18" x2="340" y2="18" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="3 3"></line>
+<text x="36" y="41" text-anchor="end" fill="#8c8c8c" font-size="8.5" font-family="IBM Plex Sans">37.5</text>
+<line x1="42" y1="38" x2="340" y2="38" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="3 3"></line>
+<text x="36" y="61" text-anchor="end" fill="#8c8c8c" font-size="8.5" font-family="IBM Plex Sans">25.0</text>
+<line x1="42" y1="58" x2="340" y2="58" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="3 3"></line>
+<text x="36" y="81" text-anchor="end" fill="#8c8c8c" font-size="8.5" font-family="IBM Plex Sans">12.5</text>
+<line x1="42" y1="78" x2="340" y2="78" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="3 3"></line>
+<text x="36" y="101" text-anchor="end" fill="#8c8c8c" font-size="8.5" font-family="IBM Plex Sans">0.0</text>
+<line x1="42" y1="98" x2="340" y2="98" stroke="#e0e0e0" stroke-width="1"></line>
+<line x1="42" y1="14" x2="42" y2="98" stroke="#e0e0e0" stroke-width="1"></line>
+<line x1="42" y1="72" x2="340" y2="72" stroke="#0f62fe" stroke-width="1.2" stroke-dasharray="4 4" stroke-opacity="0.7"></line>
+<text x="338" y="68" text-anchor="end" fill="#0f62fe" font-size="8.5" font-family="IBM Plex Sans" font-weight="600">Avg 15.60ms</text>
+<path d="M 48 78 L 76 74 L 105 76 L 134 22 L 163 72 L 191 74 L 205 98 L 220 73 L 249 71 L 278 74 L 307 72 L 336 73 L 336 98 L 48 98 Z" fill="url(#pingGradient10)"></path>
+<path d="M 48 78 L 76 74 L 105 76 L 134 22 L 163 72 L 191 74" stroke="#0f62fe" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+<line x1="191" y1="74" x2="205" y2="98" stroke="#da1e28" stroke-width="1.5" stroke-dasharray="3 3"></line>
+<line x1="205" y1="98" x2="220" y2="73" stroke="#da1e28" stroke-width="1.5" stroke-dasharray="3 3"></line>
+<path d="M 220 73 L 249 71 L 278 74 L 307 72 L 336 73" stroke="#0f62fe" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+<circle cx="48" cy="78" r="3.5" fill="#ffffff" stroke="#0f62fe" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="76" cy="74" r="3.5" fill="#ffffff" stroke="#0f62fe" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="105" cy="76" r="3.5" fill="#ffffff" stroke="#0f62fe" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="134" cy="22" r="3.5" fill="#ffffff" stroke="#0f62fe" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="163" cy="72" r="3.5" fill="#ffffff" stroke="#0f62fe" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="191" cy="74" r="3.5" fill="#ffffff" stroke="#0f62fe" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="205" cy="98" r="4.5" fill="#da1e28" stroke="#ffffff" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="220" cy="73" r="3.5" fill="#ffffff" stroke="#0f62fe" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="249" cy="71" r="3.5" fill="#ffffff" stroke="#0f62fe" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="278" cy="74" r="3.5" fill="#ffffff" stroke="#0f62fe" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="307" cy="72" r="3.5" fill="#ffffff" stroke="#0f62fe" stroke-width="2" class="cursor-pointer"></circle>
+<circle cx="336" cy="73" r="3.5" fill="#ffffff" stroke="#0f62fe" stroke-width="2" class="cursor-pointer"></circle>
+<line x1="48" y1="98" x2="48" y2="102" stroke="#c3c6d8" stroke-width="1"></line>
+<text x="48" y="112" text-anchor="middle" fill="#8c8c8c" font-size="9" font-family="IBM Plex Sans">#1</text>
+<line x1="120" y1="98" x2="120" y2="102" stroke="#c3c6d8" stroke-width="1"></line>
+<text x="120" y="112" text-anchor="middle" fill="#8c8c8c" font-size="9" font-family="IBM Plex Sans">#13</text>
+<line x1="205" y1="98" x2="205" y2="102" stroke="#da1e28" stroke-width="1"></line>
+<text x="205" y="112" text-anchor="middle" fill="#da1e28" font-size="9" font-family="IBM Plex Sans" font-weight="600">#26 (丢包)</text>
+<line x1="270" y1="98" x2="270" y2="102" stroke="#c3c6d8" stroke-width="1"></line>
+<text x="270" y="112" text-anchor="middle" fill="#8c8c8c" font-size="9" font-family="IBM Plex Sans">#38</text>
+<line x1="336" y1="98" x2="336" y2="102" stroke="#c3c6d8" stroke-width="1"></line>
+<text x="336" y="112" text-anchor="middle" fill="#8c8c8c" font-size="9" font-family="IBM Plex Sans">#50</text>
+<text x="346" y="122" text-anchor="end" fill="#525252" font-size="8.5" font-family="IBM Plex Sans" font-weight="500">序列号</text>
+</svg>
+</div>
+<div class="mt-2 text-center font-label-sm text-label-sm text-ink-muted h-5 transition-opacity">序列 <strong class="text-semantic-error">#26</strong> 超时丢包 <span class="text-semantic-error font-medium">(已标记红色断点)</span>，其余采样正常</div>
+</div>
+</section><div class="pt-2 grid grid-cols-2 gap-space-sm">
+<!-- Re-test Button -->
+<button class="h-12 rounded-xl bg-surface-container-high hover:bg-surface-2 active:bg-hairline text-ink font-button text-button flex items-center justify-center gap-2 transition-all" id="retest-btn" onclick="simulateRetest()">
+<span class="material-symbols-outlined text-[20px] transition-transform" id="retest-icon">refresh</span>
+<span class="">重新测试</span>
+</button>
+<!-- Share Report Button -->
+<button class="h-12 rounded-xl bg-primary-container hover:bg-blue-hover active:bg-blue-active text-on-primary font-button text-button flex items-center justify-center gap-2 shadow-sm transition-all" onclick="openShareSheet()">
+<span class="material-symbols-outlined text-[20px]">ios_share</span>
+<span class="">导出测试报告</span>
+</button>
+</div>
+<!-- Share Toast Alert (Hidden initially) -->
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-ink/90 backdrop-blur-md text-canvas px-4 py-2.5 rounded-full font-label-md text-label-md shadow-xl flex items-center gap-2 opacity-0 pointer-events-none transition-opacity duration-300 z-50" id="toast">
+<span class="material-symbols-outlined text-semantic-success text-[18px]">verified</span>
+<span id="toast-text" class="">报告已复制到剪贴板</span>
+</div>
+</div>
+<script>
+  function highlightSeq(seq, time) {
+    const tooltip = document.getElementById('chart-tooltip');
+    tooltip.innerHTML = `序列 <strong>#${seq}</strong> 回包延迟: <span class="text-primary-container font-medium">${time}</span>`;
+  }
+
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    const toastText = document.getElementById('toast-text');
+    toastText.innerText = msg;
+    toast.classList.remove('opacity-0', 'pointer-events-none');
+    setTimeout(() => {
+      toast.classList.add('opacity-0', 'pointer-events-none');
+    }, 2200);
+  }
+
+  function copyLogOutput() {
+    const log = document.getElementById('log-content').innerText;
+    navigator.clipboard?.writeText(log);
+    const copyBtnText = document.getElementById('copy-btn-text');
+    copyBtnText.innerText = '已复制';
+    setTimeout(() => {
+      copyBtnText.innerText = '复制日志';
+    }, 2000);
+    showToast('完整 ICMP 报文已复制');
+  }
+
+  function simulateRetest() {
+    const icon = document.getElementById('retest-icon');
+    const btn = document.getElementById('retest-btn');
+    icon.classList.add('animate-spin');
+    btn.disabled = true;
+    showToast('正在重新发送 ICMP 数据包...');
+    setTimeout(() => {
+      icon.classList.remove('animate-spin');
+      btn.disabled = false;
+      showToast('Ping 重新测试完成！');
+    }, 1500);
+  }
+
+  function triggerShareDialog() {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Ping 诊断报告 - 192.168.1.1',
+        text: 'BusyBox OmniTool Ping 测试结果: 192.168.1.1 连通性优良，丢包率 0%，平均延迟 2.35ms。',
+      }).catch(() => {});
+    } else {
+      showToast('测试报告文本已导出到剪贴板');
+    }
+  }
+</script></main>
+
+
+
+<!-- Bottom Sheet Modal Container --><div id="export-sheet-backdrop" class="fixed inset-0 bg-ink/50 backdrop-blur-sm z-50 transition-opacity duration-300" onclick="closeShareSheet()"><div id="export-sheet-panel" class="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-surface-container-lowest rounded-t-[28px] shadow-2xl p-6 pt-3 pb-safe transform transition-transform duration-300 flex flex-col gap-4" onclick="event.stopPropagation()"><!-- Drag Handle Indicator --><div class="flex justify-center py-1"><div class="w-10 h-1 rounded-full bg-surface-variant"></div></div><!-- Header Info --><div class="flex items-center justify-between pb-1 border-b border-hairline"><div class="flex flex-col"><h3 class="font-headline-sm text-headline-sm text-ink font-semibold">导出或分享测试报告</h3></div><button onclick="closeShareSheet()" class="w-8 h-8 rounded-full flex items-center justify-center text-ink-muted hover:text-ink hover:bg-surface-1 transition-colors"><span class="material-symbols-outlined text-[20px]">close</span></button></div><!-- Share Options Grid / List --><div class="flex flex-col gap-2.5 pt-1"><!-- Option 1: WeChat --><button type="button" onclick="handleSheetOption('正在调起微信分享卡片...')" class="flex items-center gap-3.5 p-3 rounded-xl bg-surface-container-low hover:bg-surface-container active:bg-surface-container-high transition-all text-left group"><div class="w-11 h-11 rounded-full bg-[#07c160]/10 flex items-center justify-center shrink-0 text-[#07c160]"><span class="material-symbols-outlined text-[24px]">chat</span></div><div class="flex-1 flex flex-col"><span class="font-label-md text-label-md text-ink font-semibold group-hover:text-primary transition-colors">微信</span><span class="font-body-sm text-body-sm text-ink-muted">以长图或卡片形式发送给好友 / 群聊</span></div><span class="material-symbols-outlined text-ink-subtle text-[20px]">chevron_right</span></button><!-- Option 2: Save to Photo Album --><button type="button" onclick="handleSheetOption('高保真诊断长截图已保存至相册')" class="flex items-center gap-3.5 p-3 rounded-xl bg-surface-container-low hover:bg-surface-container active:bg-surface-container-high transition-all text-left group"><div class="w-11 h-11 rounded-full bg-primary-container/10 flex items-center justify-center shrink-0 text-primary-container"><span class="material-symbols-outlined text-[24px]">image</span></div><div class="flex-1 flex flex-col"><span class="font-label-md text-label-md text-ink font-semibold group-hover:text-primary transition-colors">保存图片</span><span class="font-body-sm text-body-sm text-ink-muted">生成高保真诊断长截图至相册</span></div><span class="material-symbols-outlined text-ink-subtle text-[20px]">chevron_right</span></button></div><!-- Cancel Action Button --><button type="button" onclick="closeShareSheet()" class="w-full h-12 mt-1 rounded-xl bg-surface-container text-ink font-button text-button hover:bg-surface-container-high active:bg-surface-variant flex items-center justify-center transition-colors">取消</button></div></div><script>function openShareSheet() { const bd = document.getElementById('export-sheet-backdrop'); const panel = document.getElementById('export-sheet-panel'); bd.classList.remove('opacity-0', 'pointer-events-none'); panel.classList.remove('translate-y-full'); } function closeShareSheet() { const bd = document.getElementById('export-sheet-backdrop'); const panel = document.getElementById('export-sheet-panel'); bd.classList.add('opacity-0', 'pointer-events-none'); panel.classList.add('translate-y-full'); } function handleSheetOption(message) { closeShareSheet(); showToast(message); }</script>
+
+</body></html>

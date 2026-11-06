@@ -33,6 +33,14 @@ flutter:
   assets:
     - resource/images/atom.png
   fonts:
+    - family: IBMPlexSans
+      fonts:
+        - asset: resource/font/IBMPlexSans-400.ttf
+          weight: 400
+        - asset: resource/font/IBMPlexSans-500.ttf
+          weight: 500
+        - asset: resource/font/IBMPlexSans-600.ttf
+          weight: 600
     - family: ShadowsIntoLight
       fonts:
         - asset: resource/font/ShadowsIntoLight-Regular.ttf
