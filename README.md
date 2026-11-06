@@ -1,16 +1,16 @@
 # BusyBox（demo1）
 
 示例图：
-![home_page](example\home_page.jpg)
+![home_page](example/home_page.jpg)
 
 
 
-![wiki_page](example\wiki_page.jpg)
+![wiki_page](example/wiki_page.jpg)
 
 
 
-![sj_page](example\sj_page.jpg)
-=======
+![sj_page](example/sj_page.jpg)
+
 
 
 
@@ -19,7 +19,7 @@
 
 
 
-![net_calc_page](example\net_calc_page.jpg)
+![net_calc_page](example/net_calc_page.jpg)
 
 一个基于 **Flutter + MVVM + Riverpod + go_router** 的工具集合应用。
 
