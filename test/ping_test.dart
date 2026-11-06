@@ -230,16 +230,16 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('暂无测试历史'), findsOneWidget);
       expect(
-        tester.getCenter(find.text('233.5.5.5')).dy,
+        tester.getCenter(find.text('223.5.5.5')).dy,
         tester.getCenter(find.text('baidu.com')).dy,
       );
-      await tester.tap(find.text('233.5.5.5'));
+      await tester.tap(find.text('223.5.5.5'));
       expect(
         tester
             .widget<TextField>(find.byKey(const ValueKey('ping-target-0')))
             .controller
             ?.text,
-        '233.5.5.5',
+        '223.5.5.5',
       );
       final hint = tester
           .widget<TextField>(find.byKey(const ValueKey('ping-target-0')))
