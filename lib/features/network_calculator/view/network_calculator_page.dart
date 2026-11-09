@@ -53,8 +53,11 @@ class NetworkCalculatorPage extends ConsumerWidget {
               style: PageHeaderTypography.title.copyWith(color: p.ink),
             ),
             Text(
-              'BusyBox 工具魔盒',
-              style: PageHeaderTypography.subtitle.copyWith(color: p.muted),
+              'BusyBox',
+              style: PageHeaderTypography.subtitle.copyWith(
+                color: p.subtle,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ],
         ),
@@ -77,7 +80,7 @@ class NetworkCalculatorPage extends ConsumerWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 20),
               _card(context, [
                 _heading(context, 'IP 地址与掩码', Icons.tune, '实时换算'),
                 const SizedBox(height: 16),
@@ -94,7 +97,7 @@ class NetworkCalculatorPage extends ConsumerWidget {
                       for (var i = 0; i < 4; i++) ...[
                         if (i > 0)
                           const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 4),
+                            padding: EdgeInsets.zero,
                             child: Text('.'),
                           ),
                         Expanded(
@@ -107,6 +110,7 @@ class NetworkCalculatorPage extends ConsumerWidget {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 14,
+                                height: 18 / 14,
                                 color: p.ink,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -118,10 +122,11 @@ class NetworkCalculatorPage extends ConsumerWidget {
                                 LengthLimitingTextInputFormatter(3),
                               ],
                               decoration: InputDecoration(
+                                isDense: true,
                                 filled: true,
                                 fillColor: p.canvas,
                                 contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 12,
+                                  vertical: 13,
                                 ),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(4),
@@ -152,7 +157,11 @@ class NetworkCalculatorPage extends ConsumerWidget {
                     builder: (context, constraints) {
                       final description = Row(
                         children: [
-                          Icon(Icons.lock_clock_outlined, color: p.accent),
+                          Icon(
+                            Icons.lock_clock_outlined,
+                            color: p.accent,
+                            size: 20,
+                          ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -223,6 +232,8 @@ class NetworkCalculatorPage extends ConsumerWidget {
                   children: [
                     IconButton(
                       style: IconButton.styleFrom(
+                        minimumSize: const Size(32, 32),
+                        padding: EdgeInsets.zero,
                         backgroundColor: p.inset,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(4),
@@ -232,12 +243,13 @@ class NetworkCalculatorPage extends ConsumerWidget {
                       onPressed: state.prefix > 1
                           ? () => vm.setPrefix(state.prefix - 1)
                           : null,
-                      icon: const Icon(Icons.remove),
+                      icon: const Icon(Icons.remove, size: 18),
                     ),
                     Expanded(
                       child: SliderTheme(
                         data: SliderTheme.of(context).copyWith(
                           trackHeight: 8,
+                          padding: EdgeInsets.zero,
                           activeTrackColor: p.border,
                           inactiveTrackColor: p.border,
                           activeTickMarkColor: Colors.transparent,
@@ -245,6 +257,8 @@ class NetworkCalculatorPage extends ConsumerWidget {
                           thumbColor: p.accent,
                           thumbShape: const RoundSliderThumbShape(
                             enabledThumbRadius: 8,
+                            elevation: 0,
+                            pressedElevation: 0,
                           ),
                         ),
                         child: Slider(
@@ -261,6 +275,8 @@ class NetworkCalculatorPage extends ConsumerWidget {
                     ),
                     IconButton(
                       style: IconButton.styleFrom(
+                        minimumSize: const Size(32, 32),
+                        padding: EdgeInsets.zero,
                         backgroundColor: p.inset,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(4),
@@ -270,7 +286,7 @@ class NetworkCalculatorPage extends ConsumerWidget {
                       onPressed: state.prefix < 32
                           ? () => vm.setPrefix(state.prefix + 1)
                           : null,
-                      icon: const Icon(Icons.add),
+                      icon: const Icon(Icons.add, size: 18),
                     ),
                   ],
                 ),
@@ -283,7 +299,7 @@ class NetworkCalculatorPage extends ConsumerWidget {
                   const Text('请输入有效地址后查看计算结果')
                 else ...[
                   _field(context, '子网掩码 (Subnet Mask)', result.mask),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   LayoutBuilder(
                     builder: (context, constraints) {
                       final network = _field(
@@ -303,7 +319,7 @@ class NetworkCalculatorPage extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             network,
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 12),
                             broadcast,
                           ],
                         );
@@ -318,9 +334,9 @@ class NetworkCalculatorPage extends ConsumerWidget {
                       );
                     },
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   _hostCount(context, result.usableHosts, result.totalHosts),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   _field(context, '可用地址范围 (Usable Range)', result.range),
                   if (result.prefix >= 31)
                     Padding(
@@ -352,6 +368,7 @@ class NetworkCalculatorPage extends ConsumerWidget {
       style: FilledButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         minimumSize: const Size(0, 36),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
           fontSize: 14,
           fontWeight: FontWeight.w500,
@@ -384,9 +401,12 @@ class NetworkCalculatorPage extends ConsumerWidget {
         ),
       ],
     ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: children,
+    child: DefaultTextStyle.merge(
+      style: const TextStyle(fontFamily: 'IBMPlexSans', height: 1.33),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: children,
+      ),
     ),
   );
 
@@ -471,7 +491,10 @@ class NetworkCalculatorPage extends ConsumerWidget {
         Expanded(
           child: Text(
             label,
-            style: TextStyle(fontSize: accent ? 14 : 12, color: p.muted),
+            style: TextStyle(
+              fontSize: accent ? 14 : 12,
+              color: accent ? p.ink : p.muted,
+            ),
           ),
         ),
         const SizedBox(width: 8),
@@ -576,7 +599,7 @@ class NetworkCalculatorPage extends ConsumerWidget {
     final p = BusyBoxPalette.of(context);
     final content = Container(
       key: ValueKey('subnet-result-$label'),
-      constraints: const BoxConstraints(minHeight: 64),
+      constraints: const BoxConstraints(minHeight: 52),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

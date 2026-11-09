@@ -68,13 +68,10 @@ void main() {
         tester.widget<Text>(find.text('网络计算器')).style?.fontWeight,
         FontWeight.w700,
       );
+      expect(tester.widget<Text>(find.text('BusyBox')).style?.fontSize, 12);
       expect(
-        tester.widget<Text>(find.text('BusyBox 工具魔盒')).style?.fontSize,
-        12,
-      );
-      expect(
-        tester.widget<Text>(find.text('BusyBox 工具魔盒')).style?.fontWeight,
-        FontWeight.w400,
+        tester.widget<Text>(find.text('BusyBox')).style?.fontWeight,
+        FontWeight.w700,
       );
       expect(find.byKey(const ValueKey('subnet-cidr-badge')), findsOneWidget);
       expect(find.text('192.168.10.1 ~ 192.168.10.254'), findsOneWidget);

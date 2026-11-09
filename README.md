@@ -135,3 +135,6 @@ flutter test       # 单元 + 组件测试（含 Mock 网络）
 ### Nov-2 Ping 测试
 
 新增 Android 真实 ICMP Ping：多目标、包大小/次数/超时配置、实时统计和折线图、停止/重测、本机历史及报告复制。其他平台提示暂不支持。详见 [Nov-2 更新说明](doc/changelog/update-Nov-2.md)。
+
+## Nov-6 网络计算器界面校准
+已按 Stitch 原图调整输入格、字体、滑块和结果卡片；变更与截图验证见 [更新记录](doc/changelog/update-Nov-6.md)。
